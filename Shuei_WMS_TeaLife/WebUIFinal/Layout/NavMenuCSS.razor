@@ -1,0 +1,315 @@
+﻿@inject NavigationManager NavigationManager
+@inject IStringLocalizer<CommonResources> _localizer
+<RadzenSidebar Responsive="true" class="@(SidebarToggle ? "overflow-scroll" : "overflow-visible")" Style="background-color:#9aa0a8; width:max-content;">
+
+    <RadzenStack Orientation="Radzen.Orientation.Vertical" JustifyContent="Radzen.JustifyContent.Center"
+                 AlignItems="AlignItems.Center" Gap="5px" class="rz-pt-4">
+        @if (SidebarToggle)
+        {
+            <RadzenImage Path="images/tealife.png" style="width: 100px; height: 75px;"></RadzenImage>
+            <RadzenText TextStyle="TextStyle.DisplayH5">FBT-WMS</RadzenText>
+            @* <LanguageSwitcher/> *@
+        }
+        else
+        {
+            <RadzenImage Path="images/tealife.png" style="width: 25px; height: 25px;"></RadzenImage>
+
+        }
+        <Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+            <Authorized>
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Center" AlignItems="AlignItems.Center" Gap="5px">
+                    @* <RadzenText TextStyle="TextStyle.Body1">@_localizer["Welcome"]</RadzenText> *@
+                    <RadzenText TextStyle="TextStyle.Body1"> <strong>@GlobalVariable.AuthenticationStateTask?.User?.FindFirst("FullName").Value</strong></RadzenText>
+                </RadzenStack>
+            </Authorized>
+        </Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+    </RadzenStack>
+    <div class="@(SidebarToggle ? "" : "nav-sm")">
+        <ul class="navbar-main list-unstyled ps-0">
+            <AuthorizeView Policy="AdminAndStaff">
+                <li class="mb-1 navbar-item">
+                    <a class="btn btn-toggle align-items-center management-button @(openMenu == "Dashboard" ? "expanded" : "collapsed")"
+                       @onclick="@(() => NavigateToUrl("Dashboard"))" style="color: white; border-radius: 0 !important;">
+                        <i class="fa fa-tachometer icon-meunu"></i>
+                        @if (SidebarToggle)
+                        {
+                            @_localizer["Nav.Dashboard"]
+                        }
+                    </a>
+                </li>
+                <li class="mb-1 navbar-item">
+                    <a class="btn btn-toggle align-items-center management-button @(openMenu == "ReceiptPlan" ? "expanded" : "collapsed")"
+                       @onclick="@(() => NavigateToUrl("ReceiptPlan"))" style="color: white; border-radius: 0 !important;">
+                        <i class="fa fa-calendar-check-o icon-meunu"></i>
+                        @if (SidebarToggle)
+                        {
+                            @_localizer["Nav.ReceiptPlan"]
+                        }
+                    </a>
+                </li>
+
+                <li class="mb-1 navbar-item">
+                    <a class="btn btn-toggle align-items-center management-button @(openMenu == "StockReceipt" ? "expanded" : "collapsed")"
+                       @onclick="@(() => ToggleMenu("StockReceipt"))" style="color: white; border-radius: 0 !important;">
+                        <i class="fa fa-arrow-circle-right icon-meunu"></i>
+                        @if (SidebarToggle)
+                        {
+                            @_localizer["Nav.StockReceipt"]
+                            <span class="fa fa-chevron-down" style="float: right;"></span>
+                        }
+                    </a>
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small @(isOpenPopup ? "active" : "child-menu") ms-4 mt-2" style="display: @(openMenu == "StockReceipt" ? "block" : "none")">
+                        @foreach (var item in new[]
+                        {
+                        new { Text = $"{_localizer["Nav.StockReceipt.StockingInstructions"]}", Url = "/" },
+                        new { Text = $"{_localizer["Nav.StockReceipt.PutAway"]}", Url = "/PutAway" },
+                        })
+                        {
+                            <li class="sub-menu" @onclick="ClickItem">
+                                <NavLink class="nav-link" href="@item.Url" Match="NavLinkMatch.All" style="padding: 0!important;">
+                                    <div class="btn btn-toggle" style="border-radius: 0 !important;">
+                                        <span class="link-dark" style="color: white;">@item.Text</span>
+                                    </div>
+                                </NavLink>
+                            </li>
+                        }
+                    </ul>
+                </li>
+                <li class="mb-1 navbar-item">
+                    <a class="btn btn-toggle align-items-center management-button @(openMenu == "Issue" ? "expanded" : "collapsed")" @onclick="@(() => ToggleMenu("Issue"))" style="color: white; border-radius: 0 !important;">
+                        <i class="fa fa-truck icon-meunu"></i>
+                        @if (SidebarToggle)
+                        {
+                            @_localizer["Nav.Issue"]
+                            <span class="fa fa-chevron-down" style="float: right;"></span>
+                        }
+                    </a>
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small @(isOpenPopup ? "active" : "child-menu") ms-4 mt-2" style="display: @(openMenu == "Issue" ? "block" : "none")">
+                        @foreach (var item in new[]
+                        {
+                        new { Text = $"{_localizer["Nav.Issue.ShippingInstructions"]}", Url = "/ShippingInstructions" },
+                        new { Text = $"{_localizer["Nav.Issue.Pick"]}", Url = "/pickinglist" },
+                        new { Text = $"{_localizer["Nav.Issue.Packing"]}", Url = "/packinglist" },
+                        @* new { Text = $"{_localizer["Nav.Issue.Packing"]}", Url = "/packinglist" }, *@
+                        @* new { Text = $"EditInCell", Url = "/EditInCell" }, *@
+                        new { Text = $"{_localizer["Nav.Issue.Returns"]}", Url = "/return-order-list" },
+                        })
+                        {
+                            @if (item.Text != "none")
+                            {
+                                <li class="sub-menu" @onclick="ClickItem">
+                                    <NavLink class="nav-link" href="@item.Url" Match="NavLinkMatch.All" style="padding: 0!important;">
+                                        <div class="btn btn-toggle" style="border-radius: 0 !important;">
+                                            <span class="link-dark" style="color: white;">@item.Text</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                            }
+                            else
+                            {
+                                <p></p>
+                            }
+                        }
+                    </ul>
+                </li>
+                <li class="mb-1 navbar-item">
+                    <a class="btn btn-toggle align-items-center management-button @(openMenu == "InventoryManagement" ? "expanded" : "collapsed")" @onclick="@(() => ToggleMenu("InventoryManagement"))" style="color: white; border-radius: 0 !important;">
+                        <i class="fa fa-sitemap icon-meunu"></i>
+                        @if (SidebarToggle)
+                        {
+                            @_localizer["Nav.InventoryManagement"]
+                            <span class="fa fa-chevron-down" style="float: right;"></span>
+                        }
+                    </a>
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small @(isOpenPopup ? "active" : "child-menu") ms-4 mt-2" style="display: @(openMenu == "InventoryManagement" ? "block" : "none")">
+                        @foreach (var item in new[]
+                        {
+                        new { Text = $"{_localizer["Nav.InventoryManagement.WHTransfer"]}", Url = "/warehouse-transferlist" },
+                        new { Text = $"{_localizer["Nav.InventoryManagement.WHMovement"]}", Url = "/movements" },
+                        new { Text = $"{_localizer["Nav.InventoryManagement.InventoryAdjustment"]}", Url = "/inventory-adjustment-list" },
+                        new { Text = $"{_localizer["Nav.InventoryManagement.InventoryBundle"]}", Url = "/inventory-bundle-list" },
+                        new { Text = $"{_localizer["Nav.InventoryManagement.InventoryHistory"]}", Url = "/inventory-history" }
+                        })
+                        {
+                            <li class="sub-menu" @onclick="ClickItem">
+                                <NavLink class="nav-link" href="@item.Url" Match="NavLinkMatch.All" style="padding: 0!important;">
+                                    <div class="btn btn-toggle" style="border-radius: 0 !important;">
+                                        <span class="link-dark" style="color: white;">@item.Text</span>
+                                    </div>
+                                </NavLink>
+                            </li>
+                        }
+                    </ul>
+                </li>
+                <li class="mb-1 navbar-item">
+                    <a class="btn btn-toggle align-items-center management-button @(openMenu == "Inventory" ? "expanded" : "collapsed")" @onclick="@(() => ToggleMenu("Inventory"))" style="color: white; border-radius: 0 !important;">
+                        <i class="fa fa-table icon-meunu"></i>
+                        @if (SidebarToggle)
+                        {
+                            @_localizer["Nav.Inventory"]
+                            <span class="fa fa-chevron-down" style="float: right;"></span>
+                        }
+                    </a>
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small @(isOpenPopup ? "active" : "child-menu") ms-4 mt-2" style="display: @(openMenu == "Inventory" ? "block" : "none")">
+                        @foreach (var item in new[]
+                        {
+                        new { Text = $"{_localizer["Nav.Inventory.Instructions"]}", Url = "/stocktake" },
+                        new { Text = $"{_localizer["Nav.Inventory.Recording"]}", Url = "/stocktakerecording" },
+                        })
+                        {
+                            <li class="sub-menu" @onclick="ClickItem">
+                                <NavLink class="nav-link" href="@item.Url" Match="NavLinkMatch.All" style="padding: 0!important;">
+                                    <div class="btn btn-toggle" style="border-radius: 0 !important;">
+                                        <span class="link-dark" style="color: white;">@item.Text</span>
+                                    </div>
+                                </NavLink>
+                            </li>
+                        }
+                    </ul>
+                </li>
+            </AuthorizeView>
+            <AuthorizeView Policy="Admin">
+                <li class="mb-1 navbar-item">
+                    <a class="btn btn-toggle align-items-center management-button @(openMenu == "MasterManagement" ? "expanded" : "collapsed")" @onclick="@(() => ToggleMenu("MasterManagement"))" style="color: white; border-radius: 0 !important;">
+                        <i class="fa fa-server icon-meunu"></i>
+                        @if (SidebarToggle)
+                        {
+                            @_localizer["Nav.MasterManagement"]
+                            <span class="fa fa-chevron-down" style="float: right;"></span>
+                        }
+                    </a>
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small @(isOpenPopup ? "active" : "child-menu") ms-4 mt-2" style="display: @(openMenu == "MasterManagement" ? "block" : "none")">
+                        @foreach (var item in new[]
+                        {
+                        new { Text = $"{_localizer["Nav.MasterManagement.Products"]}", Url = "/productlist" },
+                        new { Text = $"{_localizer["Nav.MasterManagement.ProductCategory"]}", Url = "/procategorylist" },
+                        new { Text = $"{_localizer["Nav.MasterManagement.Units"]}", Url = "/unitlist" },
+                        new { Text = $"{_localizer["Nav.MasterManagement.Suppliers"]}", Url = "/supplierlist" },
+
+                        new { Text = $"none", Url = "" },
+                        new { Text = $"{_localizer["Nav.Issue.ShippingBox"]}", Url = "/shippingboxlist" },
+                        new { Text = $"{_localizer["Nav.Issue.ShippingCarrier"]}", Url = "/shippingcarrierlist" },
+
+                        new { Text = $"none", Url = "none" },
+                        new { Text = $"{_localizer["Nav.MasterManagement.Locations"]}", Url = "/locationlist" },
+                        new { Text = $"{_localizer["Nav.MasterManagement.Devices"]}", Url = "/devicelist" },
+
+                        new { Text = $"none", Url = "" },
+                        new { Text = $"{_localizer["Nav.MasterManagement.UserList"]}", Url = "/userlist" },
+                        new { Text =$"{_localizer["Nav.MasterManagement.RolesList"]}", Url = "/rolelist" },
+                        new { Text = $"{_localizer["Nav.MasterManagement.PermissionList"]}", Url = "/permissionlist" },
+                        @* new { Text =$"Test", Url = "/test" }, *@
+                        })
+                        {
+                            @if (item.Text != "none")
+                            {
+                                <li @onblur="HandleOutFocus" class="sub-menu" @onclick="ClickItem">
+
+                                    <NavLink class="nav-link" href="@item.Url" Match="NavLinkMatch.All" style="padding: 0!important;">
+                                        <div class="btn btn-toggle" style="border-radius: 0 !important;">
+                                            <div class="btn btn-toggle" style="border-radius: 0 !important;">
+                                                <span class="link-dark" style="color: white;">@item.Text</span>
+                                            </div>
+                                        </div>
+                                    </NavLink>
+
+                                </li>
+                            }
+                            else
+                            {
+                                <p></p>
+                            }
+                        }
+                    </ul>
+                </li>
+            </AuthorizeView>
+            <AuthorizeView Policy="System">
+                <li class="mb-1 navbar-item">
+                    <a class="btn btn-toggle align-items-center management-button @(openMenu == "SystemManagement" ? "expanded" : "collapsed")" @onclick="@(() => ToggleMenu("SystemManagement"))" style="color: white; border-radius: 0 !important;">
+                        <i class="fa fa-cog icon-meunu"></i>
+                        @if (SidebarToggle)
+                        {
+                            @_localizer["Nav.SystemManagement"]
+                            <span class="fa fa-chevron-down" style="float: right;"></span>
+                        }
+                    </a>
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small @(isOpenPopup ? "active" : "child-menu")  ms-4 mt-2" style="display: @(openMenu == "SystemManagement" ? "block" : "none")">
+                        @foreach (var item in new[]
+                        {
+                        new { Text = $"{_localizer["Nav.SystemManagement.NumberSequence"]}", Url = "/numbersequence" },
+                        new { Text = $"{_localizer["Nav.SystemManagement.Batches"]}", Url = "/batches" },
+                        new { Text = $"{_localizer["Nav.MasterManagement.WarehouseParameter"]}", Url = "/systemsetting" },
+                        })
+                        {
+                            <li @onblur="HandleOutFocus" class="sub-menu">
+                                <NavLink class="nav-link" href="@item.Url" Match="NavLinkMatch.All" style="padding: 0!important;">
+                                    <div class="btn btn-toggle" style="border-radius: 0 !important;">
+                                        <span class="link-dark" style="color: white;">@item.Text</span>
+                                    </div>
+                                </NavLink>
+                            </li>
+                        }
+                    </ul>
+                </li>
+            </AuthorizeView>
+        </ul>
+    </div>
+</RadzenSidebar>
+
+@code {
+    [Parameter] public bool SidebarToggle { get; set; } = true;
+    private string openMenu = "";
+    private bool isOpenPopup = false;
+    @inject NavigationManager Navigation
+
+    protected override void OnInitialized()
+    {
+        // var activePaths = new[] { "/userlist", "/rolelist", "/permissionlist", "/productlist", "/vendorlist", "/locationlist", "/htlist" };
+        // if (activePaths.Any(path => NavigationManager.Uri.Contains(path)))
+        // {
+        //     openMenu = "MasterManagement";
+        // }
+        // Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    protected override void OnParametersSet()
+    {
+        //đóng mở sidebar -> mặc định tắt popup
+        isOpenPopup = false;
+        StateHasChanged();
+    }
+
+    private void ClickItem(MouseEventArgs e)
+    {
+        isOpenPopup = false;
+        SidebarToggle = true;
+        StateHasChanged();
+    }
+
+    private void HandleOutFocus(FocusEventArgs e)
+    {
+        isOpenPopup = false;
+    }
+    private void ToggleMenu(string menuName)
+    {
+
+        //menu đã được chọn mặc định, đang mở xem -> đóng, reset active
+        if (openMenu == menuName && isOpenPopup)
+        {
+            openMenu = "";
+            isOpenPopup = false;
+        }
+        //menu đã được chọn, chưa mở xem -> mở popup
+        else
+        {
+            openMenu = menuName;
+            isOpenPopup = true;
+        }
+    }
+
+    void NavigateToUrl(string url)
+    {
+        ToggleMenu(url);
+        _navigation.NavigateTo($"/{url}");
+    }
+}

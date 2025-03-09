@@ -1,0 +1,303 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PickingNo" xml:space="preserve">
+    <value>ピッキング番号</value>
+  </data>
+  <data name="WarehousePicking" xml:space="preserve">
+    <value>倉庫ピッキング</value>
+  </data>
+  <data name="ShipmentNo" xml:space="preserve">
+    <value>指示番号</value>
+  </data>
+  <data name="InstructionNumber" xml:space="preserve">
+    <value>指示番号</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>から</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>に</value>
+  </data>
+  <data name="DeliveryLocation" xml:space="preserve">
+    <value>配送場所</value>
+  </data>
+  <data name="OutgoingBin" xml:space="preserve">
+    <value>排出ビン</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>位置</value>
+  </data>
+  <data name="PickedDate" xml:space="preserve">
+    <value>ピック作成日</value>
+  </data>
+  <data name="PlanShipDate" xml:space="preserve">
+    <value>出荷予定日</value>
+  </data>
+  <data name="PickingDetail" xml:space="preserve">
+    <value>ピッキング詳細</value>
+  </data>
+  <data name="Shipments" xml:space="preserve">
+    <value>出荷</value>
+  </data>
+  <data name="OrderNo" xml:space="preserve">
+    <value>注文番号</value>
+  </data>
+  <data name="TotalQuantity" xml:space="preserve">
+    <value>合計数量</value>
+  </data>
+  <data name="Tenant" xml:space="preserve">
+    <value>テナント</value>
+  </data>
+  <data name="DeliveryCompany" xml:space="preserve">
+    <value>配送会社</value>
+  </data>
+  <data name="OrderDate" xml:space="preserve">
+    <value>注文日</value>
+  </data>
+  <data name="PickLine" xml:space="preserve">
+    <value>ピックライン</value>
+  </data>
+  <data name="HTSync" xml:space="preserve">
+    <value>HT同期</value>
+  </data>
+  <data name="ProductCode" xml:space="preserve">
+    <value>商品コード</value>
+  </data>
+  <data name="ProductName" xml:space="preserve">
+    <value>商品名</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>単位</value>
+  </data>
+  <data name="Bin" xml:space="preserve">
+    <value>棚番</value>
+  </data>
+  <data name="PickQty" xml:space="preserve">
+    <value>ピック数量</value>
+  </data>
+  <data name="ActualQty" xml:space="preserve">
+    <value>実際の数量</value>
+  </data>
+  <data name="Remaining" xml:space="preserve">
+    <value>備考</value>
+  </data>
+  <data name="Keep" xml:space="preserve">
+    <value>保つ</value>
+  </data>
+  <data name="Detail model is null" xml:space="preserve">
+    <value>詳細モデルは null です</value>
+  </data>
+  <data name="MustKeep" xml:space="preserve">
+    <value>完了する前にピックを保持する必要があります</value>
+  </data>
+  <data name="InsufficientQuantity" xml:space="preserve">
+    <value>. このピックには、十分な数量でピックされていない詳細があります</value>
+  </data>
+  <data name="completed" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="completion failed" xml:space="preserve">
+    <value>完了に失敗しました</value>
+  </data>
+  <data name="DeleteNoti" xml:space="preserve">
+    <value>削除してもよろしいですか?</value>
+  </data>
+  <data name="successfully" xml:space="preserve">
+    <value>成功裏に</value>
+  </data>
+  <data name="Failed to delete" xml:space="preserve">
+    <value>削除に失敗しました</value>
+  </data>
+  <data name="Product is required" xml:space="preserve">
+    <value>商品が必要です</value>
+  </data>
+  <data name="No changes detected" xml:space="preserve">
+    <value>変更は検出されませんでした</value>
+  </data>
+  <data name="ErrorUpdate" xml:space="preserve">
+    <value>更新中にエラーが発生しました</value>
+  </data>
+  <data name="MustComplete" xml:space="preserve">
+    <value>まず前の調整を完了する必要があります</value>
+  </data>
+  <data name="Pick Cover Sheet" xml:space="preserve">
+    <value>ピックカバーシート</value>
+  </data>
+  <data name="Failure" xml:space="preserve">
+    <value>失敗</value>
+  </data>
+  <data name="DeleteWarning" xml:space="preserve">
+    <value>ピッキングラインは削除され、割り当てられた出荷は解除されます。</value>
+  </data>
+  <data name="Lot" xml:space="preserve">
+    <value>ロット</value>
+  </data>
+  <data name="Sync Completed" xml:space="preserve">
+    <value>同期完了</value>
+  </data>
+  <data name="The synchronization has been successfully completed" xml:space="preserve">
+    <value>どうきがせいじょうにかんりょうしました</value>
+  </data>
+  <data name="ExpirationDate" xml:space="preserve">
+    <value>賞味期限</value>
+  </data>
+  <data name="CoverSheetNDeliveryNote" xml:space="preserve">
+    <value>納品書・カバーシート印刷</value>
+  </data>
+  <data name="CompletedPickingSuccessfully" xml:space="preserve">
+    <value>ピッキングが正常に完了しました</value>
+  </data>
+  <data name="PleaseSelectPicking" xml:space="preserve">
+    <value>選択してください</value>
+  </data>
+  <data name="PickingDate" xml:space="preserve">
+    <value>ピック作成日</value>
+  </data>
+  <data name="Instruction" xml:space="preserve">
+    <value>ピッキング一覧</value>
+  </data>
+  <data name="Picking" xml:space="preserve">
+    <value>ピッキング</value>
+  </data>
+  <data name="Get location error" xml:space="preserve">
+    <value>位置情報取得エラー</value>
+  </data>
+  <data name="GetPickingSuccess" xml:space="preserve">
+    <value>成功を掴む</value>
+  </data>
+  <data name="Get Picking Failed" xml:space="preserve">
+    <value>選択に失敗しました</value>
+  </data>
+  <data name="Could not found shipment no" xml:space="preserve">
+    <value>出荷番号が見つかりません</value>
+  </data>
+  <data name="Get bin error" xml:space="preserve">
+    <value>ビンエラーを取得</value>
+  </data>
+  <data name="Go to packing" xml:space="preserve">
+    <value>梱包へ進む</value>
+  </data>
+  <data name="Get Picking line successfully" xml:space="preserve">
+    <value>ピッキングラインを正常に取得しました</value>
+  </data>
+  <data name="Get Picking line failed" xml:space="preserve">
+    <value>ピッキングラインの取得に失敗しました</value>
+  </data>
+</root>

@@ -1,0 +1,88 @@
+﻿@page "/addunit/{Title}"
+
+@using Application.Extentions
+@using FBT.ShareModels.Entities
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+@inject IStringLocalizer<CommonResources> _localizerCommon
+@inject IStringLocalizer<UnitResources> _localizer
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+@attribute [Authorize(Policy = "Admin")]
+@if (_model == null)
+{
+    <p><em>@_localizerCommon["Loading"]...</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            @* <RadzenLink Text="@_localizerCommon["Detail.BackToList"]" Path="/unitlist" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" /> *@
+            <RadzenButton Size="ButtonSize.ExtraSmall" Click="@(()=>_navigation.NavigateTo("/unitlist"))" Icon="arrow_back_ios"
+                          Style="background-color:dimgrey"
+                          Text="@_localizerCommon["Detail.BackToList"]" Visible="true" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@Title</strong></RadzenText>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px" class="mb-2">
+                <RadzenButton Click=@(args => DeleteItemAsync(_model)) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizerCommon["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Disabled="@_disibleBtnDelete" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenTemplateForm Data="@_model" Submit="@((Unit args) => { Submit(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Unit Information"]" Disabled="@_disable">
+                    <RadzenStack>
+                        <RadzenRow>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                @* Style="display:flex;flex-direction:column;align-items:stretch;width:100%" *@
+                                <RadzenFormField Text="@_localizer["Unit Name"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtUnitName" @bind-Value="@_model.UnitName" Placeholder="Typing..." />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_txtUnitName" Text="@_localizerCommon["Required"]" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Description"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtDescription" @bind-Value="@_model.Description" Placeholder="Typing..." />
+                                    </ChildContent>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" AlignItems="AlignItems.Center" Gap="1rem">
+                    @* <RadzenButton Click=@(_ => _navigation.NavigateTo("/unitlist")) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="@_localizerCommon["Cancel"]" /> *@
+                    <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_localizerCommon["Save"]" Visible="true" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}
+
+@code {
+    string maxLengthValue = "";
+    int maxLength = 5;
+
+    string value;
+
+    void OnChange(string value, string name)
+    {
+    }
+}

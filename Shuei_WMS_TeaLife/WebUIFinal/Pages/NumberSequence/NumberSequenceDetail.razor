@@ -1,0 +1,88 @@
+﻿@page "/detailnumbersequence/{Title}"
+
+@using Application.Extentions
+@using Microsoft.AspNetCore.Authorization
+@using NumberSequenceEntity = FBT.ShareModels.WMS.NumberSequences;
+@inject IStringLocalizer<CommonResources> _localizerCommon
+@inject IStringLocalizer<NumberSequenceResources> _localizer
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+@attribute [Authorize(Policy = "AdminAndSystem")]
+@if (_model == null)
+{
+    <p><em>@_localizerCommon["Loading"]...</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenLink Text="@_localizerCommon["Detail.BackToList"]" Path="/numbersequence" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@Title</strong></RadzenText>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+                <RadzenButton Click=@(args => DeleteItemAsync(_model)) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizerCommon["Delete"]" Icon="cancel" ButtonStyle="ButtonStyle.Danger" Visible="_isVisible" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTemplateForm Data="@_model" Submit="@((NumberSequenceEntity args) => { Submit(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+
+                <RadzenFieldset Text="@_localizerCommon["Information"]">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Journal Type"]" Variant="Variant.Outlined" Style="display:flex; flex-direction:column; align-items:stretch; width:100%">
+                                    <RadzenDropDown @bind-Value="_model.JournalType"
+                                                    Data="@warehouseTransTypes"
+                                                    TextProperty="Text"
+                                                    ValueProperty="Value"
+                                                    Name="_dropDownJournalType"
+                                                    Disabled="false"
+                                                    Placeholder="" AllowClear="true" Multiple=false Chips=true>
+                                    </RadzenDropDown>
+
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_dropDownJournalType" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Prefix"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtPrefix" @bind-Value="@_model.Prefix" Placeholder="@_localizerCommon["Typing..."]" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtPrefix" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Sequence Length"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenNumeric Name="_numSequenceLength" @bind-Value="@_model.SequenceLength" Placeholder="@_localizerCommon["Typing..."]" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_numSequenceLength" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Current Sequence No."]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenNumeric Name="_numCurrentSequenceNo" @bind-Value="@_model.CurrentSequenceNo" Placeholder="@_localizerCommon["Typing..."]" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_numCurrentSequenceNo" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Center" Gap="1rem" Class="rz-mt-8 rz-mb-4">
+                    <RadzenButton Click=@(_ => _navigation.NavigateTo("/numbersequence")) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="@_localizerCommon["Cancel"]" />
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_localizerCommon["Save"]" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}

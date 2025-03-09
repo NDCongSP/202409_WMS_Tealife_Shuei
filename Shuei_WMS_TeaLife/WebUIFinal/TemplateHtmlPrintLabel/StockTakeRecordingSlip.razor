@@ -1,0 +1,107 @@
+﻿@page "/printstocktakerecordingslip"
+@layout BlankLayout
+
+@using Application.DTOs
+@using Application.DTOs.Request.shipment
+@using Application.Extentions
+@using Application.Models
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+@inject IStringLocalizer<CommonResources> _localizerCommon
+@inject IStringLocalizer<InventoryStockTakeResources> _localizer
+@inject IStringLocalizer<EnumInvenTransferStatusResources> _localizerEnum
+
+@attribute [Authorize(Policy = "AdminAndStaff")]
+@if (_dataTransfer == null)
+{
+    <p><em>@_localizerCommon["Loading"]...</em></p>
+}
+else
+{
+    foreach (var i in _dataTransfer)
+    {
+        <div class="container">
+            <h2 class="text-center">@_localizer["StockTake Cover Sheet"]</h2>
+            <!-- Header Information -->
+            <div class="header-info box" style="display: flex; justify-content: space-between;">
+                <div class="header-info collum" style="margin-right: 5%;">
+                    <table class="table table-info">
+                        <tbody>
+                            <tr>
+                                <td>@_localizer["StockTakeNo"]</td>
+                                <td>@i.StockTakeRecording.StockTakeNo</td>
+                            </tr>
+                            <tr>
+                                <td>@_localizer["Location"]</td>
+                                <td>@i.StockTakeRecording.Location</td>
+                            </tr>
+                            <tr>
+                                <td>@_localizer["PersonInCharge"]</td>
+                                <td>@i.StockTakeRecording.PersonInCharge</td>
+                            </tr>
+                            <tr>
+                                <td>@_localizerCommon["Status"]</td>
+                                <td>@_localizerEnum[i.StockTakeRecording.Status.ToString()]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="header-info collum">
+                    <table class="table table-info">
+                        <tbody>
+                            <tr>
+                                <td>@_localizer["TransactionDate"]</td>
+                                <td>@(i.StockTakeRecording.StockTakeNo ?? "...")</td>
+                            </tr>
+                            <tr>
+                                <td>@_localizer["TransactionDate"]</td>
+                                <td>@(i.StockTakeRecording.TransactionDate.ToString("yyyy-MM-dd") ?? "...")</td>
+                            </tr>
+                            <tr>
+                                <td>@_localizer["Remarks"]</td>
+                                <td>@(i.StockTakeRecording.Remarks ?? "...")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Product Information -->
+            <div class="product-info box">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>@_localizer["ProductCode"]</th>
+                            <th>@_localizer["ProductName"]</th>
+                            <th>@_localizer["Unit"]</th>
+                            <th>@_localizer["Lot"]</th>
+                            <th>@_localizer["Bin"]</th>
+                            <th>@_localizer["ExpectedQty"]</th>
+                            <th>@_localizer["ActualQty"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var l in i.StockTakeRecordingLines)
+                        {
+                            <tr>
+                                <td>@l.ProductCode</td>
+                                <td>@l.ProductName</td>
+                                <td>@l.Unit</td>
+                                <td>@l.LotNo</td>
+                                <td>@l.Bin</td>
+                                <td>@l.ExpectedQty</td>
+                                <td></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    <script>
+        function printLabel() {
+            window.print();
+        }
+    </script>
+}

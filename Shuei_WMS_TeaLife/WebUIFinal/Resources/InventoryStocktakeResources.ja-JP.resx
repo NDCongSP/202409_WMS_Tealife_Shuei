@@ -1,0 +1,420 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="StockTakeNo" xml:space="preserve">
+    <value>棚卸番号</value>
+  </data>
+  <data name="TransactionDate" xml:space="preserve">
+    <value>実施日</value>
+  </data>
+  <data name="RecordNo" xml:space="preserve">
+    <value>レコーディング数</value>
+  </data>
+  <data name="PersonInCharge" xml:space="preserve">
+    <value>担当者</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>（開始日）</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>（終了日）</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>場所</value>
+  </data>
+  <data name="Remarks" xml:space="preserve">
+    <value>備考</value>
+  </data>
+  <data name="StockTakeLine" xml:space="preserve">
+    <value>棚卸行</value>
+  </data>
+  <data name="StockTakeRecordingDetail" xml:space="preserve">
+    <value>棚卸記録詳細</value>
+  </data>
+  <data name="ProductCode" xml:space="preserve">
+    <value>商品コード</value>
+  </data>
+  <data name="ProductName" xml:space="preserve">
+    <value>商品名</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>単位</value>
+  </data>
+  <data name="Lot" xml:space="preserve">
+    <value>ロット</value>
+  </data>
+  <data name="Bin" xml:space="preserve">
+    <value>棚番</value>
+  </data>
+  <data name="ExpectedQty" xml:space="preserve">
+    <value>予想数量</value>
+  </data>
+  <data name="ActualQty" xml:space="preserve">
+    <value>実際数量</value>
+  </data>
+  <data name="Remaining" xml:space="preserve">
+    <value>残り</value>
+  </data>
+  <data name="Enter Actual Qty" xml:space="preserve">
+    <value>実際数量を入力する</value>
+  </data>
+  <data name="Manual Entry" xml:space="preserve">
+    <value>手動入力</value>
+  </data>
+  <data name="InsufficientQuantity" xml:space="preserve">
+    <value>. このピックには、十分な数量でピックされていない詳細があります</value>
+  </data>
+  <data name="completed" xml:space="preserve">
+    <value>予定実施日</value>
+  </data>
+  <data name="completion failed" xml:space="preserve">
+    <value>完了に失敗しました</value>
+  </data>
+  <data name="DeleteNoti" xml:space="preserve">
+    <value>削除してもよろしいですか?</value>
+  </data>
+  <data name="DeleteWarning" xml:space="preserve">
+    <value>ピッキングラインは削除され、割り当てられた出荷は解除されます。</value>
+  </data>
+  <data name="successfully" xml:space="preserve">
+    <value>成功裏に</value>
+  </data>
+  <data name="The synchronization has been successfully completed" xml:space="preserve">
+    <value>どうきがせいじょうにかんりょうしました</value>
+  </data>
+  <data name="Failed to delete" xml:space="preserve">
+    <value>削除に失敗しました</value>
+  </data>
+  <data name="ProductIsRequired" xml:space="preserve">
+    <value>製品は必須です</value>
+  </data>
+  <data name="Notification" xml:space="preserve">
+    <value>通知</value>
+  </data>
+  <data name="No changes detected" xml:space="preserve">
+    <value>変更は検出されませんでした</value>
+  </data>
+  <data name="Failure" xml:space="preserve">
+    <value>失敗</value>
+  </data>
+  <data name="ErrorUpdate" xml:space="preserve">
+    <value>更新中にエラーが発生しました</value>
+  </data>
+  <data name="MustComplete" xml:space="preserve">
+    <value>まず前の調整を完了する必要があります</value>
+  </data>
+  <data name="Instruction" xml:space="preserve">
+    <value>棚卸指示一覧</value>
+  </data>
+  <data name="Scheduled Implementation Date" xml:space="preserve">
+    <value>実施予定日</value>
+  </data>
+  <data name="You have unfinished lines" xml:space="preserve">
+    <value>未完了の行があります。</value>
+  </data>
+  <data name="Stock Take Detail" xml:space="preserve">
+    <value>棚卸し詳細</value>
+  </data>
+  <data name="CreateRecording" xml:space="preserve">
+    <value>レコーディングを作成する</value>
+  </data>
+  <data name="GoToRecording" xml:space="preserve">
+    <value>記録へ移動</value>
+  </data>
+  <data name="Create Stock Take Successfully" xml:space="preserve">
+    <value>棚卸の作成に成功しました</value>
+  </data>
+  <data name="Failed to Create Stock Take" xml:space="preserve">
+    <value>棚卸の作成に失敗しました。</value>
+  </data>
+  <data name="Edit Stock Take Successfully" xml:space="preserve">
+    <value>棚卸の編集に成功しました。</value>
+  </data>
+  <data name="Failed to Edit Stock Take" xml:space="preserve">
+    <value>棚卸の編集に失敗しました。</value>
+  </data>
+  <data name="DeleteStockTake" xml:space="preserve">
+    <value>棚卸を削除</value>
+  </data>
+  <data name="Deleted Stock Take Successfully" xml:space="preserve">
+    <value>棚卸が正常に削除されました。</value>
+  </data>
+  <data name="Failed To Delete Stock Take" xml:space="preserve">
+    <value>棚卸の削除に失敗しました。</value>
+  </data>
+  <data name="The stocktake is lacking the information required to complete" xml:space="preserve">
+    <value>棚卸には完了するための情報が不足しています。</value>
+  </data>
+  <data name="StocktakeRecording" xml:space="preserve">
+    <value>棚卸記録</value>
+  </data>
+  <data name="Please select a product" xml:space="preserve">
+    <value>製品を選んでください。</value>
+  </data>
+  <data name="has already been selected by you previously" xml:space="preserve">
+    <value>すでにあなたによって選択されています。</value>
+  </data>
+  <data name="Blocking" xml:space="preserve">
+    <value>ブロッキング</value>
+  </data>
+  <data name="PrintDate" xml:space="preserve">
+    <value>印刷日</value>
+  </data>
+  <data name="StockTake" xml:space="preserve">
+    <value>棚卸</value>
+  </data>
+  <data name="DoYouWantToCreateANewStockTakeRecording" xml:space="preserve">
+    <value>新しい棚卸記録を作成しますか？</value>
+  </data>
+  <data name="Tenant" xml:space="preserve">
+    <value>テナント</value>
+  </data>
+  <data name="Stock take already has another record in progress" xml:space="preserve">
+    <value>この棚卸番号は他の処理中棚卸レコーディングにありました。</value>
+  </data>
+  <data name="This product does not have any stock history" xml:space="preserve">
+    <value>この製品には在庫履歴がありません。</value>
+  </data>
+  <data name="does not have a stock history in the warehouse you selected" xml:space="preserve">
+    <value>は、選択した倉庫に在庫履歴がありません。</value>
+  </data>
+  <data name="Cannot delete because there are completed recordings" xml:space="preserve">
+    <value>録音が完了しているため削除できません。</value>
+  </data>
+  <data name="You haven't created a recording for this stocktake" xml:space="preserve">
+    <value>この棚卸に対する記録を作成していません。</value>
+  </data>
+  <data name="This stocktake does not have any completed recordings" xml:space="preserve">
+    <value>この棚卸には完了した記録がありません。</value>
+  </data>
+  <data name="This stocktake does not have any recordings" xml:space="preserve">
+    <value>この棚卸には記録がありません。</value>
+  </data>
+  <data name="You have not selected any product" xml:space="preserve">
+    <value>あなたはまだ商品を選択していません。</value>
+  </data>
+  <data name="The latest recording you created has not been completed" xml:space="preserve">
+    <value>最新の記録はまだ完了していません。</value>
+  </data>
+  <data name="already exists in another stocktake" xml:space="preserve">
+    <value>別の棚卸にすでに存在しています。</value>
+  </data>
+  <data name="Nothing has been added to the warehouse transaction" xml:space="preserve">
+    <value>何も倉庫取引に追加されていません。</value>
+  </data>
+  <data name="No stock take lines found" xml:space="preserve">
+    <value>棚卸行が見つかりません。</value>
+  </data>
+  <data name="Please select at least one item to print labels" xml:space="preserve">
+    <value>ラベルを印刷するには、少なくとも1つのアイテムを選択してください。</value>
+  </data>
+  <data name="Stock take not found" xml:space="preserve">
+    <value>棚卸が見つかりません。</value>
+  </data>
+  <data name="No lines found" xml:space="preserve">
+    <value>ラインが見つかりません。</value>
+  </data>
+  <data name="This stock take already exists" xml:space="preserve">
+    <value>この棚卸は既に存在します。</value>
+  </data>
+  <data name="This stock take does not exist" xml:space="preserve">
+    <value>この棚卸は存在しません。</value>
+  </data>
+  <data name="Stock take recording not found" xml:space="preserve">
+    <value>棚卸記録が見つかりません。</value>
+  </data>
+  <data name="No recording lines found for the latest recording" xml:space="preserve">
+    <value>新の記録には記録行が見つかりません。</value>
+  </data>
+  <data name="Payload of stock take is invalid" xml:space="preserve">
+    <value>棚卸のペイロードが無効です。</value>
+  </data>
+  <data name="Stock take line not found" xml:space="preserve">
+    <value>棚卸ラインが見つかりません。</value>
+  </data>
+  <data name="Sequence not found" xml:space="preserve">
+    <value>シーケンスが見つかりません。</value>
+  </data>
+  <data name="Generated successfully" xml:space="preserve">
+    <value>正常に生成されました。</value>
+  </data>
+  <data name="No inner exception" xml:space="preserve">
+    <value>内部例外はありません。</value>
+  </data>
+  <data name="Stock take no is existed" xml:space="preserve">
+    <value>ストックテイク番号は存在しません。</value>
+  </data>
+  <data name="The specified ID could not be found" xml:space="preserve">
+    <value>指定されたIDは見つかりませんでした。</value>
+  </data>
+  <data name="The transfer No could not be found" xml:space="preserve">
+    <value>転送番号が見つかりませんでした。</value>
+  </data>
+  <data name="Invalid data" xml:space="preserve">
+    <value>無効なデータ。</value>
+  </data>
+  <data name="No inventory data found for product code" xml:space="preserve">
+    <value>製品コードに対する在庫データが見つかりません。</value>
+  </data>
+  <data name="No found with the specified" xml:space="preserve">
+    <value>指定されたもので見つかりませんでした。</value>
+  </data>
+  <data name="No picking line found with the specified pick no" xml:space="preserve">
+    <value>指定されたピック番号でピッキングラインが見つかりませんでした。</value>
+  </data>
+  <data name="No stock take recording lines found" xml:space="preserve">
+    <value>ストックテイクの記録行が見つかりませんでした。</value>
+  </data>
+  <data name="Stockake recording completed successfully" xml:space="preserve">
+    <value>ストックテイクの記録が正常に完了しました。</value>
+  </data>
+  <data name="ID could not be found" xml:space="preserve">
+    <value>指定されたIDが見つかりませんでした。</value>
+  </data>
+  <data name="You do not have permission to access this functionality" xml:space="preserve">
+    <value>この機能にアクセスする権限がありません。</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>ロード中...</value>
+  </data>
+  <data name="Do you want to continue new tenant" xml:space="preserve">
+    <value>この画面で処理中の各商品は新しいテナントへの移動後に削除されます。続けますか?</value>
+  </data>
+  <data name="Auto Add" xml:space="preserve">
+    <value>商品情報取得</value>
+  </data>
+  <data name="Selected tenant is not valid" xml:space="preserve">
+    <value>選択されたテナントは無効です</value>
+  </data>
+  <data name="Selected location is not valid" xml:space="preserve">
+    <value>選択された場所は無効です</value>
+  </data>
+  <data name="Do you want to continue new location" xml:space="preserve">
+    <value>この画面で処理中の各商品は、新しい場所への移動後に削除されます。続けますか？</value>
+  </data>
+  <data name="The product list will be refreshed. Continue?" xml:space="preserve">
+    <value>製品リストが更新されます。続けますか？</value>
+  </data>
+  <data name="No inventory found" xml:space="preserve">
+    <value>在庫が見つかりません。</value>
+  </data>
+  <data name="You must save the changes before creating a record" xml:space="preserve">
+    <value>レコードを作成する前に変更を保存する必要があります。</value>
+  </data>
+</root>

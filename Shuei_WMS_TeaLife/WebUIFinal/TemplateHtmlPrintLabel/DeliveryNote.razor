@@ -1,0 +1,167 @@
+﻿@page "/deliverynote"
+@using Application.DTOs
+@using Application.Extentions
+@using FBT.ShareModels.WMS
+@using System.Collections.Generic
+
+@inject IStringLocalizer<CommonResources> _commonLocalizer
+@inject IStringLocalizer<ShipmentResources> _shipmentLocalizer
+@layout BlankLayout
+
+@if (DeliveryNoteData == null)
+{
+    <p><em>@_commonLocalizer["Loading"]...</em></p>
+}
+else
+{
+    @foreach (var data in DeliveryNoteData)
+    {
+        <div style="page-break-after: always; position: relative; min-height: 100vh;">
+            <PageTitle>Order Summary</PageTitle>
+            @if (string.IsNullOrEmpty(data.CompanyName))
+            {
+                <h3 class="w-100 text-center">Please wait...</h3>
+            }
+            else
+            {
+                <div class="p-5">
+                    <div style="margin-bottom: 15px;">
+                        <table width="100%">
+                            <tr>
+                                <td style="width:60px">
+                                    <div>
+                                        <img src="data:image/png;base64,@data.Logo" alt="Logo" width="140" />
+                                    </div>
+                                </td>
+                                <td class="text-center fs-6">
+                                    <h4>@data.ShopName</h4>
+                                </td>
+                                <td style="width:60px">
+                                    <div class="d-flex flex-column align-items-end justify-content-end">
+                                        <img src="@data.Barcode" width="200" height="50" alt="tracking-no" style="margin-right: -40px;" />
+                                        <span class="font-size-14">@data.ShipmentNo</span>
+                                        <span class="font-size-14">@data.OrderDate.ToString("MMMM dd, yyyy", System.Globalization.CultureInfo.InvariantCulture)</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">
+                                    <div>
+                                        <br/>
+                                        <strong style="margin-top: 10px">SHIP TO</strong>
+                                        @if(data.OrderData != null)
+                                        {
+                                            <div>@data.OrderData.DeliveryName</div>
+                                            <div>@data.OrderData.DeliveryAddress1 @data.OrderData.DeliveryAddress2 @data.OrderData.DeliveryAddress3 @data.OrderData.DeliveryCity</div>
+                                            <div>@data.OrderData.DeliveryState</div>
+                                            <div>@data.OrderData.DeliveryCountryName</div>
+                                            <div>@data.OrderData.DeliveryPhone</div>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <table class="w-100">
+                        <thead style="border-top: 2px solid black;">
+                            <tr>
+                                <th class="text-left font-size-15" colspan="2">ITEMS</th>
+                                <th class="text-end font-size-15">QUANTITY</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in data.Items)
+                            {
+                                <tr>
+                                    <td style="width:70px;padding: 5px;">
+                                        @if (!string.IsNullOrEmpty(item.ProductImage))
+                                        {
+                                            <img src="@item.ProductImage" alt="product-item" style="width:60px" />
+                                        }
+                                        else
+                                        {
+                                            <div class="" style="width:60px;background-color: #fff"></div>
+                                        }
+                                    </td>
+                                    <td class="text-left font-size-14">
+                                        @item.ProductName
+                                    </td>
+                                    <td class="text-end font-size-14">
+                                        @item.Quantity
+                                    </td>
+                                </tr>
+                            }
+                            @if (data.IsSplitOrder)
+                            {
+                                <tr>
+                                    <td colspan="3" class="font-size-14 text-center">Please note this order has been shipped in multiple batches (boxes).</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <footer class="footer-container">
+                        <!-- Footer Message Section -->
+                        <div style="padding: 10px; text-align:center;border-top: 2px solid black;" class="font-size-14">
+                            <p>@((MarkupString)data.DeliveryNoteMessage.Replace("\r\n", "<br/>"))</p>
+                        </div>
+
+                        <!-- Company Info and QR Section -->
+                        <div style="display: flex; align-items:flex-end; justify-content:space-between; margin-bottom: 20px;" class="font-size-14">
+                            <div class="page-number">1/1 page</div>
+                            <div style="display: flex; align-items:center;">
+                                <div class="d-flex align-items-center justify-content-center flex-column">
+                                    <span><strong>@data.CompanyName</strong></span>
+                                    <span>@data.CompanyEmail</span>
+                                    <span><a href="@data.SiteAddress">@data.SiteAddress</a></span>
+                                </div>
+                                <div style="width: 150px" class="d-flex align-items-end justify-content-end">
+                                    <img src="@data.QRCode" alt="QR Code" width="100" />
+                                </div>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            }
+        </div>
+    }
+}
+<script>
+    function printLabel() {
+        window.print();
+    }
+    function loadPrintPageCSS() {
+        const style = document.createElement('style');
+        style.id = 'custom-print-style';
+        style.innerHTML = `
+                    @@media print {
+                        @@page {
+                            size: A4 portrait;
+                        }
+                    }
+                `;
+        document.head.appendChild(style);
+    }
+</script>
+<style>
+    .font-size-14 {
+        font-size: 14px;
+    }
+
+    .font-size-15 {
+        font-size: 15px;
+    }
+
+    .footer-container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 0 20px;
+    }
+
+    .page-number {
+        bottom: 20px;
+        left: 20px;
+        font-size: 14px;
+    }
+</style>

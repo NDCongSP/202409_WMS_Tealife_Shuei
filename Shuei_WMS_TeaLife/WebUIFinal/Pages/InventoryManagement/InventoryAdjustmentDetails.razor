@@ -1,0 +1,211 @@
+﻿@page "/adjustment-details/{Title}"
+@using Application.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Core
+@using WebUIFinal.Pages.Components
+@using FBT.ShareModels.WMS
+@inject IStringLocalizer<InventoryResources> _localizer
+@inject IStringLocalizer<CommonResources> _CLoc
+
+
+
+@attribute [Authorize]
+
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+
+@if (warehouseAdjustment == null)
+{
+    <p><em>@_CLoc["Loading"]</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenLink Text="@_CLoc["Detail.BackToList"]" Path="/inventory-adjustment-list" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+                <RadzenButton Click=@(args => DeleteItemAsync(warehouseAdjustment)) Variant="Variant.Flat" Shade="Shade.Dark" Text="@_CLoc["Delete"]" Icon="cancel" ButtonStyle="ButtonStyle.Danger" Disabled="@(warehouseAdjustment.Status == EnumInventoryAdjustmentStatus.Completed)" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTemplateForm Data="@warehouseAdjustment" Submit="@(async (InventAdjustmentDTO args) => { await Submit(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["BasicInformation"]" Disable="@isDisabled">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["AdjustmentDate"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDatePicker DateFormat="yyyy/MM/dd" @bind-Value="@warehouseAdjustment.AdjustmentDate"
+                                                      Name="AdjustmentDate" Placeholder="@_localizer["AdjustmentDate"]"
+                                                      Disabled="@isDisabled" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <CustomDropDown Text="@_CLoc["Tenant"]" Name="_dropDownTenant"
+                                                @bind-Value="@tenantIdModel" Data="@tenants"
+                                                Placeholder="@_CLoc["Select"]" OnChange="UpdateTenantValue"
+                                                TextProperty="TenantName" ValueProperty="Id"
+                                                IsDisabled="@isDisabled" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <CustomDropDown Text="@_CLoc["Location"]" Name="_dropDownLocation"
+                                                @bind-Value="@warehouseAdjustment.Location" Data="@locations"
+                                                Placeholder="@_CLoc["Select"]" OnChange="UpdateListBin"
+                                                TextProperty="LocationName" ValueProperty="Id"
+                                                IsDisabled="@isDisabled" />
+
+                            </RadzenColumn>
+
+
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <CustomDropDown Text="@_CLoc["Bin"]" Name="_dropDownBin"
+                                                @bind-Value="@warehouseAdjustment.Bin" Data="@bins"
+                                                Placeholder="@_CLoc["Select"]"
+                                                TextProperty="BinCode" ValueProperty="Id"
+                                                IsDisabled="@isDisabled" />
+
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <CustomDropDown Text="@_localizer["PersonInCharge"]" Name="_dropDownUser"
+                                                @bind-Value="@warehouseAdjustment.PersonInCharge" Data="@users"
+                                                Placeholder="@_localizer["PersonInCharge"]"
+                                                TextProperty="FullName" ValueProperty="Id"
+                                                IsDisabled="@isDisabled" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_CLoc["Status"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDropDown @bind-Value="@warehouseAdjustment.Status" Data=@GetDisplayAdjustmentStatus() Name="_dropDownStatus"
+                                                    Multiple=false AllowClear=true Chips=true Disabled="@isDisabled" Style="@(warehouseAdjustment.Status == EnumInventoryAdjustmentStatus.Completed ? "color: green" : "")"
+                                                    ValueProperty="Value" TextProperty="DisplayValue" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+
+                        <RadzenRow AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                            <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large"
+                                          Text="@_localizer["Load"]" Disabled="@(warehouseAdjustment.Status == EnumInventoryAdjustmentStatus.Completed)" />
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["AdjustmentDetails"]">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+                        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Width="50px" Click=@(args => InsertRow()) Disabled="@((warehouseAdjustment.Status == EnumInventoryAdjustmentStatus.Completed) ? true : false)" />
+                    </RadzenStack>
+                    <RadzenDataGrid @ref="_adjustmentLineProfileGrid" Data="@warehouseAdjustment.InventAdjustmentLines" TItem="InventAdjustmentsLineDTO" GridLines="Radzen.DataGridGridLines.Both"
+                                    AllowFiltering="true" AllowColumnResize="false" AllowAlternatingRows="false"
+                                    AllowSorting="true" PageSize="20"
+                                    AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" RowUpdate="@OnUpdateRow"
+                                    Sort="@Reset" Page="@Reset" Filter="@Reset"
+                                    ShowPagingSummary="true" EditMode="DataGridEditMode.Single"
+                                    FilterPopupRenderMode="PopupRenderMode.OnDemand" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    Style="350px">
+
+                        <Columns>
+                            <RadzenDataGridColumn TItem="InventAdjustmentsLineDTO" Property="ProductCode" Filterable="false" Title="@_CLoc["ProductCode"]" Width="250px">
+                                <EditTemplate Context="data">
+                                    @if (data.StockAvailable == null)
+                                    {
+                                        <ProductAutocomplete TenantId="@tenantIdModelValue" SelectedValue="@selectedProduct.ProductCode" Change="OnProductChange"></ProductAutocomplete>
+                                    }
+                                    else
+                                    {
+                                        <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">@data.ProductCode</RadzenText>
+                                    }
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="InventAdjustmentsLineDTO" Property="ProductName" Filterable="false" Title="@_CLoc["ProductName"]">
+                                <EditTemplate Context="data">
+                                    <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">@data.ProductName</RadzenText>
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="InventAdjustmentsLineDTO" Property="UnitName" Filterable="false" Title="@_CLoc["Unit"]">
+                                <EditTemplate Context="data">
+                                    <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">@data.UnitName</RadzenText>
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+
+                            <RadzenDataGridColumn TItem="InventAdjustmentsLineDTO" Property="LotNo" Title="@_CLoc["LotNo"]" Filterable="false">
+                                <EditTemplate Context="data">
+                                    @if (data.StockAvailable == null)
+                                    {
+                                        <RadzenTextBox @bind-Value="@data.LotNo" Style="width:100%" Name="LotNo" Change="ChangeLotNo" />
+                                    }
+                                    else
+                                    {
+                                        <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">@data.LotNo</RadzenText>
+                                    }
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="InventAdjustmentsLineDTO" Property="ExpirationDate" Title="@_localizer["ExpirationDate"]" Filterable="false">
+                                <EditTemplate Context="detail">
+                                    <RadzenDatePicker Name="_txtExpirationDate" @bind-Value="@expirationDate" Style="color:black" />
+                                    <RadzenRequiredValidator Component="_txtExpirationDate" Popup="false" Style="position: absolute" />
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            @if (warehouseAdjustment.Status != EnumInventoryAdjustmentStatus.Completed)
+                            {
+                                <RadzenDataGridColumn TItem="InventAdjustmentsLineDTO" Property="StockAvailable" Filterable="false" Title="@_localizer["Stock Available"]">
+                                    <EditTemplate Context="data">
+                                        <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">@data.StockAvailable</RadzenText>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                            }
+                            <RadzenDataGridColumn TItem="InventAdjustmentsLineDTO" Property="Qty" Title="@_CLoc["Quantity"]" Filterable="false">
+                                <EditTemplate Context="data">
+                                    <RadzenNumeric TValue="double?" @bind-Value="@data.Qty" Change="@(args => CalculateFinalStockQuantity(data, @data.StockAvailable ?? 0))" />
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            @if (warehouseAdjustment.Status != EnumInventoryAdjustmentStatus.Completed)
+                            {
+                                <RadzenDataGridColumn TItem="InventAdjustmentsLineDTO" Property="FinalQty" Title="@_localizer["Final Stock Quantity (After Adjustment)"]" TextAlign="TextAlign.Center" />
+                            }
+
+                            <RadzenDataGridColumn TItem="InventAdjustmentsLineDTO" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                <Template Context="data">
+                                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Class="m-1" Click="@(args => EditRow(data))" @onclick:stopPropagation="true" Disabled="@((warehouseAdjustment.Status == EnumInventoryAdjustmentStatus.Completed) ? true : false)" />
+                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Click="@(args => DeleteRow(data))" @onclick:stopPropagation="true" Disabled="@((data.Qty == null ||  warehouseAdjustment.Status == EnumInventoryAdjustmentStatus.Completed) ? true : false)">
+                                    </RadzenButton>
+                                </Template>
+                                <EditTemplate Context="data">
+                                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Class="m-1" Click="@((args) => SaveRow(data))" />
+                                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Class="m-1" Click="@((args) => CancelEdit(data))" />
+                                </EditTemplate>
+
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeSM="12">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem">
+
+                    <RadzenButton Variant="Variant.Flat" Shade="Shade.Dark" Icon="check_circle"
+                                  Text="@_localizer["Adjustment Completed"]" ButtonStyle="ButtonStyle.Success" Click="@(async () => await CompleteAdjustmentAsync(warehouseAdjustment))" Disabled="@((warehouseAdjustment.Id == Guid.Empty ||  warehouseAdjustment.Status == EnumInventoryAdjustmentStatus.Completed) ? true : false)" />
+                    <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="save"
+                                  Text="@_CLoc["Save"]" Disabled="@(warehouseAdjustment.Status == EnumInventoryAdjustmentStatus.Completed)" />
+                </RadzenStack>
+
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}
+
+
+@code {
+    // ... existing code ...
+}

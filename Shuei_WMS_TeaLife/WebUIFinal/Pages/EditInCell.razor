@@ -1,0 +1,270 @@
+﻿@page "/test"
+
+@using Blazored.LocalStorage
+@using Microsoft.JSInterop
+
+
+@*
+    Pay attention to the following event handlers below: Sort, Page, and Filter. They are required to help maintain state on the Item and Property being edited.
+    The 'CellClick' event handler is used to trigger the column edit mode.
+*@
+<RadzenButton onclick="@(()=> OpenTest())"></RadzenButton>
+<RadzenDataGrid TItem="Order" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true" PageSize="20" AllowSorting="true"
+                Data="@orders" RowUpdate="@OnUpdateRow" Sort="@(args => Reset())" Page="@(args => Reset())" Filter="@(args => Reset())"
+                ColumnWidth="200px" CellClick="@OnCellClick">
+    <Columns>
+        <RadzenDataGridColumn Property="OrderID" Title="Order ID" Width="120px" Frozen="true" />
+
+        <RadzenDataGridColumn TItem="Order" Property="@nameof(Order.Freight)" Title="Freight" IsInEditMode="@IsEditing" CalculatedCssClass="@IsEdited">
+            <Template Context="order">
+                <RadzenText Text="@(String.Format("{0:N0}", order.Freight))" />
+            </Template>
+            <EditTemplate Context="order">
+                <RadzenNumeric @ref="editor" TValue="int" Change="@( args => Update())" @bind-Value="order.Freight" Style="width:100%" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select freight" }})" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+<style>
+    .table-cell-edited {
+        position: relative;
+    }
+
+        .table-cell-edited::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-top: 10px solid red;
+            border-left: 10px solid transparent;
+        }
+</style>
+
+@code {
+    string columnEditing;
+
+    List<Order> orders = new List<Order>();
+
+    List<KeyValuePair<int, string>> editedFields = new List<KeyValuePair<int, string>>();
+    List<Order> ordersToUpdate = new List<Order>();
+
+    
+    private LocationDisplayDto selectLocationDisplayDto;
+
+    async Task OpenTest()
+    {
+        List<LabelInfoDto> labelsToPrint = new List<LabelInfoDto>();
+
+        int index = 0;
+        List<WarehousePutAwayLineDto> selectedPutAwayLine = new List<WarehousePutAwayLineDto>();
+
+        var t = await _warehousePutAwayServices.GetPutAwayAsync("WHP000067");
+
+        if (!t.Succeeded) return;
+
+        selectedPutAwayLine = t.Data.WarehousePutAwayLines;
+
+        foreach (var item in selectedPutAwayLine)
+        {
+            // Generate QR code content
+            if (item.ProductJanCodes.Count == 0)
+            {
+                string qrCodeContent = $"{item.ProductCode}::{"N/A"}::{item.LotNo}::{DateTime.Now.ToString("yyyyMMddHHmmss")}{index}" +
+                                        $"::{item.ExpirationDate:yyyy/MM/dd}::{item.TenantId}::{item.ReceiptNo}";
+                labelsToPrint.Add(new LabelInfoDto()
+                    {
+                        QrValue = GlobalVariable.GenerateQRCode(qrCodeContent),
+                        Title1 = "商品コード:",
+                        Content1 = item.ProductCode,
+                        Title2 = "JANコード:",
+                        Content2 = "N/A",
+                        Title3 = "LOT:",
+                        Content3 = item.LotNo,
+                        Title4 = "賞味期限:",
+                        Content4 = item.ExpirationDate?.ToString("yyyy/MM/dd") ?? "N/A",
+                        QrValue2 = GlobalVariable.GenerateQRCode(item.ProductUrl)
+                    });
+
+                index += 1;
+            }
+            else
+            {
+                item.ProductJanCodes.ForEach(t =>
+                {
+                    string qrCodeContent = $"{item.ProductCode}::{t}::{item.LotNo}::{DateTime.Now.ToString("yyyyMMddHHmmss")}{index}" +
+                                            $"::{item.ExpirationDate:yyyy/MM/dd}::{item.TenantId}::{item.ReceiptNo}";
+                    labelsToPrint.Add(new LabelInfoDto()
+                        {
+                            QrValue = GlobalVariable.GenerateQRCode(qrCodeContent),
+                            Title1 = "商品コード:",
+                            Content1 = item.ProductCode,
+                            Title2 = "JANコード:",
+                            Content2 = t,
+                            Title3 = "LOT:",
+                            Content3 = item.LotNo,
+                            Title4 = "賞味期限:",
+                            Content4 = item.ExpirationDate?.ToString("yyyy/MM/dd") ?? "N/A",
+                            QrValue2 = GlobalVariable.GenerateQRCode(item.ProductUrl)
+                        });
+                    index += 1;
+                });
+            }
+        }
+        var dataPrint = labelsToPrint;
+        await _localStorage.SetItemAsync("labelDataTransfer", dataPrint);
+        await _jsRuntime.InvokeVoidAsync("openTab", "/productlabel");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        int freight = 100;
+        for (int i = 1; i < 10; i++)
+        {
+            orders.Add(new Order()
+                {
+                    OrderID = i,
+                    Freight = freight + i
+                });
+        }
+    }
+
+    /// <summary>
+    /// Determines if the specified column is in edit mode for the specified order.
+    /// </summary>
+    /// <param name="columnName">The RadzenDataGridColumn.Property currently being rendered by the RadzenDataGrid.</param>
+    /// <param name="order">The Order currently being rendered by the RadzenDataGrid.</param>
+    /// <returns>True if the column should render the EditTemplate for the specified Order, otherwise false.</returns>
+    bool IsEditing(string columnName, Order order)
+    {
+        // Comparing strings is quicker than checking the contents of a List, so let the property check fail first.
+        return columnEditing == columnName && ordersToUpdate.Contains(order);
+    }
+
+    /// <summary>
+    /// Determines if the specified column needs a custom CSS class based on the <typeparamref name="TItem">TItem's</typeparamref> state.
+    /// </summary>
+    /// <param name="column">The RadzenDataGridColumn.Property currently being rendered by the RadzenDataGrid.</param>
+    /// <param name="order">The Order currently being rendered by the RadzenDataGrid.</param>
+    /// <returns>A string containing the CssClass to add, or <see cref="String.Empty">.</returns>
+    string IsEdited(RadzenDataGridColumn<Order> column, Order order)
+    {
+        // In a real scenario, you might use IRevertibleChangeTracking to check the current column
+        //  against a list of the object's edited fields.
+        return editedFields.Where(c => c.Key == order.OrderID && c.Value == column.Property).Any() ?
+            "table-cell-edited" :
+            string.Empty;
+    }
+
+    /// <summary>
+    /// Handles the CellClick event of the RadzenDataGrid.
+    /// </summary>
+    /// <param name="args"></param>
+    void OnCellClick(DataGridCellMouseEventArgs<Order> args)
+    {
+        // Record the previous edited field, if you're not using IRevertibleChangeTracking to track object changes
+        if (ordersToUpdate.Any())
+        {
+            editedFields.Add(new(ordersToUpdate.First().OrderID, columnEditing));
+        }
+
+        // This sets which column is currently being edited.
+        columnEditing = args.Column.Property;
+
+        // This triggers a save on the previous edit. This can be removed if you are going to batch edits through another method.
+        if (ordersToUpdate.Any())
+        {
+            OnUpdateRow(ordersToUpdate.First());
+        }
+
+        // This sets the Item to be edited.
+        EditRow(args.Data);
+    }
+
+    void Reset(Order order = null)
+    {
+        editorFocused = false;
+
+        if (order != null)
+        {
+            ordersToUpdate.Remove(order);
+        }
+        else
+        {
+            ordersToUpdate.Clear();
+        }
+    }
+
+    void Update()
+    {
+        editorFocused = false;
+
+        if (ordersToUpdate.Any())
+        {
+            OnUpdateRow(ordersToUpdate.First());
+        }
+
+        Reset();
+    }
+
+    void EditRow(Order order)
+    {
+        Reset();
+
+        ordersToUpdate.Add(order);
+    }
+
+    /// <summary>
+    /// Saves the changes from the Order to the database.
+    /// </summary>
+    /// <param name="order">The <see cref="Order" /> to save.</param>
+    /// <remarks>
+    /// Currently, this is called every time the Cell is changed. In a real in-cell edit scenario, you would likely either update
+    /// on RowDeselect, or batch the changes using a "Save Changes" button in the header.
+    /// </remarks>
+    void OnUpdateRow(Order order)
+    {
+        Reset(order);
+
+        var s = orders.FirstOrDefault(x => x.OrderID == order.OrderID);
+
+        s.Freight = order.Freight;
+
+        // If you were doing row-level edits and handling RowDeselect, you could use the line below to
+        // clear edits for the current record.
+
+        //editedFields = editedFields.Where(c => c.Key != order.OrderID).ToList();
+    }
+
+    IRadzenFormComponent editor;
+    bool editorFocused;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!editorFocused && editor != null)
+        {
+            editorFocused = true;
+
+            try
+            {
+                await editor.FocusAsync();
+            }
+            catch
+            {
+            //
+            }
+        }
+    }
+
+    public class Order
+    {
+        public int OrderID { get; set; }
+        public int Freight { get; set; }
+    }
+
+}

@@ -1,0 +1,108 @@
+@using Application.DTOs
+@using Application.DTOs.Response
+@using Application.Extentions
+@using CsvHelper
+@using CsvHelper.Configuration
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Globalization
+
+@inject IStringLocalizer<CommonResources> _commonLocalizer
+@inject IStringLocalizer<ShipmentResources> _shipmentLocalizer
+@inject ICommon _commonService
+
+<RadzenFieldset Text="@_shipmentLocalizer["Import CSV"]">
+    <RadzenRow Gap="2rem">
+        <RadzenColumn SizeXS="12" SizeSM="12">
+            <RadzenFormField Text="@_shipmentLocalizer["Select.File"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                <RadzenUpload Multiple="false" Accept=".csv" ChooseText="@_shipmentLocalizer["Choose"]"
+                Progress="@((args) => OnProgress(args))"
+                Change="@((args) => OnChange(args))" />
+            </RadzenFormField>
+            @if (progress > 0)
+            {
+                <RadzenProgressBar Value="@progress" ShowValue="true" Style="margin-top: 1rem" />
+            }
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenFieldset>
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Center" Gap="1rem" Class="rz-mt-8 rz-mb-4">
+    <RadzenButton Click=@(async () => _dialogService.Close()) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="@_commonLocalizer["Cancel"]" />
+    <RadzenButton Click=@(async () => await UploadFile()) Size="ButtonSize.Large" Icon="upload" Text="@_commonLocalizer["Upload"]" Visible="true" />
+</RadzenStack>
+
+@code {
+    private IBrowserFile selectedFile;
+    private double progress;
+
+    private async Task OnChange(UploadChangeEventArgs args)
+    {
+        selectedFile = args.Files.First();
+    }
+
+    private void OnProgress(UploadProgressArgs args)
+    {
+        progress = args.Progress;
+    }
+
+    private async Task UploadFile()
+    {
+        try
+        {
+            if (selectedFile == null)
+            {
+                await _dialogService.Alert(_shipmentLocalizer["Please select a file"], _commonLocalizer["Warning"]);
+                return;
+            }
+
+            // Read file content into memory stream
+            using var memoryStream = new MemoryStream();
+            await selectedFile.OpenReadStream().CopyToAsync(memoryStream);
+            // memoryStream.Position = 0; // Reset stream position
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+            string tempPath = Path.GetTempFileName();
+            using (var stream = selectedFile.OpenReadStream())
+            using (var fileStream = File.Create(tempPath))
+            {
+                await stream.CopyToAsync(fileStream);
+            }
+            List<ImportCSVForJPYPModel> csvData = CsvHelpers<ImportCSVForJPYPModel>.ReadFromCsv<ImportCSVForJPYPModel>(tempPath);
+
+
+            // Create multipart form data
+            // var content = new MultipartFormDataContent();
+            // var fileContent = new StreamContent(memoryStream);
+            // content.Add(fileContent, "file", selectedFile.Name);
+
+            // Create HttpClient and send request
+            // using var client = new HttpClient();
+            // client.BaseAddress = new Uri(GlobalVariable.ApiURL);// new Uri("http://localhost:9500"); // Set base address
+            // var response = await client.PostAsync($"api/Common/ImportCsvAsync", content);
+            // var result = await response.Content.ReadFromJsonAsync<Result<string>>();
+
+            var result = await _commonService.ImportCsvAndUpdateTrackingNoAsync(csvData);
+
+            if (result.Succeeded)
+            {
+                await _dialogService.Alert(_shipmentLocalizer["Upload successful"], _commonLocalizer["Success"]);
+                _dialogService.Close();
+            }
+            else
+            {
+                _notificationService.Notify(new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Summary = _commonLocalizer["Error"],
+                        Detail = result.Messages.FirstOrDefault(),
+                        Duration = 4000
+                    });
+            }
+        }
+        catch (Exception ex)
+        {
+            await _dialogService.Alert(ex.Message, _commonLocalizer["Error"]);
+        }
+    }
+}

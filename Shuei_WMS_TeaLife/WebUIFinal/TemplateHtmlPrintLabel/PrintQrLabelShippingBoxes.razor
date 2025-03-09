@@ -1,0 +1,38 @@
+﻿@page "/PrintShippingBoxes"
+@layout PrintLayout
+
+@if (LabelPrintModel == null || LabelPrintModel.Count <= 0)
+{
+    @* <h3 class="w-100 text-center">Please wait...</h3> *@
+}
+else
+{
+    <div id="printableArea">
+        @foreach (var label in LabelPrintModel)
+        {
+            <div class="label-container">
+                <RadzenRow Gap="2px" class="align-self-center">
+                    <RadzenColumn Size="3" class="div-content-center" Style="width:100%">
+                        <img class="qr-code" src="@label.QrValue" alt="QR Code" id="qrCodeImage" />
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" class="div-content-start-center" Style="width:100%">
+                        <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Start" Gap="1px">
+                            <div class="info-line">
+                                <span>@label.BoxName</span>
+                            </div>
+                            <div class="info-line">
+                                <span>@label.BoxType</span>
+                            </div>
+                        </RadzenStack>
+                    </RadzenColumn>
+                </RadzenRow>
+            </div>
+        }
+    </div>
+}
+
+<script>
+    function printLabel() {
+        window.print();
+    }
+</script>

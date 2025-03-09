@@ -1,0 +1,53 @@
+﻿@page "/login"
+@using Application.DTOs.Request.Account
+@using Application.DTOs.Response
+@using Application.Extentions
+@inject HttpClient Http
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager Navigation
+
+<EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>Username:</label>
+        <InputText @bind-Value="loginModel.EmailAddress" />
+    </div>
+    <div>
+        <label>Password:</label>
+        <InputText @bind-Value="loginModel.Password" type="password" />
+    </div>
+    <button type="submit">Login</button>
+</EditForm>
+
+@code {
+    private LoginRequestDTO loginModel = new LoginRequestDTO();
+
+    private async Task HandleLogin()
+    {
+        var response = await Http.PostAsJsonAsync($"{ApiRoutes.Identity.BasePath}/{ApiRoutes.Identity.Login}", loginModel);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+            await localStorage.SetItemAsync("authToken", result.Token);
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            // Handle authentication failure
+            Navigation.NavigateTo("/counter");
+        }
+    }
+
+    // private class LoginModel
+    // {
+    //     public string EmailAddress { get; set; }
+    //     public string Password { get; set; }
+    // }
+
+    // private class TokenResponse
+    // {
+    //     public string Token { get; set; }
+    // }
+}

@@ -1,0 +1,178 @@
+﻿@page "/warehouse-transferlist"
+@using Application.DTOs
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Core
+@using WebUIFinal
+@inject IStringLocalizer<WarehouseTransferResource> _localizer
+@inject IStringLocalizer<CommonResources> _CLoc
+
+@attribute [Authorize]
+@if (transfer == null)
+{
+    <p><em>@_CLoc["Loading"]</em></p>
+}
+else
+{
+    <RadzenTemplateForm Data="@_searchModel" Submit="@((TransferSearchModel args) => { OnSearch(args); })">
+        <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-2">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["SearchTransferRecords"]">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["TransferNo"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox @bind-Value="@_searchModel.TransferNo" Name="TransferNo" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_CLoc["Location"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenDropDown @bind-Value="@_searchModel.Location" Data="@locations" Name="dropDownLocation"
+                                                    Multiple=false AllowClear=true Chips=true TextProperty="LocationName" ValueProperty="LocationName" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeMD="3">
+                                <RadzenFormField Text="@_CLoc["Tenant"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDown @bind-Value="@_selectTenant" Data="@_tenants" TextProperty="@nameof(CompanyTenant.FullName)" Name="_dropDownTenant"
+                                                        Multiple=false AllowClear=true Placeholder="@_CLoc["Select"]" Chips=true Disabled="false" />
+                                    </ChildContent>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_CLoc["Status"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDropDown @bind-Value="@_searchModel.Status" Data=@GetDisplayTransferStatus() Name="_dropDownStatus"
+                                                    Multiple=false AllowClear=true Chips=true
+                                                    ValueProperty="Value" TextProperty="DisplayValue" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["ReceiveDate"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDatePicker @bind-Value="@_searchModel.ReceiveDateFrom" Placeholder="@_localizer["ReceiveDate"]" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="~" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDatePicker @bind-Value="@_searchModel.ReceiveDateTo" Placeholder="@_localizer["ReceiveDate"]" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="5px">
+                                    <RadzenButton Variant="Variant.Flat" Text="@_CLoc["Clear"]" Icon="cancel" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Base" Size="ButtonSize.Large" Click="@ClearFilter" />
+                                    <RadzenButton Variant="Variant.Flat" Text="@_CLoc["Search"]" Icon="search" ButtonType="ButtonType.Submit" Size="ButtonSize.Large" />
+                                </RadzenStack>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+
+        </RadzenRow>
+    </RadzenTemplateForm>
+    <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-2">
+        <RadzenColumn SizeXS="12" SizeMD="12">
+            <RadzenStack>
+                <RadzenFieldset Text="@_localizer["TransferList"]">
+                    <RadzenStack Orientation=Orientation.Vertical JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Stretch" Gap="5px">
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+                            <RadzenButton Click=@(args => AddNewItemAsync()) Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_CLoc["Create"]" Icon="add_circle" ButtonStyle="ButtonStyle.Success" />
+                        </RadzenStack>
+                        <RadzenDataGrid @ref="_transferGrid" Data="@_filteredModel" TItem="InventTransfersDTO"
+                                        AllowFiltering="true"
+                                        PageSizeText="@_CLoc["items per page"]"
+                                        GridLines="Radzen.DataGridGridLines.Both"
+                                        AllowPaging="true" PageSize="30" AllowSorting="true"
+                                        ShowPagingSummary=@_showPagerSummary
+                                        PagingSummaryFormat="@_pagingSummaryFormat"
+                                        PageSizeOptions="@Constants.PageSizeOptions"
+                                        EmptyText="@_CLoc["No records to display."]">
+
+                            <Columns>
+                                <RadzenDataGridColumn Width="200" TItem="InventTransfersDTO" Property="TransferNo" Title="@_localizer["TransferNo"]" TextAlign="TextAlign.Center" Filterable="false">
+                                    <Template Context="data">
+                                        <a href="/addtransfer/@_CLoc["Detail.Edit"] @_localizer["WarehouseTransfer"]|@data.TransferNo">@data.TransferNo</a>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Filterable="false" Property="@nameof(InventTransfersDTO.TenantName)" Title="@_CLoc["Tenant"]" />
+                                <RadzenDataGridColumn TItem="InventTransfersDTO" Filterable="false" Property="Location" Title="@_CLoc["Location"]" />
+                                <RadzenDataGridColumn TItem="InventTransfersDTO" Filterable="false" Property="TransferDate" Title="@_localizer["Date"]" />
+                                <RadzenDataGridColumn TItem="InventTransfersDTO" Filterable="false" Property="PersonInCharge" Title="@_localizer["PersonInCharge"]" />
+                                <RadzenDataGridColumn TItem="InventTransfersDTO" Filterable="false" Property="Status" Title="@_CLoc["Status"]">
+                                    <Template Context="data">
+                                        @GetLocalizedStatus((EnumInvenTransferStatus)data.Status)
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+}
+
+@code {
+    public class TransferSearchModel
+    {
+        public string? TransferNo { get; set; }
+        public string? Location { get; set; }
+        public DateTime? TransferDate { get; set; }
+        public DateTime? ReceiveDateFrom { get; set; }
+        public DateTime? ReceiveDateTo { get; set; }
+        public EnumInvenTransferStatus? Status { get; set; }
+        public int? TenantId { get; set; }
+    }
+
+    List<InventTransfersDTO> _filteredModel = new();
+    TransferSearchModel _searchModel = new();
+
+    private void OnSearch(TransferSearchModel args)
+    {
+        args.TenantId = _selectTenant == null ? null : _selectTenant.AuthPTenantId;
+        _filteredModel = transfer;
+
+        if (!string.IsNullOrEmpty(args.TransferNo))
+        {
+            _filteredModel = _filteredModel.Where(_ => _.TransferNo.Contains(args.TransferNo, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        if (!string.IsNullOrEmpty(args.Location))
+        {
+            _filteredModel = _filteredModel.Where(r => r.Location.Contains(args.Location, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+        if (args.ReceiveDateFrom.HasValue)
+        {
+            var receiveDateFrom = DateOnly.FromDateTime(args.ReceiveDateFrom.Value);
+            _filteredModel = _filteredModel.Where(_ => _.TransferDate >= receiveDateFrom).ToList();
+        }
+
+        if (args.ReceiveDateTo.HasValue)
+        {
+            var receiveDateTo = DateOnly.FromDateTime(args.ReceiveDateTo.Value);
+            _filteredModel = _filteredModel.Where(_ => _.TransferDate <= receiveDateTo).ToList();
+        }
+        if (args.Status.HasValue)
+        {
+            _filteredModel = _filteredModel.Where(item => item.Status == args.Status).ToList(); // Corrected the lambda parameter
+        }
+        if (args.ReceiveDateFrom.HasValue)
+        {
+
+        }
+        if (args.TenantId.HasValue)
+        {
+            _filteredModel = _filteredModel.Where(item => item.TenantId == args.TenantId).ToList(); // Corrected the lambda parameter
+        }
+
+        StateHasChanged();
+    }
+
+    private void ClearFilter()
+    {
+        _searchModel = new();
+        _selectTenant = null;
+        _filteredModel = transfer;
+        StateHasChanged();
+    }
+}

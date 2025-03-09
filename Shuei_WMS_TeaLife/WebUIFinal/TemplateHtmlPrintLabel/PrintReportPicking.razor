@@ -1,0 +1,58 @@
+﻿@page "/print-report-picking"
+@layout BlankLayout
+@using Application.DTOs
+@using Application.Extentions
+@using Application.Models
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+@inject IStringLocalizer<CommonResources> _localizerCommon
+@inject IStringLocalizer<ReportPickingResources> _localizer
+@inject IJSRuntime JSRuntime
+
+@attribute [Authorize(Policy = "AdminAndStaff")]
+@if (_warehouseBundle == null)
+{
+    <p><em>@_localizerCommon["Loading"]...</em></p>
+}
+else
+{
+    <div class="print-container">
+        <div class="header">
+            <div class="title">@_localizer["ReportPicking.CreateShelving"]</div>
+            <div class="barcode">
+                <svg id="barcode"></svg>
+                <span>@_localizer["ShelvingInstructionNumber"]</span>
+            </div>
+        </div>
+
+        <div class="product-section">
+            <div class="section-title">@_localizer["ProductsInstructedToBeShelved"]</div>
+            <div class="product-header">
+                @* @_localizer["Bin"]: @_warehouseBundle.Bin *@ @_localizer["Expiration"]: @_warehouseBundle.ExpirationDate?.ToString("dd/MM/yyyy") @* LOT: @_warehouseBundle.LotNo *@ @_localizer["ReportPicking.Quantity"]: @_warehouseBundle.Qty @_localizer["ProductBundleCode"]: @_warehouseBundle.ProductBundleCode @_localizer["ProductName"]: @_warehouseBundle.ProductName
+            </div>
+        </div>
+
+        <div class="setup-section">
+            <div class="section-title">@_localizer["SetUpInstructions"]</div>
+            <div class="setup-content">
+                <div class="setup-item">
+                    <div>@_localizer["SetUpProduct"]</div>
+                    <div>@_localizer["Product"]: @_warehouseBundle.ProductBundleCode @_warehouseBundle.ProductName</div>
+                </div>
+                <div class="setup-details">
+                    <div>@_localizer["ReportPicking.NumberOfSetups"]：@_warehouseBundle.Qty</div>
+                    <div>@_localizer["SetupDetail"]</div>
+                    @foreach (var line in _warehouseBundle.InventBundleLines)
+                    {
+                        <div>@line.ProductCode：@line.ProductName @line.DemandQty</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function printLabel() {
+            window.print();
+        }
+    </script>
+}

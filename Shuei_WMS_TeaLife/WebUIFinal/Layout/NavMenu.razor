@@ -1,0 +1,31 @@
+﻿<RadzenPanelMenu Click="OnParentClick" Multiple="false" ShowArrow="true" Style="background-color: #CC686F;width:300px">
+    <RadzenPanelMenuItem Text="Overall Management" Icon="background_dot_small">
+        <RadzenPanelMenuItem Text="User Manager" Icon="account_circle">
+            <ChildContent>
+                <RadzenPanelMenuItem Text="Users List" Path="/userlist" />
+                <RadzenPanelMenuItem Text="Roles List" Path="/rolelist" />
+                <RadzenPanelMenuItem Text="Permissions List" Path="/permissionlist" />
+            </ChildContent>
+        </RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Text="Product" Icon="inventory_2"/>
+        <RadzenPanelMenuItem Text="Vendor" Icon="partner_exchange" Path="/vendorlist" />
+        <RadzenPanelMenuItem Text="Location" Icon="home_pin" Path="/locationlist" />
+        <RadzenPanelMenuItem Text="Devices" Icon="barcode_reader" Path="/htlist" />
+    </RadzenPanelMenuItem>
+
+    <RadzenPanelMenuItem Text="Orders" Icon="order_approve">
+        <ChildContent>
+            <RadzenPanelMenuItem Text="Create Orders"  />
+            <RadzenPanelMenuItem Text="Orders List" />
+            <RadzenPanelMenuItem Text="Inventory" />
+        </ChildContent>
+    </RadzenPanelMenuItem>
+
+    <RadzenPanelMenuItem Text="Settings" Icon="settings">
+        <ChildContent>
+            <RadzenPanelMenuItem Text="Units" Path="/unit" />
+            <RadzenPanelMenuItem Text="Category" Path="/category" />
+            <RadzenPanelMenuItem Text="Voucher Type" Path="/vouchertype" />
+        </ChildContent>
+    </RadzenPanelMenuItem>
+</RadzenPanelMenu>

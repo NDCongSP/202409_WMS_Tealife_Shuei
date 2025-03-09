@@ -1,0 +1,75 @@
+﻿@page "/addpermission/{Title}"
+@using Application.DTOs.Response.Account
+@using Application.Extentions
+@using Microsoft.AspNetCore.Authorization
+@inject IStringLocalizer<CommonResources> _localizer
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+@attribute [Authorize(Policy = "Admin")]
+@if (_roles.Count <= 0 || _model == null)
+{
+    <p><em>@_localizer["Loading"]...</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            @* <RadzenLink Text="@_localizer["Detail.BackToList"]" Path="/permissionlist" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" /> *@
+            <RadzenButton Size="ButtonSize.ExtraSmall" Click="@(()=>_navigation.NavigateTo("/permissionlist"))" Icon="arrow_back_ios"
+                          Style="background-color:dimgrey"
+                          Text="@_localizer["Detail.BackToList"]" Visible="true" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@Title</strong></RadzenText>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px" class="mb-2">
+                <RadzenButton Click=@(args => DeleteItemAsync(_model)) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizer["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Visible="false" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTemplateForm Data="@_model" Submit="@((PermissionsListResponseDTO args) => { Submit(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Permission information"]">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Permission.Name"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtName" @bind-Value="@_model.Name" Placeholder="Typing..." Disabled="@_disable"/>
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtName" Popup="false" Style="position: absolute" />
+                                <RadzenRegexValidator Component="_txtName" Text="Only English letters allowed" Pattern="^[a-zA-Z\s]+$" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Description"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtDescription" @bind-Value="@_model.Description" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtDescription" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="12">
+                                <RadzenFormField Text="@_localizer["Role"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDropDown @bind-Value=@_selectedRoles Data=@_roles Name="_dropDownRoles"
+                                                    TextProperty="@nameof(GetRoleResponseDTO.Name)" ValueProperty="@nameof(GetRoleResponseDTO.Id)"
+                                                    Multiple=true AllowClear=true Placeholder="@_localizer["Select"]" Chips=true Disabled="false" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeSM="12">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Start" AlignItems="AlignItems.Center" Gap="1rem">
+                    @* <RadzenButton Click=@(_ => _navigation.NavigateTo("/permissionlist")) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="@_localizer["Cancel"]" /> *@
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_localizer["Save"]" Visible="true" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}

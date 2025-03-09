@@ -1,0 +1,103 @@
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using Application.Services
+@using Application.Services.Authen
+@using Application.Services.Authen.UI
+@using Application.Services.Inbound
+@using Application.Services.Outbound
+@using Application.Services.Inventory
+@using Application.Services.Suppliers
+
+@using Blazored.LocalStorage
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.AspNetCore.Components.WebAssembly.Http
+@using Microsoft.JSInterop
+@using WebUIFinal
+@using WebUIFinal.Core
+@using WebUIFinal.Layout
+@using Radzen
+@using Radzen.Blazor
+@using Microsoft.Extensions.Localization
+@using WebUIFinal.Pages.Components
+@* @using BlazorBootstrap; *@
+
+@inject ILocalStorageService _localStorage
+@inject IJSRuntime _jsRuntime
+@inject MasterTransferToDetails _MasterTransferToDetails
+
+@*NotificationService*@
+@inject NotificationService _notificationService
+@*show form*@
+@inject DialogService _dialogService
+@inject TooltipService _tooltipService
+
+@*redirect*@
+@inject NavigationManager _navigation
+
+@inject IAuthServices _authenServices
+@inject AuthenticationStateProvider _authStateProvider
+@inject IHttpInterceptorManager _httpInterceptorManager
+@inject IPermissions _permissionsServices
+@inject IRoleToPermissions _roleToPermissionServices
+
+@inject IProducts _productServices
+@inject IVendors _vendorsServices
+@inject ILocations _locationServices
+@inject IDevices _deviceServices
+@inject ITenants _tenantsServices
+@inject IUserToTenant _userToTenantServices
+@inject ISuppliers _suppliersServices
+@inject IUnits _unitsService
+@inject IBins _binServices
+@inject IWarehousePutAway _warehousePutAwayServices
+@inject IWarehousePutAwayLine _warehousePutAwayLineServices
+@inject IWarehousePutAwayStaging _warehousePutAwayStagingServices
+@inject IProductCategory _productCategoryServices
+
+@inject INumberSequences _numberSequenceServices
+@inject IProductJanCodes _productJanCodeService
+@inject IBatches _batchServices
+@inject IWarehouseReceiptOrder _warehouseReceiptOrderService
+@inject IWarehouseReceiptOrderLine _warehouseReceiptOrderLineService
+@inject IArrivalInstructions _warehouseReceivePlan
+@inject IInventTransfer _warehouseTransferService
+@inject IInventTransferLines _warehouseTransferServiceLine
+
+@inject ICurrency _currencyServices
+@inject IShippingBox _shippingBoxServices
+@inject IShippingCarrier _shippingCarrierServices
+@inject IWarehousePickingList _warehousePickingListServices
+@inject IWarehousePickingLine _warehousePickingLineServices
+@inject IPackingList _packingListServices
+
+@inject IWarehouseShipment _warehouseShipmentServices
+@inject IWarehouseShipmentLine _warehouseShipmentLineServices
+@inject ICategories _categoriesService
+@inject IInventTransfer _inventTransferServices
+@inject IInventTransferLines _inventTransferLineServices
+@inject IWarehouseParameters _warehouseParameterServices
+@inject IReturnOrder _returnOrderService
+
+@inject IInventAdjustment _inventAdjustmentServices
+@inject IInventAdjustmentLines _inventAdjustmentLineServices
+
+@inject IInventBundle _inventBundleServices
+@inject IInventBundleLines _inventBundleLineServices
+
+@inject IInventStockTake _inventStockTakeServices
+@inject IInventStockTakeRecording _inventStockTakeRecordingServices
+
+@inject IWarehouseTran _warehouseTranServices
+@inject ICompanies _companiesServices
+@inject IProductBundles _productBundleServices
+@inject IWarehouseParameters _warehouseParametersServices
+@inject IOrder _orderServices
+@inject ITaskModel _taskModelServices
+@inject ICommon _commonServices
+
+@inject ILaterPayment _laterPaymentServices
+@inject ICountryMaster _countryMasterServices

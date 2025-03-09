@@ -1,0 +1,37 @@
+﻿@using Application.DTOs
+@using Application.Extentions
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+
+@inject IStringLocalizer<CommonResources> _commonLocalizer
+@inject IStringLocalizer<WarehouseMovementResources> _movementLocalizer
+
+@if (_model == null)
+{
+    <p><em>@_commonLocalizer["Loading"]...</em></p>
+}
+else
+{
+    <RadzenTemplateForm Data="@_model" Submit="@((SubmitCompletedShipmentDto args) => { Submit(args); })">
+        <RadzenFieldset Text="@_movementLocalizer["Create.Picking"]">
+            <RadzenRow Gap="2rem">
+                <RadzenColumn SizeXS="12" SizeSM="12">
+                    <RadzenFormField Text="@_movementLocalizer["Picking.Manager"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                        <RadzenDropDown Name="_ddlManager" @bind-Value="@_model.Manager" Data="@_personInChargeList" TextProperty="Text" ValueProperty="Value" Placeholder="@_commonLocalizer["Select"]" />
+                    </RadzenFormField>
+                    <RadzenRequiredValidator Component="_ddlManager" Popup="false" Style="position: absolute" />
+                </RadzenColumn>
+                <RadzenColumn SizeXS="12" SizeSM="12">
+                    <RadzenFormField Text="@_commonLocalizer["Remarks"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                        <RadzenTextArea @bind-Value=@_model.Remarks
+                                        Style="width: 100%" aria-label="Auto-resize" />
+                    </RadzenFormField>
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenFieldset>
+        <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Center" Gap="1rem" Class="rz-mt-8 rz-mb-4">
+            <RadzenButton Click=@(Cancel) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="@_commonLocalizer["Cancel"]" />
+            <RadzenButton ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_commonLocalizer["Save"]" Visible="true" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+}

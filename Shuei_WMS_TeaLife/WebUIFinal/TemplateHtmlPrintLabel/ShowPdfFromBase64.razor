@@ -1,0 +1,46 @@
+﻿@page "/showpdffrombase64"
+@layout PrintLayout
+
+@if (string.IsNullOrWhiteSpace(PdfBase64))
+{
+    <h3 class="w-100 text-center">Please wait...</h3>
+}
+else
+{
+    <div id="printableArea">
+        <div class="label-container">
+            <iframe id="pdfID" src="data:application/pdf;base64,@PdfBase64" frameborder="0" width="100%" height="100%" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0;"></iframe>
+
+            @* <iframe src="http://samplepdf.com/sample.pdf" width="800" height="600"></iframe> *@
+            @* <iframe src="@PdfBase64"></iframe> *@
+        </div>
+    </div>
+}
+
+<script>
+    function printLabel() {
+        window.print();
+    }
+
+    function loadPrintPageCSS() {
+        const style = document.createElement('style');
+        style.id = 'custom-print-style';
+        style.innerHTML = `
+                        @@media print {
+                            @@page {
+                                width: 210mm;
+                                height: 297mm;
+                                size: portrait;
+                            }
+                        }
+                    `;
+        document.head.appendChild(style);
+    }
+
+    function removePrintPageCSS() {
+        const style = document.getElementById('custom-print-style');
+        if (style) {
+            style.remove();
+        }
+    }
+</script>

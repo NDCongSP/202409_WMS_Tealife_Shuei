@@ -1,0 +1,102 @@
+﻿@page "/userlist"
+
+@using Application.DTOs.Request
+@using Application.DTOs.Response.Account
+@using Application.Extentions
+@using Microsoft.AspNetCore.Authorization
+
+@inject IStringLocalizer<CommonResources> _localizer
+@inject IStringLocalizer<EnumStatusResources> _localizerEnumStatus
+
+@attribute [Authorize(Roles = ConstantExtention.Roles.WarehouseAdmin)]
+@{
+    string placeHolder = $"{_localizer["UserName"]}, {_localizer["Fullname"]}, {_localizer["Email"]}";
+}
+@if (_users == null || _users.Count <= 0)
+{
+    <p><em>@_localizer["Loading"]...</em></p>
+}
+else
+{
+    <RadzenTemplateForm Data="@_searchModel" Submit="@((UserSearchRequestDTO args) => { ReloadData(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["User.Search"]">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="5">
+                                <RadzenFormField Text="@_localizer["Keyword"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox Name="Keyword" @bind-Value="@_searchModel.Keyword" Placeholder="@placeHolder" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["Role"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDropDown @bind-Value="@_searchModel.RoleID"
+                                                    Data="@(new[] {
+                                                        new { DisplayValue = "Warehouse Admin", Value = "Warehouse Admin" },
+                                                        new { DisplayValue = "Warehouse Staff", Value = "Warehouse Staff" },
+                                                        new { DisplayValue = "Warehouse System", Value = "Warehouse System" }
+                                                    })"
+                                                    ValueProperty="Value" TextProperty="DisplayValue"
+                                                    Name="_dropDownStatus"
+                                                    Multiple=false AllowClear=true Placeholder="@_localizer["Select"]" Chips=true />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3" class="d-flex justify-content-end">
+                                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Center" AlignItems="AlignItems.Center">
+                                    <RadzenButton Variant="Variant.Flat" Text="@_localizer["Search"]" ButtonType="ButtonType.Submit" Icon="search" Size="ButtonSize.Large" />
+                                    <RadzenButton Variant="Variant.Flat" Text="@_localizer["Clear"]" Icon="clear" ButtonType="ButtonType.Button" Size="ButtonSize.Large" ButtonStyle="ButtonStyle.Base" Click="ClearFilter" />
+                                </RadzenStack>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn SizeXS="12" SizeMD="12">
+            <RadzenStack>
+                <RadzenFieldset Text="@_localizer["User.List"]">
+                    <RadzenStack Orientation=Radzen.Orientation.Vertical JustifyContent="Radzen.JustifyContent.Center" AlignItems="AlignItems.Stretch" Gap="5px">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End"
+                                     AlignItems="AlignItems.Center" Gap="1rem" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenButton Click=@(args => AddNewItemAsync()) Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_localizer["Create"]" Icon="add_circle" ButtonStyle="ButtonStyle.Success" />
+                        </RadzenStack>
+                        <RadzenDataGrid Style="width: 100%;" @ref="_profileGrid" Data="@_userSearch" TItem="GetUserWithRoleResponseDTO" AllowFiltering="true"
+                                        FilterPopupRenderMode="PopupRenderMode.OnDemand" AllowPaging="true" PageSize="20" PageSizeText="@_localizer["items per page"]" AllowSorting="true"
+                                        AllowColumnPicking="false" AllowColumnResize="true" AllowGrouping="false" EmptyText="@_localizer["No records to display."]"
+                                        GridLines="Radzen.DataGridGridLines.Both" AllowAlternatingRows="false"
+                                        ShowPagingSummary=@_showPagerSummary PagingSummaryFormat="@_pagingSummaryFormat" PageSizeOptions="@_pageSizeOptions">
+                            <Columns>
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(GetUserWithRoleResponseDTO.UserName)" TextAlign="TextAlign.Center" CssClass="rz-grid-col-flex-start">
+                                    <HeaderTemplate>
+                                        @_localizer["UserName"]
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <NavLink class="nav-link" href="@($"/adduser/{_localizer["Detail.Edit"]} {_localizer["User"]}|{data.Id}|True")" Match="NavLinkMatch.All" style="padding: 0!important;">
+                                            @data.UserName
+                                        </NavLink>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="GetUserWithRoleResponseDTO" Width="200px" Property="FullName" Title="@_localizer["Fullname"]" />
+                                <RadzenDataGridColumn TItem="GetUserWithRoleResponseDTO" Width="200px" Property="Email" Title="@_localizer["Email"]" />
+                                <RadzenDataGridColumn TItem="GetUserWithRoleResponseDTO" Width="300px" Title="@_localizer["Role"]" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                    <Template Context="data">
+                                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Start" Gap="4px">
+                                            @foreach (var item in data.Roles)
+                                            {
+                                                <RadzenBadge BadgeStyle="BadgeStyle.Primary" Text="@item.Name" />
+                                            }
+                                        </RadzenStack>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+}

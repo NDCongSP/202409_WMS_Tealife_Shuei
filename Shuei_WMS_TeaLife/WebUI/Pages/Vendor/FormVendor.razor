@@ -1,0 +1,157 @@
+﻿@using Application.DTOs.Request.Vendor
+@using Application.Extentions
+@inject IJSRuntime js
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <NavLink href="/vendor">Vendor List</NavLink>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            @if (Mode == ConstantExtention.ViewMode.View || Mode == ConstantExtention.ViewMode.Edit)
+            {
+                <text>Vendor Information</text>
+            }
+            else
+            {
+                <text>Vendor</text>
+            }
+        </li>
+    </ol>
+</nav>
+
+<h3>Vendor Information</h3>
+
+@if (Vendor == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    @if (Mode == ConstantExtention.ViewMode.View || Mode == ConstantExtention.ViewMode.Edit)
+    {
+        <div class="d-flex justify-content-end mb-3">
+            <button type="button" class="btn btn-danger" @onclick="DeleteItemAsync">Delete</button>
+        </div>
+    }
+    <EditForm Model="Vendor" OnSubmit="SaveVendor" Formname="vendor-form">
+        <fieldset disabled="@(Mode == ConstantExtention.ViewMode.View ? true : false)">
+            <div class="frame">
+                <h3>Vendor</h3>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="vendorCode" class="form-label">Vendor Code:</label>
+                        <InputText id="vendorCode" class="form-control" @bind-Value="Vendor!.VendorCode" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="vendorName" class="form-label">Vendor Name:</label>
+                        <InputText id="vendorName" class="form-control" @bind-Value="Vendor.VendorName" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="vendorImage" class="form-label">Vendor Image:</label>
+                        <InputFile id="vendorImage" class="form-control" @bind-Value="Vendor.VendorImage" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="abbreviation" class="form-label">Abbreviation:</label>
+                        <InputText id="abbreviation" class="form-control" @bind-Value="Vendor.Abbreviation" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="type" class="form-label">Type:</label>
+                        <InputText id="type" class="form-control" @bind-Value="Vendor.Type" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="address" class="form-label">Address:</label>
+                        <InputText id="address" class="form-control" @bind-Value="Vendor.Address" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Email:</label>
+                        <InputText id="email" class="form-control" @bind-Value="Vendor.Email" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="phoneNumber" class="form-label">Phone Number:</label>
+                        <InputText id="phoneNumber" class="form-control" @bind-Value="Vendor.PhoneNumber" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="fax" class="form-label">Fax:</label>
+                        <InputText id="fax" class="form-control" @bind-Value="Vendor.Fax" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="status" class="form-label">Status:</label>
+                        <InputSelect id="status" class="form-select" @bind-Value="Vendor.Status">
+                            <option disabled selected value="">
+                                Please select an option ...
+                            </option>
+                            <option checked="@(Vendor!.Status == Domain.Enums.EnumStatus.Activated)"
+                                    value="Active">
+                                Active
+                            </option>
+                            <option checked="@(Vendor!.Status == Domain.Enums.EnumStatus.Inactivated)"
+                                    value="Inactive">
+                                Inactive
+                            </option>
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="remarks" class="form-label">Remarks:</label>
+                        <InputTextArea id="remarks" class="form-control" @bind-Value="Vendor.Remarks" rows="3" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="frame">
+                <h3>Payment Information</h3>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="bankName" class="form-label">Bank Name:</label>
+                        <InputText id="bankName" class="form-control" @bind-Value="Vendor.BankName" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="branchName" class="form-label">Branch Name:</label>
+                        <InputText id="branchName" class="form-control" @bind-Value="Vendor.BranchName" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="accountNumber" class="form-label">Account Number:</label>
+                        <InputText id="accountNumber" class="form-control" @bind-Value="Vendor.AccountNumber" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="accountHolderName" class="form-label">Account Holder Name:</label>
+                        <InputText id="accountHolderName" class="form-control" @bind-Value="Vendor.AccountHolderName" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="shippingAddress" class="form-label">Shipping Address:</label>
+                        <InputTextArea id="shippingAddress" class="form-control" @bind-Value="Vendor.ShippingAddress" rows="3" />
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <div class="d-flex justify-content-center mt-4">
+            <button type="button" class="btn @(Mode == ConstantExtention.ViewMode.View ? "btn-secondary" : "btn-danger")" style="margin-right: 1rem" @onclick="AdjustAction">
+                @if (Mode == ConstantExtention.ViewMode.View)
+                {
+                    <text>Edit</text>
+                }
+                else
+                {
+                    <text>Cancel</text>
+                }
+            </button>
+            <fieldset disabled="@(Mode == ConstantExtention.ViewMode.View ? true : false)">
+                <button type="submit" class="btn btn-success" @onsubmit="SaveVendor">Submit</button>
+            </fieldset>
+        </div>
+    </EditForm>
+}

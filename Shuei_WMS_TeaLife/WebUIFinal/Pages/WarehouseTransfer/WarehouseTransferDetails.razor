@@ -1,0 +1,236 @@
+﻿@page "/addtransfer/{Title}"
+@using Application.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Core
+@using WebUIFinal.Pages.Components
+@using FBT.ShareModels.WMS
+@inject IStringLocalizer<WarehouseTransferResource> _localizer
+@inject IStringLocalizer<WarehouseReceiptResource> _localizerWarehouseReceiptResource
+@inject IStringLocalizer<CommonResources> _localizerCommon
+
+@attribute [Authorize]
+    @if (warehouseTransfer == null)
+{
+    <p><em>@_localizerCommon["Loading"]</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenLink Text="@_localizerCommon["Detail.BackToList"]" Path="/warehouse-transferlist" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+                <RadzenButton Click=@(args => DeleteItemAsync(warehouseTransfer)) Variant="Variant.Flat" Shade="Shade.Dark" Text="@_localizerCommon["Delete"]" Icon="cancel" ButtonStyle="ButtonStyle.Danger"
+                              Disabled="@(warehouseTransfer.Status == EnumInvenTransferStatus.Completed || string.IsNullOrEmpty(warehouseTransfer.TransferNo) ? true : false)" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTemplateForm Data="@warehouseTransfer" Submit="@(async (InventTransfersDTO args) => { await Submit(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Transfer.BasicInformation"]" Disable="@(warehouseTransfer.Status == EnumInvenTransferStatus.Completed)">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["TransferNo"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenTextBox @bind-Value="@warehouseTransfer.TransferNo" @onchange="@(args => warehouseTransfer.TransferNo = args.Value.ToString())" Disabled="true" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizerCommon["Location"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDropDown TValue="string" Name="_dropDownLocation" @bind-Value="@warehouseTransfer.Location" Data="@locations"
+                                                    Multiple="false" AllowClear="true" Placeholder="@_localizerCommon["Location"]" Chips="true" Disabled="@isDisabled"
+                                                    TextProperty="LocationName" ValueProperty="Id" AllowFiltering="true" Change="@(args => OnLocationChanged(args.ToString()))"
+                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" />
+
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_dropDownLocation" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeMD="3">
+                                <RadzenFormField Text="@_localizerCommon["Tenant"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDown @bind-Value="@_selectTenant" Data="@_tenants"
+                                                        TextProperty="@nameof(CompanyTenant.FullName)"
+                                                        Name="_dropDownTenant"
+                                                        Multiple=false AllowClear=true Placeholder="@_localizerCommon["Select"]" Chips=true
+                                                        Disabled="@isDisabled"
+                                                        Change="@(e => TenantChanged(e))" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_dropDownTenant" Popup="false" Style="position: absolute"
+                                                                 Text="@_localizerCommon["Required"]" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["TransferDate"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDatePicker DateFormat="yyyy/MM/dd" @bind-Value="@warehouseTransfer.TransferDate" Name="TransferDate" Placeholder="@_localizer["TransferDate"]" Disabled="@isDisabled" />
+
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <CustomDropDown Text="@_localizer["PersonInCharge"]" Name="_dropDownUser"
+                                                @bind-Value="@warehouseTransfer.PersonInCharge" Data="@users"
+                                                Placeholder="@_localizer["PersonInCharge"]"
+                                                IsDisabled="@(warehouseTransfer.Status == EnumInvenTransferStatus.Completed)"
+                                                TextProperty="FullName" ValueProperty="Id" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+
+                                <RadzenFormField Text="@_localizerCommon["Status"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDropDown @bind-Value="@warehouseTransfer.Status" Data=@GetDisplayTransferStatus() Name="_dropDownStatus"
+                                                    Multiple=false AllowClear=true Chips=true Disabled="true" Style="@(warehouseTransfer.Status == EnumInvenTransferStatus.Completed ? "color: green" : "")"
+                                                    ValueProperty="Value" TextProperty="DisplayValue" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["TransferDetails"]">
+                    <RadzenStack Orientation=Orientation.Vertical JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Stretch" Gap="5px">
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px" class="mb-2">
+                            <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Width="50px" Click=@(args => InsertRow())
+                                          Disabled="@(warehouseTransfer.Status == EnumInvenTransferStatus.Completed)" />
+                        </RadzenStack>
+                        @*  <RadzenDataGrid @ref="_transferLineProfileGrid" Data="@warehouseTransfer.InventTransferLines" TItem="InventTransfersLineDTO" RowCancel="OnCancelEdit" 
+                     RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset" ColumnWidth="200px" 
+                     AllowAlternatingRows="false" AllowFiltering="false" AllowPaging="true" PageSize="5" AllowSorting="true" EditMode="@editMode"> *@
+                        <RadzenDataGrid @ref="_transferLineProfileGrid" Data="@warehouseTransfer.InventTransferLines" TItem="InventTransfersLineDTO"
+                                        GridLines="Radzen.DataGridGridLines.Both"
+                                        AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false"
+                                        AllowSorting="true" PageSize="30"
+                                        AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left"
+                                        RowUpdate="@OnUpdateRow"
+                                        Sort="@Reset" Page="@Reset" Filter="@Reset"
+                                        ShowPagingSummary="true"
+                                        EditMode="DataGridEditMode.Single"
+                                        FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        Style="width: 100%;">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="InventTransfersLineDTO" Property="ProductCode" Filterable="false" Title="@_localizer["ProductCode"]" Width="200px">
+                                    <EditTemplate Context="data">
+                                        <ProductAutocomplete SelectedValue="@selectedProduct.ProductCode" TenantId="@warehouseTransfer.TenantId" Change="OnProductChange"></ProductAutocomplete>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="InventTransfersLineDTO" Property="ProductName" Filterable="false" Title="@_localizer["ProductName"]" Width="200px">
+                                    <EditTemplate Context="data">
+                                        <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">@selectedProduct.ProductName</RadzenText>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="InventTransfersLineDTO" Property="UnitName" Filterable="false" Title="@_localizerCommon["Unit"]" Width="80px">
+                                    <EditTemplate Context="data">
+                                        <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">@selectedProduct.UnitName</RadzenText>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="InventTransfersLineDTO" Property="FromBin" Title="@_localizer["FromBin"]" Width="150px" Filterable="false">
+                                    <EditTemplate Context="data">
+                                        <RadzenDropDown @bind-Value="@data.FromBin"
+                                                        Data="bins"
+                                                        Style="width:100%"
+                                                        Change="@(e => BinItemChange(e))"
+                                                        TextProperty="BinCode"
+                                                        ValueProperty="BinCode"
+                                                        Name="itemBin"
+                                                        TValue="string"
+                                                        Multiple=false
+                                                        AllowClear="true"
+                                                        Placeholder="@_localizerCommon["Select"]" />
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="InventTransfersLineDTO" Property="FromLotNo" Title="@_localizer["FromLotNo"]" Filterable="false" Width="200px">
+                                    <EditTemplate Context="data">
+                                        <RadzenDropDown @bind-Value="@data.FromLotNo"
+                                                        Data="_lotNo"
+                                                        Style="width:100%"
+                                                        Change="@(e => LotNoItemChange(e, data))"
+                                                        TextProperty="Value"
+                                                        ValueProperty="Value"
+                                                        Name="FromLotNo"
+                                                        TValue="string"
+                                                        Multiple=false
+                                                        Placeholder="@_localizerCommon["Select"]"
+                                                        AllowClear="true" />
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="InventTransfersLineDTO" Property="StockAvailable" Filterable="false" Title="@_localizer["StockAvailable"]" Width="130px" Visible="warehouseTransfer.Status == EnumInvenTransferStatus.InProcess">
+                                    <EditTemplate Context="data">
+                                        <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">@selectedProduct.StockAvailableQuantityTrans</RadzenText>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="InventTransfersLineDTO" Filterable="false" Property="AvailableQuantity" Title="@_localizer["AvailableQuantity"]" Width="130px" Visible="warehouseTransfer.Status == EnumInvenTransferStatus.InProcess">
+                                    <EditTemplate Context="data">
+                                        <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">@(selectedProduct.StockAvailableQuantity)</RadzenText>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="InventTransfersLineDTO" Property="ToBin" Title="@_localizer["ToBin"]" Width="150px" Filterable="false">
+                                    <EditTemplate Context="data">
+                                        <RadzenDropDown @bind-Value="@data.ToBin"
+                                                        Style="width:100%"
+                                                        Data="binsto"
+                                                        TextProperty="BinCode"
+                                                        ValueProperty="BinCode"
+                                                        Name="itemBin"
+                                                        TValue="string"
+                                                        Multiple=false
+                                                        Placeholder="@_localizerCommon["Select"]"
+                                                        AllowClear="true" />
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="InventTransfersLineDTO" Property="ToLotNo" Title="@_localizer["ToLotNo"]" Filterable="false" Width="150px">
+                                    <EditTemplate Context="data">
+                                        <RadzenTextBox @bind-Value="@data.ToLotNo" Style="width:100%" Name="ToLotNo" />
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="InventTransfersLineDTO" Property="Qty" Title="@_localizer["Qty"]" Filterable="false" Width="100px">
+                                    <EditTemplate Context="data">
+                                        <RadzenNumeric @bind-Value="@data.Qty" Style="width:100%" />
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="InventTransfersLineDTO" Context="data" Filterable="false" Visible="warehouseTransfer.Status == EnumInvenTransferStatus.InProcess"
+                                                      Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right" Width="150px">
+
+                                    <Template Context="data">
+                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Class="m-1" Click="@(args => EditRow(data))" @onclick:stopPropagation="true" />
+                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Click="@(args => DeleteRow(data))" @onclick:stopPropagation="true">
+                                        </RadzenButton>
+                                    </Template>
+                                    <EditTemplate Context="data">
+                                        <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Class="m-1" Click="@((args) => SaveRow(data))" />
+                                        <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Class="m-1" Click="@((args) => CancelEdit(data))" />
+                                    </EditTemplate>
+
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeSM="12">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem">
+
+                    <RadzenButton Variant="Variant.Flat" Shade="Shade.Dark"
+                                  Text="@_localizer["TransferCompleted"]" ButtonStyle="ButtonStyle.Success" Click="@(async () => await CompleteTransferAsync(warehouseTransfer.Id))" Disabled="@(warehouseTransfer.Status == EnumInvenTransferStatus.Completed || string.IsNullOrEmpty(warehouseTransfer.TransferNo) ? true : false)" />
+                    <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="save"
+                                  Text="@_localizerCommon["Save"]" Disabled="@(warehouseTransfer.Status == EnumInvenTransferStatus.Completed ? true : false)" />
+                </RadzenStack>
+
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}
+
+
+@code {
+    // ... existing code ...
+}

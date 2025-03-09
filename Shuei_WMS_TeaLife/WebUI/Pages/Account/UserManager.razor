@@ -1,0 +1,101 @@
+﻿@page "/user"
+@using Application.DTOs.Response.Account
+@using Application.Extentions
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager navigationManager
+
+@* @attribute [Authorize(Roles = ConstantExtention.Roles.WarehouseAdmin)] *@
+@attribute [Authorize(Policy = "Admin")]
+
+<div class="container-fluid p-3">
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <div class="x_panel">
+                <div class="x_content">
+                    <div class="table-responsive">
+                        <div class="container">
+                            <div class="row g-3 align-items-center mb-3">
+                                <div class="col-auto">
+                                    <label for="username" class="col-form-label">User Name</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input type="text" id="username" class="form-control" placeholder="Enter Username">
+                                </div>
+                                <div class="col-auto">
+                                    <label for="email" class="col-form-label">Email</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input type="email" id="email" class="form-control" placeholder="Enter Email">
+                                </div>
+                                <div class="col-auto">
+                                    <label for="role" class="col-form-label">Auth Roles</label>
+                                </div>
+                                <div class="col-auto">
+                                    <select id="role" class="form-select">
+                                        <option value="">Select Role</option>
+                                        <!-- Options will be populated here -->
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <button id="searchButton" type="button" class="btn btn-primary">Search</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border p-3 rounded mb-4">
+                            <div class="d-flex justify-content-end mb-3">
+                                <NavLink class="nav-link" href="user/create" activeClassName="active">
+                                    <button class="btn btn-success" >Add User</button>
+                                </NavLink>
+                            </div>
+                            <table id="userTableBody" class="table table-striped jambo_table bulk_action">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="width: 100px;">Actions</th>
+                                        <th style="width: 200px;">User Name</th>
+                                        <th style="width: 200px;">Full Name</th>
+                                        <th style="width: 200px;">Email</th>
+                                        <th style="width: 200px;" class="text-center">Roles</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (_users != null)
+                                    {
+                                        @foreach (var user in _users)
+                                        {
+                                            <tr>
+                                                <td class="text-center">
+                                                    <button class="btn btn-light" @onclick="() => NavigateEditPage(user.Id)">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-danger" @onclick="() => DeleteItemAsync(new Application.DTOs.Request.Account.UpdateDeleteRequestDTO() { Id = user.Id, Name = user.UserName })">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </td>
+                                                <td>@user.UserName</td>
+                                                <td>@user.FullName</td>
+                                                <td>@user.Email</td>
+                                                <td class="text-center">
+                                                    <div class="d-flex flex-wrap justify-content-start">
+                                                        @foreach (var role in user.Roles)
+                                                        {
+                                                            <span class="badge bg-primary me-1">@role.Name</span>
+                                                        }
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    void NavigateEditPage(string userId) => navigationManager.NavigateTo($"/user/{userId}");
+}

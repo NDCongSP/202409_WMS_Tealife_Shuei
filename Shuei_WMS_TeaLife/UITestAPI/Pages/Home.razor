@@ -1,0 +1,36 @@
+﻿@page "/"
+@using Domain.Entity.Commons
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+<div>
+    @if (_data.Count > 0)
+    {
+    <p>@_data.FirstOrDefault().VendorCode</p>
+    }
+    else
+    {
+        <p>ko co data</p>
+    }
+</div>
+
+Welcome to your new app.
+
+@code{
+    List<Vendor> _data = new List<Vendor>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // var res = await _vendor.GetAllAsync();
+
+        // if (!res.Succeeded)
+        // {
+        //     return;    
+        // }
+
+        // _data = res.Data;
+
+        // StateHasChanged();
+    }
+}

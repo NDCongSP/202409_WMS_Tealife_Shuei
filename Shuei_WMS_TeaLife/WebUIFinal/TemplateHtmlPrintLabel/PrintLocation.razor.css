@@ -1,0 +1,68 @@
+﻿@media print {
+    /*@page {
+        margin: 1mm;
+        width: 95mm;
+        height: 13mm;
+        size: portrait;
+    }*/
+
+    body, body * {
+        margin: 0;
+        padding: 0;
+        visibility: hidden;
+    }
+
+    .pagebreak {
+        /* clear: both; */
+        page-break-after: always;
+    }
+
+    #printableArea, #printableArea * {
+        visibility: visible;
+    }
+}
+
+.div-label-container {
+    /*border: 1px solid black;*/
+    display: flex;
+    width: 100%;
+    height: 100%;
+    /*box-sizing: border-box;*/
+    align-items: center !important;
+    align-self: center !important;
+    justify-content: center !important;
+}
+
+.label-container {
+    border: 1px solid black;
+    display: flex;
+    width: 53mm;
+    height: 35mm;
+    /*box-sizing: border-box;*/
+    align-items: center !important;
+    align-self: center !important;
+    justify-content: start !important;
+/*    margin-top: 1.2mm;
+    margin-right: 1.5mm;*/
+}
+
+.qr-code {
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    /*padding: 1px;*/
+}
+
+ .info-line .text {
+     font-weight: bold;
+     font-size: 26px;
+     margin-top: 2mm; /* Khoảng cách so với đầu trang */
+ }
+
+.info-line .arrows {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 20px;
+    margin-top: -40px;
+}

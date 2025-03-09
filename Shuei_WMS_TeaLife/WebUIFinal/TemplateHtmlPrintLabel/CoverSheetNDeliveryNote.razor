@@ -1,0 +1,76 @@
+﻿@page "/coversheetNdeliverynote"
+@using Blazored.LocalStorage
+@inject IStringLocalizer<CommonResources> _localizer
+@layout PrintLayout
+@if (Data == null)
+{
+    <p><em>@_localizer["Loading"]...</em></p>
+}
+else
+{
+    @foreach (var item in Data)
+    {
+        <div style="page-break-after: always;">
+            <PickSlip DataTransfer="item.DataTransfer" IsCallPrint="false" />
+        </div>
+
+        <div style="page-break-after: always;">
+            <DeliveryNote DeliveryNoteData="item.DeliveryNotes" IsCallPrint="false" />
+        </div>
+    }
+}
+
+@code {
+    //todo get by List<PickingID>
+    private List<CoverSheetNDeliveryNoteDto> Data { get; set; } = new();
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (Data.Count == 0)
+            {
+                Data = await _localStorage.GetItemAsync<List<CoverSheetNDeliveryNoteDto>>("CoverSheetNDeliveryNotes");
+                if (Data == null)
+                {
+                    _notificationService.Notify(new NotificationMessage()
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Summary = _localizer["Error"],
+                            Detail = _localizer["Detail model is null"],
+                            Duration = 5000
+                        });
+                    _navigation.NavigateTo("/pickinglist");
+                    return;
+                }
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            _notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = _localizer["Error"],
+                    Detail = ex.Message,
+                    Duration = 5000
+                });
+            return;
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Task.Delay(1000);
+            _ = _jsRuntime.InvokeVoidAsync("printLabel");
+            await _localStorage.RemoveItemAsync("CoverSheetNDeliveryNotes");
+        }
+    }
+}
+
+<script>
+    function printLabel() {
+        window.print();
+    }
+</script>
+

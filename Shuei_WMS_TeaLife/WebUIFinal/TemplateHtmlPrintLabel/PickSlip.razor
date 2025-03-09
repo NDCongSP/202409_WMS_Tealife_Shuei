@@ -1,0 +1,133 @@
+﻿@page "/printpickslip"
+@layout BlankLayout
+
+@using Application.DTOs
+@using Application.DTOs.Request.shipment
+@using Application.Extentions
+@using Application.Models
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+@inject IStringLocalizer<CommonResources> _localizerCommon
+@inject IStringLocalizer<WarehousePickingResources> _localizer
+@inject IStringLocalizer<EnumShipingOrderStatusResources> _localizerEnum
+
+@attribute [Authorize(Policy = "AdminAndStaff")]
+@if (DataTransfer == null)
+{
+    <p><em>@_localizerCommon["Loading"]...</em></p>
+}
+else
+{
+    foreach (var i in DataTransfer)
+    {
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="text-center">@_localizer["Pick Cover Sheet"]</h2>
+                <div class="text-center">
+                    <!-- Căn giữa -->
+                    <div class="d-inline-block">
+                        <img src="@i.Barcode" width="200" height="50" alt="tracking-no" />
+                        <p>@i.PickInfo.PickNo</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Header Information -->
+            <div class="header-info box" style="display: flex; justify-content: space-between;">
+                <div class="header-info collum" style="margin-right: 5%;">
+                    <table class="table table-info">
+                        <tbody>
+                            <tr>
+                                <td>@_localizer["InstructionNumber"]</td>
+                                <td>@i.PickInfo.PickNo</td>
+                            </tr>
+                            <tr>
+                                <td>@_localizer["Location"]</td>
+                                <td>@i.PickInfo.Location</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="header-info collum">
+                    <table class="table table-info">
+                        <tbody>
+                            <tr>
+                                <td>@_localizer["PickingDate"]</td>
+                                <td>@(i.PickInfo.CreateAt?.ToString("yyyy-MM-dd") ?? "...")</td>
+                            </tr>
+                            <tr>
+                                <td>@_localizer["PlanShipDate"]</td>
+                                <td>@(i.PickInfo.PlanShipDate?.ToString("yyyy-MM-dd") ?? "...")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Order Information -->
+            <div class="order-info box">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>@_localizer["OrderNo"]</th>
+                            <th>@_localizer["ShipmentNo"]</th>
+                            <th>@_localizer["TotalQuantity"]</th>
+                            <th>@_localizer["Tenant"]</th>
+                            <th>@_localizer["DeliveryCompany"]</th>
+                            <th>@_localizer["OrderDate"]</th>
+                            <th>@_localizer["PlanShipDate"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in i.ShipmentInfos)
+                        {
+                            <tr>
+                                <td>@s.OrderNo</td>
+                                <td>@s.ShipmentNo</td>
+                                <td>@s.TotalQuantity</td>
+                                <td>@s.TenantFullName</td>
+                                <td>@s.OrderDeliveryCompany</td>
+                                <td>@s.OrderDate</td>
+                                <td>@s.PlanShipDate</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Product Information -->
+            <div class="product-info box">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>@_localizer["ProductCode"]</th>
+                            <th>@_localizer["ProductName"]</th>
+                            <th>@_localizer["Bin"]</th>
+                            <th>@_localizer["ExpirationDate"]</th>
+                            <th>@_localizer["PickQty"]</th>
+                            <th>@_localizer["Remaining"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in i.PickLineInfos)
+                        {
+                            <tr>
+                                <td>@p.ProductCode</td>
+                                <td>@p.ProductName</td>
+                                <td>@p.Bin</td>
+                                <td>@(p.ExpirationDate.Year > 2024 ? p.ExpirationDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) : null)</td>
+                                <td>@p.PickQty</td>
+                                <td></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    <script>
+        function printLabel() {
+            window.print();
+        }
+    </script>
+}

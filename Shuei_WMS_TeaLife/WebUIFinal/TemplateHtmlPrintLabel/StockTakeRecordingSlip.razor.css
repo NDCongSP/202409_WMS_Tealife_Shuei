@@ -1,0 +1,51 @@
+﻿@media print {
+    .container {
+        page-break-before: always;
+        page-break-after: always;
+        page-break-inside: avoid;
+    }
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding-top: 10%;
+}
+
+.header-info {
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+
+    .header-info .collum {
+        flex: 1;
+    }
+
+.table-info {
+    border-collapse: collapse;
+}
+    .table-info td {
+        text-align: left;
+        padding: 8px;
+    }
+
+.table {
+    border: none;
+    width: 100%;
+    text-align: left;
+}
+    .table th, .table td {
+        border: none;
+    }
+
+.box {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+h2 {
+    margin-bottom: 20px;
+}

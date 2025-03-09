@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "BatchPickingCreate": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

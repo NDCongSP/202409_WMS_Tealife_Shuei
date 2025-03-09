@@ -1,0 +1,122 @@
+﻿@page "/return-order-list"
+@using Application.DTOs.Request
+
+@using Application.DTOs
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Core
+@using WebUIFinal
+
+@inject IStringLocalizer<ReturnOrderResources> _localizer
+@inject IStringLocalizer<ShipmentResources> _localizerShipmentResources
+@inject IStringLocalizer<CommonResources> _CLoc
+@attribute [Authorize(Policy = "AdminAndStaff")]
+@if (returnOrders == null)
+{
+    <p><em>@_CLoc["Loading"]</em></p>
+}
+else
+{
+    <RadzenTemplateForm Data="@_searchModel">
+        <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["SearchReturnOrder"]">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="12">
+                                <RadzenRow AlignItems="AlignItems.Center">
+                                    <RadzenColumn SizeXS="12" SizeSM="4">
+                                        <RadzenFormField Text="@_localizer["ReturnOrderNo"]" Variant="Variant.Outlined" Style="width:100%">
+                                            <RadzenTextBox Name="returnOrderNo" @bind-Value="@_searchModel.ReturnOrderNo" />
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                    <RadzenColumn SizeXS="12" SizeSM="4">
+                                        <RadzenFormField Text="@_localizerShipmentResources["ShipmentNo"]" Variant="Variant.Outlined" Style="width:100%">
+                                            <RadzenTextBox Name="shipmentNo" @bind-Value="@_searchModel.ShipmentNo" />
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                    <RadzenColumn SizeXS="12" SizeSM="4">
+                                        <RadzenFormField Text="@_localizer["ReceiptNo"]" Variant="Variant.Outlined" Style="width:100%">
+                                            <RadzenTextBox Name="receiptNo" @bind-Value="@_searchModel.ReceiptNo" />
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+
+                                </RadzenRow>
+                                <RadzenRow AlignItems="AlignItems.Center">
+                                    <RadzenColumn SizeXS="12" SizeSM="4">
+                                        <RadzenFormField Text="@_localizer["ReturnFromDate"]" Variant="Variant.Outlined" Style="width:100%">
+                                            <RadzenStack Gap="0.5rem">
+                                                <RadzenDatePicker Placeholder="@_localizer["ReturnFromDate"]" @bind-Value="@_searchModel.ReturnOrderFrom" DateFormat="yyyy/MM/dd" Name="_returnOrderDateFrom" AllowClear="true" />
+                                            </RadzenStack>
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                    <RadzenColumn SizeXS="12" SizeSM="4">
+                                        <RadzenFormField Text="@_localizer["ReturnToDate"]" Variant="Variant.Outlined" Style="width:100%">
+                                            <RadzenStack Gap="0.5rem">
+                                                <RadzenDatePicker Placeholder="@_localizer["ReturnToDate"]" @bind-Value="@_searchModel.ReturnOrderTo" DateFormat="yyyy/MM/dd" Name="_returnOrderDateTo" AllowClear="true" />
+                                            </RadzenStack>
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                    <RadzenColumn SizeXS="12" SizeSM="4">
+                                        <RadzenFormField Text="@_CLoc["Status"]" Variant="Variant.Outlined" Style="width:100%">
+                                            <RadzenDropDown @bind-Value="@_searchModel.Status" Data=@GetDisplayReturnOrderStatus() Name="_dropDownStatus"
+                                                            Multiple=false AllowClear=true Chips=true
+                                                            ValueProperty="Value" TextProperty="DisplayValue" />
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                       
+                        <RadzenColumn SizeXS="6" SizeSM="3">
+                            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap" class="rz-mt-2">
+                                <RadzenButton Variant="Variant.Flat" Text="@_CLoc["Clear"]" Icon="cancel" ButtonType="ButtonType.Button" Size="ButtonSize.Large" Click="@ClearFilter" />
+                                <RadzenButton Variant="Variant.Flat" Text="@_CLoc["Search"]" Icon="search" ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Click="@(() => _profileGrid.Reload())" />
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+    <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-4">
+        <RadzenColumn SizeXS="12" SizeMD="12">
+            <RadzenStack>
+                <RadzenFieldset Text="@_localizer["ReturnOrderList"]">
+                    <RadzenStack Orientation=Orientation.Vertical JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Stretch" Gap="5px">
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End"
+                                     AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">
+                            <RadzenButton Click=@(args => AddNewItemAsync()) Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_CLoc["Create"]" Icon="add_circle" ButtonStyle="ButtonStyle.Success" />
+                        </RadzenStack>
+                        <RadzenDataGrid @ref="_profileGrid" Data="@(returnOrders.Items ?? new List<ReturnOrderDto>())" TItem="ReturnOrderDto" AllowFiltering="true" class="custom-grid"
+                                        FilterPopupRenderMode="PopupRenderMode.OnDemand" AllowPaging="true" AllowSorting="true"
+                                        AllowColumnPicking="false" AllowColumnResize="true" AllowGrouping="false" LoadData="@LoadData"
+                                        GridLines="Radzen.DataGridGridLines.Both" AllowAlternatingRows="false" EmptyText="@_CLoc["No records to display."]" PageSizeText="@_CLoc["items per page"]"
+                                        ShowPagingSummary=@_showPagerSummary PagingSummaryFormat="@Constants.PagingSummaryFormat" PageSizeOptions="@Constants.PageSizeOptions"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        PageSize="@_pageSize" Count="@returnOrders.TotalItems">
+                            <Columns>
+                                <RadzenDataGridColumn Width="200px" TItem="ReturnOrderDto" Property="ReturnOrderNo" Title="@_localizer["ReturnOrderNo"]" TextAlign="TextAlign.Center">
+                                    <Template Context="data">
+                                        <a href="/return-order/edit/@data.ReturnOrderNo">@data.ReturnOrderNo</a>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="ReturnOrderDto" Width="200px" Property="ShipmentNo" Title="@_localizer["ShippingNo"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="ReturnOrderDto" Width="200px" Property="ReferenceNo" Title="@_localizer["ReceiptNo"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="ReturnOrderDto" Width="200px" Property="ReturnDate" Title="@_localizer["ReturnDate"]" TextAlign="TextAlign.Center" FormatString="{0:yyyy/MM/dd}" />
+                                <RadzenDataGridColumn TItem="ReturnOrderDto" Width="200px" Property="PersonInChargeName" Title="@_localizer["PersonInCharge"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="ReturnOrderDto" Width="200px" Property="Status" Title="@_CLoc["Status"]" TextAlign="TextAlign.Center">
+                                    <Template Context="data">
+                                        @_localizer[data.Status.ToString()]
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+}

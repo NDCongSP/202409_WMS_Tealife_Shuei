@@ -1,0 +1,103 @@
+﻿@page "/detailsupplier/{Title}"
+
+@using Application.Extentions
+@using FBT.ShareModels.Entities
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+@inject IStringLocalizer<CommonResources> _localizerCommon
+@inject IStringLocalizer<SupplierResources> _localizer
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+@attribute [Authorize(Policy = "Admin")]
+@if (_model == null)
+{
+    <p><em>@_localizerCommon["Loading"]...</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            @* <RadzenLink Text="@_localizerCommon["Detail.BackToList"]" Path="/supplierlist" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" /> *@
+            <RadzenButton Size="ButtonSize.ExtraSmall" Click="@(()=>_navigation.NavigateTo("/supplierlist"))" Icon="arrow_back_ios"
+                          Style="background-color:dimgrey"
+                          Text="@_localizerCommon["Detail.BackToList"]" Visible="true" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        @* <RadzenColumn Size="12" SizeSM="6">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@Title</strong></RadzenText>
+        </RadzenColumn> *@
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px" class="mb-2">
+                <RadzenButton Click=@(args => DeleteItemAsync()) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizerCommon["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Disabled="@_disibleBtnDelete"/>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenTemplateForm Data="@_model" Submit="@((Supplier args) => { Submit(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Supplier information"]" Disabled="@isDisabled">
+                    <RadzenStack>
+                        <RadzenRow AlignItems="AlignItems.Start">
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["Supplier Name"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtSupplierName" @bind-Value="@_model.SupplierName" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_txtSupplierName" Text="@_localizerCommon["Required"]" Popup="false" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["Supplier Id"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtSupplierId" @bind-Value="@_model.SupplierId" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtSupplierId" Text="@_localizerCommon["Required"]" Popup="false" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["Tenant ID"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDown @bind-Value="@_selectTenant" Data="@_tenants" TextProperty="@nameof(CompanyTenant.FullName)"
+                                                        Name="TenantDropdown"
+                                                        Placeholder="@_localizerCommon["Select"]" AllowClear="true" Multiple=false Chips=true
+                                                        Disabled="@isDisabled" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="TenantDropdown" Text="@_localizerCommon["Required"]" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Start" AlignItems="AlignItems.Center" Gap="1rem">
+                    @* <RadzenButton Click=@(_ => _navigation.NavigateTo("/supplierlist")) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="@_localizerCommon["Cancel"]" /> *@
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_localizerCommon["Save"]" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}
+
+@code {
+    string maxLengthValue = "";
+    int maxLength = 5;
+
+    string value;
+
+    void OnChange(string value, string name)
+    {
+    }
+}

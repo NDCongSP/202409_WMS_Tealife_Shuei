@@ -1,0 +1,393 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InventoryHistory.List" xml:space="preserve">
+    <value>Inventory History</value>
+  </data>
+  <data name="InventoryHistory.List.Details" xml:space="preserve">
+    <value>Inventory History Details</value>
+  </data>
+  <data name="AdjustmentNo" xml:space="preserve">
+    <value>Adjustment No</value>
+  </data>
+  <data name="AdjustmentDate" xml:space="preserve">
+    <value>Adjustment Date</value>
+  </data>
+  <data name="PersonInCharge" xml:space="preserve">
+    <value>PersonInCharge</value>
+  </data>
+  <data name="AdjustmentDetails" xml:space="preserve">
+    <value>Adjustment Details</value>
+  </data>
+  <data name="Receipt" xml:space="preserve">
+    <value>Receipt</value>
+  </data>
+  <data name="Shipment" xml:space="preserve">
+    <value>Shipment</value>
+  </data>
+  <data name="Transfer" xml:space="preserve">
+    <value>Transfer</value>
+  </data>
+  <data name="Movement" xml:space="preserve">
+    <value>Movement</value>
+  </data>
+  <data name="Adjustment" xml:space="preserve">
+    <value>Adjustment</value>
+  </data>
+  <data name="Counting" xml:space="preserve">
+    <value>Counting</value>
+  </data>
+  <data name="Putaway" xml:space="preserve">
+    <value>Putaway</value>
+  </data>
+  <data name="Return" xml:space="preserve">
+    <value>Return</value>
+  </data>
+  <data name="ReceivedDate" xml:space="preserve">
+    <value>Received Date</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Search Adjustment Records" xml:space="preserve">
+    <value>Search Adjustment Records </value>
+  </data>
+  <data name="Adjustment List" xml:space="preserve">
+    <value>Adjustment List</value>
+  </data>
+  <data name="Stock Available" xml:space="preserve">
+    <value>Stock Available</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>Quality</value>
+  </data>
+  <data name="Final Stock Quantity (After Adjustment)" xml:space="preserve">
+    <value>Final Stock Quantity (After Adjustment)</value>
+  </data>
+  <data name="BasicInformation" xml:space="preserve">
+    <value>Basic Information</value>
+  </data>
+  <data name="Adjustment Completed" xml:space="preserve">
+    <value>Adjustment Completed</value>
+  </data>
+  <data name="DoYouWantToCreateANewAdjustment" xml:space="preserve">
+    <value>Do You Want To Create A New Adjustment ?</value>
+  </data>
+  <data name="CreateAdjustment" xml:space="preserve">
+    <value>Create Adjustment</value>
+  </data>
+  <data name="SaleProductBundleCode" xml:space="preserve">
+    <value>Sales Bundle Code</value>
+  </data>
+  <data name="ProductBundleSetName" xml:space="preserve">
+    <value>Bundle name</value>
+  </data>
+  <data name="ProductCode" xml:space="preserve">
+    <value>SKU Code</value>
+  </data>
+  <data name="ProductName" xml:space="preserve">
+    <value>Product Name</value>
+  </data>
+  <data name="SequenceNo" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="DemandQty" xml:space="preserve">
+    <value>Demand Quantity</value>
+  </data>
+  <data name="AvailableQty" xml:space="preserve">
+    <value>Available Quantity</value>
+  </data>
+  <data name="OpenShipmentQty" xml:space="preserve">
+    <value>Open Shipment Quanlity</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>Quantity</value>
+  </data>
+  <data name="ProductBundleCode" xml:space="preserve">
+    <value>Bundle code</value>
+  </data>
+  <data name="Search Bundle Set Records" xml:space="preserve">
+    <value>Search Pre-set Records</value>
+  </data>
+  <data name="Bundleset List" xml:space="preserve">
+    <value>Pre-set List</value>
+  </data>
+  <data name="Planned Shipment Bundle Products" xml:space="preserve">
+    <value>Planned Shipment Bundles</value>
+  </data>
+  <data name="StockUpStatusQty" xml:space="preserve">
+    <value>Insecure Qty</value>
+  </data>
+  <data name="OrderStatusQty" xml:space="preserve">
+    <value>Before shipping Qty</value>
+  </data>
+  <data name="UpdateAdjustment" xml:space="preserve">
+    <value>Update Adjustment</value>
+  </data>
+  <data name="SuccessfullyCreatedAdjustment" xml:space="preserve">
+    <value>Create adjsutment sucessfully</value>
+  </data>
+  <data name="SuccessfullyEditedAdjustment" xml:space="preserve">
+    <value>Update adjsutment sucessfully</value>
+  </data>
+  <data name="Adjustment completed successfully." xml:space="preserve">
+    <value>Adjustment completed successfully.</value>
+  </data>
+  <data name="Load" xml:space="preserve">
+    <value>Load</value>
+  </data>
+  <data name="InProcess" xml:space="preserve">
+    <value>In Process</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Load Current Bin Products" xml:space="preserve">
+    <value>Load Current Bin Products</value>
+  </data>
+  <data name="DeleteWarehouseAdjustmentConfirmation" xml:space="preserve">
+    <value>Do you want to delete this adjustment ?</value>
+  </data>
+  <data name="AdjustmentLineUpdateSuccessfully" xml:space="preserve">
+    <value>Adjustment Line Update Successfully</value>
+  </data>
+  <data name="AdjustmentLineCreateSuccessfully" xml:space="preserve">
+    <value>Adjustment Line Create Successfully</value>
+  </data>
+  <data name="Adjustment completed successfully" xml:space="preserve">
+    <value>Adjustment completed successfully.</value>
+  </data>
+  <data name="Search Bundle Records" xml:space="preserve">
+    <value>Search Bundle Records</value>
+  </data>
+  <data name="TransNo" xml:space="preserve">
+    <value>TransNo</value>
+  </data>
+  <data name="Bundle List" xml:space="preserve">
+    <value>Bundle List</value>
+  </data>
+  <data name="Pre-set Details" xml:space="preserve">
+    <value>Pre-set Details</value>
+  </data>
+  <data name="ActualQty" xml:space="preserve">
+    <value>Actual Qty</value>
+  </data>
+  <data name="StockAvailable" xml:space="preserve">
+    <value>Stock Available</value>
+  </data>
+  <data name="ExpirationDate" xml:space="preserve">
+    <value>Expiration Date </value>
+  </data>
+  <data name="Putaway Bundle" xml:space="preserve">
+    <value>PUTAWAY BUNDLE </value>
+  </data>
+  <data name="BundleQty" xml:space="preserve">
+    <value>Added Quantity</value>
+  </data>
+  <data name="TransDate" xml:space="preserve">
+    <value>TransDate</value>
+  </data>
+  <data name="Bundle" xml:space="preserve">
+    <value>Bundle</value>
+  </data>
+  <data name="ProductQuantity" xml:space="preserve">
+    <value>Product Quantity</value>
+  </data>
+  <data name="ProcessPutaway.Confirmation" xml:space="preserve">
+    <value>Do you want to putaway this pre-set ?</value>
+  </data>
+  <data name="Confirmation.Putaway" xml:space="preserve">
+    <value>Putaway confirmation</value>
+  </data>
+  <data name="Actual Qty Cannot Greater Than Demand Qty" xml:space="preserve">
+    <value>Actual Qty Cannot Greater Than Demand Qty</value>
+  </data>
+  <data name="Actual Qty Cannot Greater Than Stock Available" xml:space="preserve">
+    <value>Actual Qty Cannot Greater Than Stock Available</value>
+  </data>
+  <data name="BundleLineUpdateSuccessfully" xml:space="preserve">
+    <value>Inventory Pre-set line update successfully</value>
+  </data>
+  <data name="PresetLineCreateSuccessfully" xml:space="preserve">
+    <value>Inventory Pre-set line created successfully</value>
+  </data>
+  <data name="DoYouWantToCreateANewInventoryPreset" xml:space="preserve">
+    <value>Do You Want To Create A New Inventory Pre-set</value>
+  </data>
+  <data name="CreateInventoryPreset" xml:space="preserve">
+    <value>Create Inventory Preset</value>
+  </data>
+  <data name="UpdateInventoryPreset" xml:space="preserve">
+    <value>Update Inventory Preset</value>
+  </data>
+  <data name="SuccessfullyCreatedInventoryPreset" xml:space="preserve">
+    <value>Successfully Created Inventory Preset</value>
+  </data>
+  <data name="SuccessfullyEditedInventoryPreset" xml:space="preserve">
+    <value>Successfully Edited Inventory Preset</value>
+  </data>
+  <data name="Product {Product} not meet the demand quality" xml:space="preserve">
+    <value>Product {Product} not meet the demand quality</value>
+  </data>
+  <data name="Qty" xml:space="preserve">
+    <value>Quantity</value>
+  </data>
+  <data name="CreateBundle" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Adding Pre-set Inventory" xml:space="preserve">
+    <value>Adding Pre-set Inventory</value>
+  </data>
+  <data name="Get Component Product Information" xml:space="preserve">
+    <value>Get Component Product Information</value>
+  </data>
+  <data name="BundleProductName" xml:space="preserve">
+    <value>Bundle Product Name</value>
+  </data>
+  <data name="BundleProductQuantity" xml:space="preserve">
+    <value>Bundle Product Quantity</value>
+  </data>
+  <data name="AddedQuantity" xml:space="preserve">
+    <value>Added Quantity</value>
+  </data>
+  <data name="SuccessfullyCreatedPutaway" xml:space="preserve">
+    <value>Successfully Created Putaway Item.</value>
+  </data>
+  <data name="BundleExpirationDate" xml:space="preserve">
+    <value>Bundle Expiration Date</value>
+  </data>
+  <data name="Confirm.Message.ChangeTenant" xml:space="preserve">
+    <value>Products currently in progress in this screen will be deleted after moving to the new tenant. Do you want to continue?</value>
+  </data>
+  <data name="ExpirationDateIsRequired" xml:space="preserve">
+    <value>Expiration Date Is Required</value>
+  </data>
+  <data name="Failed to update adjustment line" xml:space="preserve">
+    <value>Failed to update adjustment line</value>
+  </data>
+  <data name="_adjustmentLineProfileGrid is not initialized." xml:space="preserve">
+    <value>_adjustmentLineProfileGrid is not initialized.</value>
+  </data>
+  <data name="Failed to create adjustment line" xml:space="preserve">
+    <value>Failed to create adjustment line</value>
+  </data>
+  <data name="Invalid value for AdjustmentStatus" xml:space="preserve">
+    <value>Invalid value for AdjustmentStatus</value>
+  </data>
+</root>

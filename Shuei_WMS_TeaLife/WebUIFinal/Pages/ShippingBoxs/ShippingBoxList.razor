@@ -1,0 +1,97 @@
+﻿@page "/shippingboxlist"
+@using Application.DTOs.Response.ShippingBoxs
+@using Application.Extentions
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Core
+@using ShippingBoxModel = Application.DTOs.ShippingBoxDTO
+
+@inject IStringLocalizer<ShippingBoxResources> _localizer
+@inject IStringLocalizer<CommonResources> _CLoc
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+@attribute [Authorize(Policy = "AdminAndStaff")]
+@if (_shippingBoxes == null)
+{
+    <p><em>@_CLoc["Loading"]</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn SizeXS="12" SizeMD="12">
+            <RadzenStack>
+                <RadzenFieldset Text="@_localizer["ShippingBoxeslist"]">
+                    <RadzenStack Orientation=Radzen.Orientation.Vertical JustifyContent="Radzen.JustifyContent.Center" AlignItems="AlignItems.Stretch" Gap="5px">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End"
+                                     AlignItems="AlignItems.Center" Gap="1rem" >
+                            <RadzenButton Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_CLoc["Print"]" Click="@(() => PrintQrLabels())" ButtonStyle="ButtonStyle.Primary"/>
+                            <RadzenButton Click=@(args => AddNewItemAsync()) Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_localizer["AddNew"]" Icon="add_circle" ButtonStyle="ButtonStyle.Success" />
+                        </RadzenStack>
+                        <RadzenDataGrid Style="width:100%" @ref="_profileGrid" AllowFiltering="true" FilterPopupRenderMode="PopupRenderMode.OnDemand" AllowPaging="true" PageSize="20" AllowSorting="true"
+                                        Data="@_shippingBoxes" TItem="ShippingBoxModel" AllowColumnPicking="false" AllowColumnResize="true" AllowGrouping="false"
+                                        GridLines="Radzen.DataGridGridLines.Both" AllowAlternatingRows="false" PageSizeText="@_CLoc["items per page"]" EmptyText="@_CLoc["No records to display."]"
+                                        ShowPagingSummary=@_showPagerSummary PagingSummaryFormat="@Constants.PagingSummaryFormat" PageSizeOptions="@Constants.PageSizeOptions" 
+                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@selectedShippingBoxes>
+                            <Columns>
+                                <RadzenDataGridColumn Width="60px" Sortable="false" Filterable="false">
+                                    <HeaderTemplate>
+                                        <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
+                                                        Value="@(selectedShippingBoxes == null || selectedShippingBoxes?.Any() != true ? false : !_shippingBoxes.All(i => selectedShippingBoxes.Contains(i)) ? null : _shippingBoxes.Any(i => selectedShippingBoxes.Contains(i)))"
+                                                        Change="@(args => selectedShippingBoxes = args == true ? _shippingBoxes.ToList() : new List<ShippingBoxModel>())" />
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(selectedShippingBoxes != null && selectedShippingBoxes.Contains(data))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
+                                                        TValue="bool" Change=@(args => { if(!allowRowSelectOnRowClick) { _profileGrid.SelectRow(data); }}) />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(ShippingBoxModel.BoxName)" TextAlign="TextAlign.Center" CssClass="rz-grid-col-flex-start">
+                                    <HeaderTemplate>
+                                        @_localizer["BoxName"]
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <NavLink class="nav-link" href="@("/addshippingbox/Edit|" + data.Id)" Match="NavLinkMatch.All" style="padding: 0!important;">
+                                            @data.BoxName
+                                        </NavLink>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="ShippingBoxModel" Width="150px" Property="ShippingCarrierName" Title="@_localizer["ShippingCarrierName"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="ShippingBoxModel" Width="150px" Property="BoxType" Title="@_localizer["BoxType"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="ShippingBoxModel" Width="150px" Property="Length" Title="@_localizer["Length"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="ShippingBoxModel" Width="150px" Property="Width" Title="@_CLoc["Width"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="ShippingBoxModel" Width="150px" Property="Height" Title="@_CLoc["Height"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="ShippingBoxModel" Width="150px" Property="MaxWeight" Title="@_localizer["MaxWeight"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="ShippingBoxModel" Width="150px" Title="@_CLoc["Status"]" TextAlign="TextAlign.Center">
+                                    <Template Context="data">
+                                        @_localizer[data.Status.ToString()]
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+}
+<style>
+    .register-button {
+        background-color: #8A42F3; /* Purple color */
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+   @*  .rz-grid-table thead th > div:not(.rz-cell-filter) {
+        background-color: #CC686F !important;
+    } *@
+
+  @*   .rz-panel {
+        margin-right: 18px;
+        margin-left: 18px;
+    } *@
+</style>

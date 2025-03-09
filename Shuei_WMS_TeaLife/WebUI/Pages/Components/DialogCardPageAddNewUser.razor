@@ -1,0 +1,83 @@
+﻿@using Application.DTOs.Request.Account
+<RadzenRow>
+    <RadzenColumn SizeSM="12" SizeMD="12">
+        <RadzenTemplateForm Data="@_model" Submit="@((CreateAccountRequestDTO args) => { Submit(args); })">
+            <RadzenPanel class="rz-p-4 rz-border-radius-2 rz-mx-4">
+                <RadzenRow>
+                    <RadzenColumn SizeXS="12" SizeMD="12">
+                        <RadzenCard Variant="Variant.Filled">
+                            <RadzenText TextStyle="TextStyle.H4"><strong>User info</strong></RadzenText>
+                            <RadzenRow AlignItems="AlignItems.Center">
+                                <RadzenColumn SizeXS="12" SizeSM="12">
+                                    <RadzenText TextStyle="TextStyle.Caption" class="rz-display-flex rz-mt-0 rz-mb-0">User name</RadzenText>
+                                    <RadzenTextBox Name="_txtUserName" TextStyle="TextStyle.Body1" Style="width: 100%;" @bind-Value=@_model.UserName Placeholder="Typing..." />
+                                    <RadzenRequiredValidator Component="_txtUserName" Popup="false" Style="position: absolute" />
+                                </RadzenColumn>
+                                <RadzenColumn SizeXS="12" SizeMD="12">
+                                    <RadzenText TextStyle="TextStyle.Caption" class="rz-display-flex rz-mt-0 rz-mb-0">Email</RadzenText>
+                                    <RadzenTextBox TextStyle="TextStyle.Body1" Style="width: 100%;" Name="_txtEmail" Placeholder="Typing..."
+                                                   MouseEnter="@(args => ShowTooltip(args, new TooltipOptions(){ Position = TooltipPosition.Top }))"
+                                                   @bind-Value=@_model.Email Disabled="true" />
+                                    <RadzenRequiredValidator Component="_txtEmail" Popup="false" Style="position: absolute" />
+                                </RadzenColumn>
+                                <RadzenColumn SizeXS="12" SizeMD="12">
+                                    <RadzenText TextStyle="TextStyle.Caption" class="rz-display-flex rz-mt-0 rz-mb-0">Full name</RadzenText>
+                                    <RadzenTextBox TextStyle="TextStyle.Body1" Style="width: 100%;" Name="_txtFullName" Placeholder="Typing..."
+                                                   MouseEnter="@(args => ShowTooltip(args, new TooltipOptions(){ Position = TooltipPosition.Top }))"
+                                                   @bind-Value=@_model.FullName Disabled="true" />
+                                    <RadzenRequiredValidator Component="_txtFullName" Popup="false" Style="position: absolute" />
+                                </RadzenColumn>
+                                <RadzenColumn SizeXS="12" SizeMD="12">
+                                    <RadzenText TextStyle="TextStyle.Caption" class="rz-display-flex rz-mt-0 rz-mb-0">Password</RadzenText>
+                                    <RadzenTextBox TextStyle="TextStyle.Body1" Style="width: 100%;" Name="_txtPasswprd" Placeholder="Typing..."
+                                                    type
+                                                   MouseEnter="@(args => ShowTooltip(args, new TooltipOptions(){ Position = TooltipPosition.Top }))"
+                                                   @bind-Value=@_model.Password Disabled="true" />
+                                    <RadzenRequiredValidator Component="_txtPasswprd" Popup="false" Style="position: absolute" />
+                                </RadzenColumn>
+                                <RadzenColumn SizeXS="12" SizeMD="12">
+                                    <RadzenText TextStyle="TextStyle.Caption" class="rz-display-flex rz-mt-0 rz-mb-0">Confirm password</RadzenText>
+                                    <RadzenTextBox TextStyle="TextStyle.Body1" Style="width: 100%;" Name="_txtConfirmPassword" Placeholder="Typing..."
+                                                   type
+                                                   MouseEnter="@(args => ShowTooltip(args, new TooltipOptions(){ Position = TooltipPosition.Top }))"
+                                                   @bind-Value=@_model.ConfirmPassword Disabled="true" />
+                                    <RadzenRequiredValidator Component="_txtConfirmPassword" Popup="false" Style="position: absolute" />
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </RadzenCard>
+                    </RadzenColumn>
+                    <RadzenColumn SizeXS="12" SizeMD="12">
+                        <RadzenCard Variant="Variant.Filled">
+                            <RadzenText TextStyle="TextStyle.H4"><strong>Roles</strong></RadzenText>
+                            <RadzenDataGrid @ref="_profileGrid" Data="@_roles"
+                                            AllowFiltering="true" FilterPopupRenderMode="PopupRenderMode.OnDemand" AllowPaging="true" PageSize="10" AllowSorting="true"
+                                            AllowColumnPicking="false" AllowColumnResize="true" AllowGrouping="false"
+                                            GridLines="Radzen.DataGridGridLines.Both" AllowAlternatingRows="false"
+                                            ShowPagingSummary=@_showPagerSummary PagingSummaryFormat="@_pagingSummaryFormat" PageSizeOptions="@_pageSizeOptions"
+                                            AllowRowSelectOnRowClick="true" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@_selectedRoles>
+                                <Columns>
+                                    <RadzenDataGridColumn Width="30px" Sortable="false" Filterable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                        <HeaderTemplate>
+                                            <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
+                                                            Value="@(_selectedRoles == null || _selectedRoles?.Any() != true ? false : !_roles.All(i => _selectedRoles.Contains(i)) ? null : _roles.Any(i => _selectedRoles.Contains(i)))"
+                                                            Change="@(args => _selectedRoles = args == true ? _roles.ToList() : null)" />
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(_selectedRoles != null && _selectedRoles.Contains(data))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
+                                                            TValue="bool" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn Property="@nameof(CreateRoleRequestDTO.Name)" Title="Role name" />
+                                    <RadzenDataGridColumn Property="@nameof(CreateRoleRequestDTO.Id)" Title="Id" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </RadzenCard>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" Class="rz-mt-8 rz-mb-4">
+                    <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="Save" />
+                </RadzenStack>
+            </RadzenPanel>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+</RadzenRow>

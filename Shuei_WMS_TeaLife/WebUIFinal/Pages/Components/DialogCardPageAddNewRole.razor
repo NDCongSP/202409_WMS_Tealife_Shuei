@@ -1,0 +1,101 @@
+﻿@page "/addrole/{Title}"
+@using Application.DTOs.Request.Account
+@using Application.DTOs.Response.Account
+@using Application.Extentions
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Policy = "Admin")]
+
+@inject IStringLocalizer<CommonResources> _localizer
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+@if (_model == null)
+{
+    <p><em>@_localizer["Loading"]...</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            @* <RadzenLink Text="@_localizer["Detail.BackToList"]" Path="/rolelist" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" /> *@
+            <RadzenButton Size="ButtonSize.ExtraSmall" Click="@(()=>_navigation.NavigateTo("/rolelist"))" Icon="arrow_back_ios"
+                          Style="background-color:dimgrey"
+                          Text="@_localizer["Detail.BackToList"]" Visible="true" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="6" Visible="false">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@Title</strong></RadzenText>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px" class="mb-2">
+                <RadzenButton Click=@(args => DeleteItemAsync(_model)) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizer["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Disabled="@_disable" Visible="false" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenTemplateForm Data="@_model" Submit="@((CreateRoleRequestDTO args) => { Submit(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFormField Text="@_localizer["RoleName"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                    <RadzenTextBox Name="_txtName" @bind-Value="@_model.Name" Placeholder="Typing..." Disabled="@_disable" />
+                </RadzenFormField>
+                <RadzenRequiredValidator Component="_txtName" Popup="false" Style="position: absolute" />
+                <RadzenRegexValidator Component="_txtName" Text="Only English letters allowed" Pattern="^[a-zA-Z\s]+$" />
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn SizeXS="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Permission.List"]">
+                    <RadzenStack Orientation="Radzen.Orientation.Vertical" JustifyContent="Radzen.JustifyContent.Center" AlignItems="AlignItems.Stretch" Gap="5px">
+                        <RadzenDataGrid Style="width:100%" @ref="_profileGrid" Data="@_dataGrid" TItem="PermissionsInRoleModel" AllowFiltering="true" class="custom-grid"
+                                        FilterPopupRenderMode="PopupRenderMode.OnDemand" AllowPaging="true" PageSize="20" AllowSorting="true"
+                                        PageSizeText="@_localizer["items per page"]" EmptyText="@_localizer["No records to display."]"
+                                        AllowColumnPicking="false" AllowColumnResize="true" AllowGrouping="false"
+                                        GridLines="Radzen.DataGridGridLines.Both" AllowAlternatingRows="false"
+                                        ShowPagingSummary=@_showPagerSummary PagingSummaryFormat="@_pagingSummaryFormat" PageSizeOptions="@_pageSizeOptions"
+                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@_gridSelected>
+                            <Columns>
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(PermissionsInRoleModel.Name)" Title="@_localizer["Name"]" />
+                                <RadzenDataGridColumn Width="210px" Property="@nameof(PermissionsInRoleModel.Description)" Title="@_localizer["Description"]" />
+                                <RadzenDataGridColumn Width="200px" Title="@_localizer["Select"]">
+                                    <HeaderTemplate>
+                                        @_localizer["Select"]
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <div class="rz-p-0 rz-text-align-center">
+                                            <RadzenToggleButton @bind-Value=@data.IsSelected Change=@OnChange Text="@(data.IsSelected ? _localizer["Selected"] : _localizer["Select"] )"
+                                                                ButtonStyle="ButtonStyle.Base"
+                                                                ToggleButtonStyle="ButtonStyle.Primary"
+                                                                InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Turn off Notifications" }})"
+                                                                Style="width:50%" />
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Start" Gap="1rem">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_localizer["Save"]" Disabled="false" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}
+
+@code {
+    bool value;
+
+    private void OnChange(bool newValue)
+    {
+        // NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "ToggleButton Changed", Detail = $"{newValue}" });
+    }
+}

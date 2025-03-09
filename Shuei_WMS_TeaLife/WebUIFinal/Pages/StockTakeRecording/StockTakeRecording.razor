@@ -1,0 +1,193 @@
+﻿@page "/stocktakerecording"
+
+@using Application.DTOs
+@using Application.DTOs.Request.Picking
+@using Application.DTOs.Request.StockTake
+@using Application.Extentions
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+@inject IStringLocalizer<CommonResources> _localizerCommon
+@inject IStringLocalizer<InventoryStockTakeResources> _localizer
+@inject IStringLocalizer<EnumInvenTransferStatusResources> _localizerEnum
+@inject IJSRuntime JSRuntime
+
+@attribute [Authorize(Policy = "AdminAndStaff")]
+@if (_dataGrid == null || _locations.Count == 0)
+{
+    <p><em>@_localizerCommon["Loading"]...</em></p>
+}
+else
+{
+    <RadzenTemplateForm Data="@_searchModel" Submit="@((StockTakeRecordingSearchRequestDto args) => { OnSearch(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizerCommon["Search"]">
+                    <RadzenStack Gap="15px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn Size="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["StockTakeNo"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtInstructionNumber" @bind-Value=@_searchModel.StockTakeNo />
+                                    </ChildContent>
+                                    <Helper>
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="4">
+                                <RadzenFormField Text="@($"{_localizer["TransactionDate"]} {_localizer["From"]}")" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDatePicker Name="_txtScheduledShipDateFrom" DateFormat="yyyy-MM-dd" @bind-Value=@_transactionDateFrom />
+                                    </ChildContent>
+                                    <Helper>
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="4">
+                                <RadzenFormField Text="@($"{_localizer["TransactionDate"]} {_localizer["To"]}")" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDatePicker Name="_txtScheduledShipDateTo" DateFormat="yyyy-MM-dd" @bind-Value=@_transactionDateTo />
+                                    </ChildContent>
+                                    <Helper>
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["Tenant"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDownDataGrid @bind-Value=@_tenantSelected Data=@_tenants Name="_dropDowTenant"
+                                                                TextProperty="@nameof(CompanyDisplayDto.CompanyName)"
+                                                                EmptyText="@_localizerCommon["No records to display."]" SearchTextPlaceholder="@_localizerCommon["Search"]"
+                                                                AllowFiltering="true" Multiple=false AllowClear=true Placeholder="@_localizerCommon["Select"]" Chips=true Disabled="@_disable">
+                                            <Columns>
+                                                <RadzenDropDownDataGridColumn Width="200px" Property="@nameof(CompanyDisplayDto.CompanyName)" Title="@_localizer["Tenant"]" />
+                                            </Columns>
+                                        </RadzenDropDownDataGrid>
+                                    </ChildContent>
+                                    <Helper>
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["Location"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDownDataGrid @bind-Value=@_locationSelected Data=@_locations Name="_dropDowLocation"
+                                                                TextProperty="@nameof(LocationDisplayDto.LocationName)" Change="@(args => GetBin())"
+                                                                EmptyText="@_localizerCommon["No records to display."]" SearchTextPlaceholder="@_localizerCommon["Search"]"
+                                                                AllowFiltering="true" Multiple=false AllowClear=true Placeholder="@_localizerCommon["Select"]" Chips=true Disabled="@_disable">
+                                            <Columns>
+                                                <RadzenDropDownDataGridColumn Width="200px" Property="@nameof(Location.LocationName)" Title="@_localizerCommon["Location.Name"]" />
+                                            </Columns>
+                                        </RadzenDropDownDataGrid>
+                                    </ChildContent>
+                                    <Helper>
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["Bin"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDownDataGrid @bind-Value=@_binSelected Data=@_bins Name="_dropDownBin"
+                                                                TextProperty="@nameof(Bin.BinCode)" column
+                                                                EmptyText="@_localizerCommon["No records to display."]" SearchTextPlaceholder="@_localizerCommon["Search"]"
+                                                                AllowFiltering="true" Multiple=false AllowClear=true Placeholder="@_localizerCommon["Select"]" Chips=true Disabled="@_disable">
+                                            <Columns>
+                                                <RadzenDropDownDataGridColumn Width="200px" Property="@nameof(Bin.BinCode)" Title="@_localizerCommon["Bin.Code"]" />
+                                            </Columns>
+                                        </RadzenDropDownDataGrid>
+                                    </ChildContent>
+                                    <Helper>
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizerCommon["Status"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDropDown @bind-Value=@_selectStatus Data=@GetDisplayStatus() Name="_dropDownStatus"
+                                                    ValueProperty="Value" TextProperty="DisplayValue"
+                                                    Multiple=false AllowClear=true Placeholder="@_localizerCommon["Select"]" Chips=true Disabled="@_disable">
+                                    </RadzenDropDown>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Gap="10px">
+                            <RadzenButton Click=@(args => ClearFilter()) Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_localizerCommon["Clear Filter"]" Icon="cancel" ButtonStyle="ButtonStyle.Primary" />
+                            <RadzenButton ButtonType="ButtonType.Submit" Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_localizerCommon["Search"]" Icon="search" ButtonStyle="ButtonStyle.Success" />
+                        </RadzenStack>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+
+    </RadzenTemplateForm>
+
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn SizeXS="12" SizeMD="12">
+            <RadzenFieldset Text="@_localizer["Instruction"]">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px" class="mb-2">
+                    <RadzenButton Click=@(args => PrintSelectedLabels()) Variant="Variant.Flat" Shade="Shade.Dark"
+                                  Text="@_localizerCommon["Print"]" Icon="print" ButtonStyle="ButtonStyle.Secondary" />
+                </RadzenStack>
+                <RadzenDataGrid Style="width:100%" @ref="_profileGrid" Data="@_dataGrid" TItem="InventStockTakeRecordingDTO" AllowFiltering="true" class="custom-grid"
+                                FilterPopupRenderMode="PopupRenderMode.OnDemand" AllowPaging="true" PageSize="20" AllowSorting="true"
+                                PageSizeText="@_localizerCommon["items per page"]" EmptyText="@_localizerCommon["No records to display."]"
+                                AllowColumnPicking="false" AllowColumnResize="true" AllowGrouping="false"
+                                GridLines="Radzen.DataGridGridLines.Both" AllowAlternatingRows="false"
+                                ShowPagingSummary=@_showPagerSummary PagingSummaryFormat="@_pagingSummaryFormat" PageSizeOptions="@_pageSizeOptions"
+                                AllowRowSelectOnRowClick="@allowRowSelectOnRowClick" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@_gridSelected>
+                    <Columns>
+                        <RadzenDataGridColumn Width="60px" Sortable="false" Filterable="false">
+                            <HeaderTemplate>
+                                <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select all items" } })"
+                                                Value="@(selectedItems == null || selectedItems?.Any() != true ? false : !_dataGrid.All(i => selectedItems.Contains(i)) ? null : _dataGrid.Any(i => selectedItems.Contains(i)))"
+                                                Change="@(args => {
+                                    if (args != null && args == true) {
+                                        selectedItems = _dataGrid.ToList();
+                                    } else {
+                                        selectedItems.Clear();
+                                    }
+                                    StateHasChanged();
+                                })" />
+                            </HeaderTemplate>
+                            <Template Context="data">
+                                <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(selectedItems != null && selectedItems.Contains(data))"
+                                                InputAttributes="@(new Dictionary<string, object> { { "aria-label", "Select item" } })"
+                                                TValue="bool" Change="@(args => {
+                                    if (args == true) {
+                                        selectedItems.Add(data);
+                                    } else {
+                                        selectedItems.Remove(data);
+                                    }
+                                    StateHasChanged();
+                                })" />
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn Width="200px" Property="@nameof(InventStockTakeRecordingDTO.StockTakeNo)" Title="@_localizer["StockTakeNo"]">
+                            <Template Context="data">
+                                <a class="text-green" @onclick="@(() => OpenAsync(data))" style="cursor:pointer;">
+                                    @data.StockTakeNo
+                                </a>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn Width="200px" Property="@nameof(InventStockTakeRecordingDTO.RecordNo)" Title="@_localizer["RecordNo"]" />
+                        <RadzenDataGridColumn Width="200px" Property="@nameof(InventStockTakeRecordingDTO.Location)" Title="@_localizer["Location"]" />
+                        <RadzenDataGridColumn Width="200px" Property="@nameof(InventStockTakeRecordingDTO.TenantFullName)" Title="@_localizer["Tenant"]" />
+                        <RadzenDataGridColumn Width="200px" Property="@nameof(InventStockTakeRecordingDTO.TransactionDate)" Title="@_localizer["Transaction Date"]" />
+                        <RadzenDataGridColumn Width="200px" Property="@nameof(InventStockTakeRecordingDTO.PersonInCharge)" Title="@_localizer["PersonInCharge"]" />
+                        <RadzenDataGridColumn Width="150px" Property="@nameof(InventStockTakeRecordingDTO.Status)" Title="@_localizerCommon["Status"]">
+                            <Template Context="data">
+                                @GetValueLocalizedStatus(data.Status)
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </RadzenFieldset>
+        </RadzenColumn>
+    </RadzenRow>
+}
+<style>
+    .text-green {
+        color: blue;
+    }
+</style>

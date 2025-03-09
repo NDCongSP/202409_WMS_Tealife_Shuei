@@ -1,0 +1,58 @@
+﻿@using Application.Extentions
+@using FBT.ShareModels.Entities
+@using Microsoft.AspNetCore.Authorization
+
+@inject IStringLocalizer<CommonResources> _localizer
+@inject IStringLocalizer<NotificationMessageResources> _localizeNotification
+
+@attribute [Authorize(Policy = "Admin")]
+@if (productJanCode == null)
+{
+    <p><em>@_localizer["Loading"]...</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px" class="mb-2">
+                <RadzenButton Click=@(args => DeleteItemAsync()) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizer["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Visible="VisibleBtnSubmit" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenTemplateForm Data="@productJanCode" Submit="@((ProductJanCode args) => { Submit(args); })">
+        <RadzenFieldset Text="@_localizer["Product.JanCode"]">
+            <RadzenRow Gap="2rem">
+                <RadzenColumn SizeXS="12" SizeSM="12">
+                    <RadzenFormField Text="@_localizer["JAN"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                        <ChildContent>
+                        <RadzenTextBox Name="_txtJanCode" @bind-Value="@productJanCode.JanCode" Placeholder="" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="_txtJanCode" Popup="false" Style="position: absolute" />
+                            <RadzenRegexValidator Component="_txtJanCode" Pattern="@Constants.ValidateChar"
+                                                  Text="@_localizer["Do not enter the ':' character in the product code."]"
+                                                  Popup="false" />
+                        </Helper>
+                    </RadzenFormField>
+                </RadzenColumn>
+                <RadzenColumn SizeXS="12" SizeSM="12">
+                    <RadzenFormField Text="@_localizer["Description"]" Variant="Variant.Outlined"  Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                        <RadzenTextArea @bind-Value=@productJanCode.Description Style="width: 100%" aria-label="Auto-resize" />
+                    </RadzenFormField>
+                </RadzenColumn>
+                <RadzenColumn SizeXS="12" SizeSM="12">
+                    <RadzenFormField Text="@_localizer["Status"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                        <RadzenDropDown @bind-Value="@selectedStatus" Data=@(Enum.GetValues(typeof(EnumStatus)).Cast<Enum>()) Name="_dropDownStatus"
+                                        Multiple=false AllowClear=true Placeholder="@_localizer["Select"]" Chips=true />
+                        <RadzenRequiredValidator Component="_dropDownStatus" Popup="false" Style="position: absolute" />
+                    </RadzenFormField>
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenFieldset>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" Class="rz-mt-8 rz-mb-4">
+            <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_localizer["Save"]" Visible="true" />
+        </RadzenStack>
+    </RadzenTemplateForm>
+}

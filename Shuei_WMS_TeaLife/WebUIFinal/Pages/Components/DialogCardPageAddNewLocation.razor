@@ -1,0 +1,159 @@
+﻿@page "/addlocation/{Title}"
+@using Application.Extentions
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+@inject IStringLocalizer<CommonResources> _localizer
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+@attribute [Authorize(Policy = "Admin")]
+@if (_model.Id == Guid.Empty)
+{
+    <p><em>@_localizer["Loading"]...</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            @* <RadzenLink Text="@_localizer["Detail.BackToList"]" Path="/locationlist" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" /> *@
+            <RadzenButton Size="ButtonSize.ExtraSmall" Click="@(()=>_navigation.NavigateTo("/locationlist"))" Icon="arrow_back_ios"
+                          Style="background-color:dimgrey"
+                          Text="@_localizer["Detail.BackToList"]" Visible="true" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@Title</strong></RadzenText>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px" class="mb-2">
+                <RadzenButton Click=@(args => DeleteItemLocationAsync(_model)) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizer["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Visible="_visibleBtnSubmit" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTemplateForm Data="@_model" Submit="@((Location args) => { Submit(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Location.Information"]" Disabled="@_disable">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["Location.CD"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtLocationCode" @bind-Value="@_model.LocationCD" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtLocationCode" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["Location.Name"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtLocationName" @bind-Value="@_model.LocationName" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtLocationName" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["Location.Address"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtAddress" @bind-Value="@_model.Address" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtAddress" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["Location.Phone"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtPhone" @bind-Value="@_model.Phone" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtPhone" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["Location.Type"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtType" @bind-Value="@_model.Type" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtType" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["Status"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDropDown @bind-Value=@_selectStatus Data=@(Enum.GetValues(typeof(EnumStatus)).Cast<Enum>()) Name="_dropDownStatus"
+                                                    Multiple=false AllowClear=true Placeholder="@_localizer["Select"]" Chips=true Disabled="@_disable" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_dropDownStatus" Text="Select status" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["Location.Fax"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtFax" @bind-Value="@_model.Fax" Placeholder="Typing..." />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["Location.Abbreviation"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtAbbreviation" @bind-Value="@_model.Abbreviation" Placeholder="Typing..." />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="12">
+                                <RadzenFormField Text="@_localizer["Remarks"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextArea @bind-Value=@_model.Remarks oninput="event.target.style.height = Math.max(event.target.clientHeight, event.target.scrollHeight) + 'px';"
+                                                    Change=@(args => OnChange(args, "Auto-resize")) Style="width: 100%" aria-label="Auto-resize" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Bin.List"]">
+                    <RadzenStack Orientation=Orientation.Vertical JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Stretch" Gap="5px">
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+                            <RadzenButton Click=@(args => PrintLable()) Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_localizer["PrintLabel"]" Icon="print" ButtonStyle="ButtonStyle.Success" Visible="@(Title.Contains(_localizer["Detail.Create"])?false:true)" />
+                            <RadzenButton Click=@(args => AddBin()) Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_localizer["Create"]" Icon="add_circle" ButtonStyle="ButtonStyle.Success" Visible="true" />
+                        </RadzenStack>
+                        <RadzenDataGrid @ref="_profileGrid" Data="@_dataGrid" TItem="Bin" AllowFiltering="true" class="custom-grid"
+                                        FilterPopupRenderMode="PopupRenderMode.OnDemand" AllowPaging="true" PageSize="10" PageSizeText="@_localizer["items per page"]" AllowSorting="true"
+                                        EmptyText="@_localizer["No records to display."]"
+                                        AllowColumnPicking="false" AllowColumnResize="true" AllowGrouping="false"
+                                        GridLines="Radzen.DataGridGridLines.Both" AllowAlternatingRows="false"
+                                        ShowPagingSummary=@_showPagerSummary PagingSummaryFormat="@_pagingSummaryFormat" PageSizeOptions="@_pageSizeOptions"
+                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@_selectedDataBinList>
+                            <Columns>
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(Bin.BinCode)" TextAlign="TextAlign.Center" CssClass="rz-grid-col-flex-start">
+                                    <HeaderTemplate>
+                                        @_localizer["Bin.Code"]
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <a class="text-green" @onclick="@(() => EditItemAsync(data))" style="cursor:pointer;">
+                                            @data.BinCode
+                                        </a>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Bin" Width="200px" Property="Remarks" Title="@_localizer["Remarks"]" />
+                                <RadzenDataGridColumn TItem="Bin" Width="200px" Property="SortOrderNum" Title="@_localizer["Bin.SortOrderNum"]" />
+                            </Columns>
+                        </RadzenDataGrid>
+
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeSM="12">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Start" AlignItems="AlignItems.Center" Gap="1rem" Class="rz-mt-8 rz-mb-4">
+                    @* <RadzenButton Click=@(_ => _navigation.NavigateTo("/locationlist")) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="@_localizer["Cancel"]" /> *@
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_localizer["Save"]" Visible="true" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}
+
+@code {
+    string maxLengthValue = "";
+    int maxLength = 5;
+
+    string value;
+
+    void OnChange(string value, string name)
+    {
+    }
+}

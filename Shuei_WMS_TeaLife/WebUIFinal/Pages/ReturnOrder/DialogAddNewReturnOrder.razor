@@ -1,0 +1,294 @@
+﻿@page "/return-order/{action}/{returnOrderNo?}"
+
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Pages.Components
+
+@inject IStringLocalizer<ReturnOrderResources> _localizer
+@inject IStringLocalizer<CommonResources> _CLoc
+
+@attribute [Authorize(Policy = "AdminAndStaff")]
+@if (returnOrderDto == null)
+{
+    <p><em>@_CLoc["Loading"]</em></p>
+}
+else
+{
+    <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-2">
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenLink Text="@_CLoc["Detail.BackToList"]" Path="/return-order-list" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@_localizer["Return Order"]</strong></RadzenText>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px" class="mb-2">
+                <RadzenButton Click=@(args => DeleteReturnOrder()) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_CLoc["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Visible="_visibleBtnSubmit" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenTemplateForm Data="@returnOrderDto" Submit="@((ReturnOrderDto args) => { Submit(args); })">
+        <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-2">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Return.BasicInformation"]" Disabled="@(returnOrderDto.Status == EnumReturnOrderStatus.Open ? false : true)">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["ReturnOrderNo"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtReturnOrderNo" @bind-Value="@returnOrderDto.ReturnOrderNo" @onchange="@(args => returnOrderDto.ReturnOrderNo = args.Value.ToString())" Placeholder="@_localizer["Typing ..."]" Disabled=true />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["ReturnDate"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDatePicker Placeholder="@_localizer["ReturnDate"]" @bind-Value="@returnOrderDto.ReturnDate" DateFormat="yyyy/MM/dd" Name="_returnDate" AllowClear="true" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_returnDate" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["ShippingNo"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenAutoComplete @ref="_autocompleteShipmentNo" Placeholder="@_CLoc["Select"]"
+                                                        Data="@_autocompleteShipmentNos"
+                                                        TextProperty="ShipmentNo"
+                                                        ValueProperty="ShipmentNo"
+                                                        @bind-Value="returnOrderDto.ShipmentNo"
+                                                        Style="width: 100%"
+                                                        LoadData="@(args => AutocompleteShipmentNo(args))"
+                                                        Change="OnShipmentNoSelected"
+                                                        InputAttributes="@(new Dictionary<string, object>() { { "aria-label", _CLoc["ShippingNo"] } })"
+                                                        Disabled="@(returnOrderDto.Status == EnumReturnOrderStatus.Open ? false : true)" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <CustomDropDown Text="@_localizer["PersonInCharge"]" Name="_dropDownUser"
+                                                @bind-Value="@returnOrderDto.PersonInCharge" Data="@users"
+                                                Placeholder="@_localizer["PersonInCharge"]" IsDisabled="@(returnOrderDto.Status == EnumReturnOrderStatus.Open ? false : true)"
+                                                TextProperty="FullName" ValueProperty="Id" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["ShippingDate"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDatePicker Placeholder="@_localizer["ShippingDate"]" @bind-Value="@returnOrderDto.ShipDate" DateFormat="yyyy/MM/dd" Name="_returnDate" AllowClear="true" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_returnDate" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                                    <RadzenLabel Text="@_CLoc["Status"]" Style="font-weight: bold;" />
+                                    <RadzenLabel Text=":" Style="font-weight: bold;" />
+                                    <span class="status-chip @GetStatusColor(returnOrderDto.Status)">
+                                        @_localizer[returnOrderDto.Status.ToString()]
+                                    </span>
+                                </RadzenStack>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Reason"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextArea @bind-Value="@returnOrderDto.Reason" Style="width: 100%" Name="_reason" aria-label="TextArea" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_reason" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-2">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Return.Details"]">
+                    <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.End" Gap="5px">
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="5px">
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Click="@InsertRow" Disabled="@(returnOrderDto.Status == EnumReturnOrderStatus.Open ? false : true)" />
+                        </RadzenStack>
+                        <RadzenDataGrid @ref="_returnOrderLineProfileGrid" AllowAlternatingRows="false" EditMode="@editMode" GridLines="Radzen.DataGridGridLines.Both"
+                                        Data="@returnOrderDto.ReturnOrderLines" TItem="ReturnOrderLineDto"
+                                        RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset"
+                                        PageSizeText="@_CLoc["items per page"]" EmptyText="@_CLoc["No records to display."]">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="ReturnOrderLineDto" Property="ProductCode" Title="@_CLoc["Product.Code"]" Width="250px">
+                                    <EditTemplate Context="detail">
+                                        @if (returnOrderDto.Status == EnumReturnOrderStatus.Open)
+                                        {
+                                            <RadzenFormField Text="@_CLoc["ProductCode"]" Variant="Variant.Outlined" Style="width:100%">
+                                                <ProductAutocomplete SelectedValue="@selectedProduct.ProductCode" Change="OnProductSelected" TenantId="@selectedShipmentNo.TenantId"
+                                                                     @ref="_productAutocomplete" ProductCodeFilter="@productCodeFilter" />
+                                            </RadzenFormField>
+                                        }
+                                        else
+                                        {
+                                            <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">
+                                                @if (string.IsNullOrEmpty(selectedProduct.ProductCode))
+                                                {
+                                                    @detail.ProductCode
+                                                }
+                                                else
+                                                {
+                                                    @selectedProduct.ProductCode
+                                                }
+                                            </RadzenText>
+                                        }
+                                        
+                                        @* <RadzenDropDown @bind-Value="@data.ProductCode"
+                                                        Style="width:100%"
+                                                        Data="_autocompleteProducts"
+                                                        TextProperty="ProductCode"
+                                                        ValueProperty="ProductCode"
+                                                        TValue="string"
+                                                        Multiple=false
+                                                        Placeholder="@_CLoc["Select"]"
+                                                        AllowClear="true"
+                                                        Change="OnProductSelected"
+                                                        Disabled="@(returnOrderDto.Status == EnumReturnOrderStatus.Open ? false : true)" /> *@
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="ReturnOrderLineDto" Property="ProductName" Title="@_CLoc["Product.Name"]" Width="200px">
+                                    <EditTemplate Context="detail">
+                                        <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">
+                                            @if (string.IsNullOrEmpty(selectedProduct.ProductCode))
+                                            {
+                                                @detail.ProductName
+                                            }
+                                            else
+                                            {
+                                                @selectedProduct.ProductName
+                                            }
+                                        </RadzenText>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="ReturnOrderLineDto" Property="UnitName" Title="@_CLoc["Unit"]" Width="100px">
+                                    <EditTemplate Context="detail">
+                                        <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">
+                                            @if (string.IsNullOrEmpty(selectedProduct.ProductCode))
+                                            {
+                                                @detail.UnitName
+                                            }
+                                            else
+                                            {
+                                                @selectedProduct.UnitName
+                                            }
+                                        </RadzenText>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                 @*
+                                <RadzenDataGridColumn TItem="ReturnOrderLineDto" Property="LocationName" Title="@_CLoc["Location"]" Width="150px">
+                                    <EditTemplate Context="detail">
+                                        <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">
+                                            <RadzenDropDown TValue="string" Name="_dropDownLocation" @bind-Value="@detail.Location" Data="@locations"
+                                                            Multiple="false" AllowClear="true" Placeholder="@_CLoc["Location"]" Chips="true" Disabled="@isDisabled"
+                                                            TextProperty="LocationName" ValueProperty="Id" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                            FilterOperator="StringFilterOperator.Contains" />
+                                        </RadzenText>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                *@
+                                <RadzenDataGridColumn TItem="ReturnOrderLineDto" Property="AvailableReturnQty" Title="@_localizer["AvailableReturnQty"]" Width="120px">
+                                    <EditTemplate Context="detail">
+                                        <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">
+                                            @if (string.IsNullOrEmpty(selectedProduct.ProductCode))
+                                            {
+                                                @detail.AvailableReturnQty
+                                            }
+                                            else
+                                            {
+                                                @selectedStockAvaibility
+                                            }
+                                        </RadzenText>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="ReturnOrderLineDto" Property="Qty" Title="@_localizer["Return.Qty"]" Width="120px">
+                                    <EditTemplate Context="detail">
+                                        <RadzenNumeric @bind-Value="detail.Qty" Name="Qty" Style="width:100%" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", _localizer["EnterQty"] }})" Disabled="@(returnOrderDto.Status == EnumReturnOrderStatus.Open ? false : true)" />
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                @if (returnOrderDto.Status == EnumReturnOrderStatus.Open)
+                                {
+                                    <RadzenDataGridColumn Context="detail" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Width="120px" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                        <Template Context="detail">
+                                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(detail))">
+                                            </RadzenButton>
+                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@(args => DeleteRow(detail))" @onclick:stopPropagation="true">
+                                            </RadzenButton>
+                                        </Template>
+                                        <EditTemplate Context="detail">
+                                            <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRow(detail))" aria-label="@_localizer["Save"]">
+                                            </RadzenButton>
+                                            <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@((args) => CancelEdit(detail))" aria-label="@_localizer["Cancel"]">
+                                            </RadzenButton>
+                                        </EditTemplate>
+                                    </RadzenDataGridColumn>
+                                }
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-2">
+            <RadzenColumn Size="12" SizeSM="12">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem">
+                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Large" Icon="save" Text="@_localizer["CreateReceipt"]" Visible="@_visibleBtnSubmit" Style="background-color:cadetblue" Click="CreateReceipt" Disabled="@(returnOrderDto.Status == EnumReturnOrderStatus.Open ? false : true)" />
+                    @*@<RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Large" Icon="cancel" Text="@_CLoc["Cancel"]" Visible="@_visibleBtnSubmit" Style="background-color:cadetblue" Click=@(_ => _navigation.NavigateTo("/return-order-list")) />*@
+                    <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_CLoc["Save"]" Visible="@_visibleBtnSubmit" Disabled="@(returnOrderDto.Status == EnumReturnOrderStatus.Open ? false : true)" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}
+
+<style>
+    .status-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 12px;
+        height: 32px;
+        border-radius: 16px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        line-height: 1.75;
+        letter-spacing: 0.02857em;
+        text-transform: uppercase;
+    }
+
+    .status-chip.default {
+        background-color: #e0e0e0;
+        color: rgba(0, 0, 0, 0.87);
+    }
+
+    .status-chip.primary {
+        background-color: #7b1fa2;
+        color: #fff;
+    }
+
+    .status-chip.secondary {
+        background-color: #ff4081;
+        color: #fff;
+    }
+
+    .status-chip.info {
+        background-color: #2196f3;
+        color: #fff;
+    }
+
+    .status-chip.success {
+        background-color: #4caf50;
+        color: #fff;
+    }
+
+    .status-chip.warning {
+        background-color: #ff9800;
+        color: #fff;
+    }
+
+    .status-chip.error {
+        background-color: #f44336;
+        color: #fff;
+    }
+
+    .status-chip.dark {
+        background-color: #424242;
+        color: #fff;
+    }
+</style>

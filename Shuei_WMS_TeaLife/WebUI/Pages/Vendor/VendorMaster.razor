@@ -1,0 +1,92 @@
+﻿@page "/vendor";
+
+<div class="container-fluid p-3">
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <div class="x_panel">
+                <div class="x_content">
+                    <div class="table-responsive">
+                        <div class="container">
+                            <div class="row g-3 align-items-center mb-3">
+                                <div class="col-auto">
+                                    <label for="vendorCode" class="col-form-label">Vendor Code</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input type="text" id="vendorCode" class="form-control" placeholder="Enter Vendor Code">
+                                </div>
+                                <div class="col-auto">
+                                    <label for="vendorName" class="col-form-label">Vendor Name</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input type="text" id="vendorName" class="form-control" placeholder="Enter Vendor Name">
+                                </div>
+                                <div class="col-auto">
+                                    <label for="status" class="col-form-label">Status</label>
+                                </div>
+                                <div class="col-auto">
+                                    <select id="status" class="form-select">
+                                        <option value="">Select Status</option>
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <button id="searchButton" type="button" class="btn btn-primary">Search</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border p-3 rounded mb-4">
+                            <div class="d-flex justify-content-end mb-3">
+                                <NavLink class="nav-link" href="vendor/create" activeClassName="active">
+                                    <button class="btn btn-success">Add Vendor</button>
+                                </NavLink>
+                            </div>
+                            <table id="vendorTable" class="table table-striped jambo_table bulk_action">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="width: 100px;">Actions</th>
+                                        <th style="width: 150px;">Vendor Code</th>
+                                        <th style="width: 200px;">Vendor Name</th>
+                                        <th style="width: 200px;">Type</th>
+                                        <th style="width: 200px;">Email</th>
+                                        <th style="width: 150px;">Phone Number</th>
+                                        <th style="width: 150px;" class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (_vendors != null)
+                                    {
+                                        @foreach (var vendor in _vendors)
+                                        {
+                                            <tr>
+                                                <td class="text-center">
+                                                    <button class="btn btn-light" @onclick="() => NavigateDetailPage(vendor.Id)">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-danger" @onclick="() => DeleteItemAsync(vendor)">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </td>
+                                                <td>@vendor.VendorCode</td>
+                                                <td>@vendor.VendorName</td>
+                                                <td></td>
+                                                <td>@vendor.BillingMail</td>
+                                                <td>@vendor.BillingPhone</td>
+                                                <td class="text-center">
+                                                    <span>
+                                                        @vendor.Status
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

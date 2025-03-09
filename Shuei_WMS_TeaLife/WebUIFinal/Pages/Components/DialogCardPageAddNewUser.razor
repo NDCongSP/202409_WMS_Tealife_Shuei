@@ -1,0 +1,130 @@
+﻿@page "/adduser/{Title}"
+@using Application.DTOs.Request.Account
+@using Application.DTOs.Response.Account
+@using Microsoft.AspNetCore.Authorization
+@inject IStringLocalizer<CommonResources> _localizer
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+@inject IStringLocalizer<EnumStatusResources> _localizerEnumStatus
+
+@attribute [Authorize]
+@if (_roles.Count <= 0 || _model == null)
+{
+    <p><em>@_localizer["Loading"]...</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content" Visible="@_visible">
+        <RadzenColumn Size="12" SizeSM="12">
+            @* <RadzenLink Text="@_localizer["Detail.BackToList"]" Path="/userlist" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" /> *@
+            <RadzenButton Size="ButtonSize.ExtraSmall" Click="@(()=>_navigation.NavigateTo("/userlist"))" Icon="arrow_back_ios"
+                          Style="background-color:dimgrey"
+                          Text="@_localizer["Detail.BackToList"]" Visible="true" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        @*   <RadzenColumn Size="12" SizeSM="6">
+    <RadzenText TextStyle="TextStyle.Body1"><strong>@Title</strong></RadzenText>
+    </RadzenColumn> *@
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px" class="mb-2">
+                <RadzenButton Click=@(args => PrintLable()) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizer["PrintLabel"]" Icon="print" ButtonStyle="ButtonStyle.Success" />
+                <RadzenButton Click=@(args => DeleteItemAsync(_model)) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizer["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger"
+                              Disabled="@(Title.Contains($"{_localizer["Detail.Create"]}") || _model.Roles.FirstOrDefault().Name==ConstantExtention.Roles.WarehouseAdmin || !_visible || _model.UserName.Contains("OMS"))" />
+                <RadzenButton Click=@(args => PrintLable1()) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="Print label 1" Icon="print" ButtonStyle="ButtonStyle.Success" Visible="false" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTemplateForm Data="@_model" Submit="@((CreateAccountRequestDTO args) => { Submit(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["UesrDetail.Information"]" Disabled="@_disable">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["UserName"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtUserName" @bind-Value="@_model.UserName" Placeholder="Typing..."
+                                                   Disabled="@((Title.Contains(_localizer["Detail.Edit"]) || _disable) && !GlobalVariable.AuthenticationStateTask.HasRole("Warehouse Admin"))" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtUserName" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6" Visible=@Title.Contains(_localizer["Detail.Create"])>
+                                <RadzenFormField Text="@_localizer["Password"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="" @bind-Value="@_model.Password" Visible="@(!password)" />
+                                        <RadzenPassword @bind-Value="@_model.Password" Visible="@password" />
+                                    </ChildContent>
+                                    <End>
+                                        <RadzenButton Icon="@(password ? "visibility" : "visibility_off")" Click="TogglePassword"
+                                                      Variant="Variant.Text" Size="ButtonSize.Small" />
+                                    </End>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Email"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtEmail" @bind-Value="@_model.Email" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtEmail" Text="@_localizer["Validate.EmailRequried"]" Popup=false Style="position: absolute" />
+                                <RadzenEmailValidator Component="_txtEmail" Text="@_localizer["Validate.EmailFormat"]" Popup=false Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Fullname"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtFullName" @bind-Value="@_model.FullName" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtFullName" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Role"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDropDown @bind-Value=@_selectedRoles Data=@_roles Name="_dropDownRoles"
+                                                    TextProperty="@nameof(GetRoleResponseDTO.Name)" ValueProperty="@nameof(GetRoleResponseDTO.Id)"
+                                                    Multiple=true AllowClear=true Chips=true Placeholder="@_localizer["Select"]"
+                                                    Disabled="@((Title.Contains(_localizer["Detail.Edit"]) || _disable) && !GlobalVariable.AuthenticationStateTask.HasRole("Warehouse Admin"))" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_dropDownRoles" Text="@_localizer["Validate.Role"]" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Status"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDropDown @bind-Value=@_selectStatus
+                                                    Data=@(Enum.GetValues(typeof(EnumStatus)).Cast<EnumStatus>().Select(e=>new
+                                                {
+                                                DisplayValue =_localizerEnumStatus[e.ToString()],
+                                                Value=e
+                                                }))
+                                                    ValueProperty="Value" TextProperty="DisplayValue"
+                                                    Name="_dropDownStatus"
+                                                    Multiple=false AllowClear=true Placeholder="@_localizer["Select"]" Chips=true
+                                                    Disabled="@((Title.Contains(_localizer["Detail.Edit"]) || _disable) && !GlobalVariable.AuthenticationStateTask.HasRole("Warehouse Admin"))" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_dropDownStatus" Text="@_localizer["Required"]" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["UserDetail.SelectTenant"]" Variant="Variant.Outlined"
+                                                 Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDropDown @bind-Value=@_selectedTenantList Data=@_tenantList Name="_dropDownSelectTenant"
+                                                    TextProperty="@nameof(CompanyTenant.FullName)" Placeholder="@_localizer["Select"]"
+                                                    Multiple=true AllowClear=true Chips=true
+                                                    Disabled="@((Title.Contains(_localizer["Detail.Edit"]) || _disable) && !GlobalVariable.AuthenticationStateTask.HasRole("Warehouse Admin"))" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_dropDownSelectTenant" Text="@_localizer["UserDetail.SelectTenant"]"
+                                                         Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeSM="12">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Start" AlignItems="AlignItems.Center" Gap="1rem" Class="rz-mt-8 rz-mb-4">
+                    @* <RadzenButton Click=@(_ => _navigation.NavigateTo("/userlist")) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="@_localizer["Cancel"]" Disabled="@(!_visible)" /> *@
+                        <RadzenButton ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_localizer["Save"]"
+                                      Disabled="@(!_visible||(_model.UserName.Contains("OMS") && GlobalVariable.UserAuthorizationInfo.UserName =="Admin"))" />
+                    
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}

@@ -1,0 +1,29 @@
+﻿@page "/packingslip"
+@layout PrintLayout
+
+@if (string.IsNullOrWhiteSpace(PdfBase64))
+{
+    <h3 class="w-100 text-center">Please wait...</h3>
+}
+else
+{
+    @*  <div class="card" style="width: 100%; height: 100%">
+        <div class="card-body">
+            <object>
+                <embed id="pdfID" type="text/html" width="100%" height="100%" src="data:application/pdf;base64, @PdfBase64" />
+            </object>
+        </div>
+    </div> *@
+    <div id="printableArea">
+        <div class="card pdf-card">
+            @* <div class="container"> *@
+            <iframe id="pdfID" src="data:application/pdf;base64,@PdfBase64" frameborder="0"></iframe>
+        </div>
+    </div>
+}
+
+<script>
+    function printLabel() {
+        window.print();
+    }
+</script>

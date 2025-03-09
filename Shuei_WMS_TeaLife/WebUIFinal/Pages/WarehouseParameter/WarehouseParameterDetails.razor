@@ -1,0 +1,128 @@
+﻿@page "/systemsetting"
+@using Application.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Core
+@using WebUIFinal.Pages.Components
+@using FBT.ShareModels.WMS
+@inject IStringLocalizer<WarehouseParameterResource> _localizer
+@inject IStringLocalizer<CommonResources> _CLoc
+
+@attribute [Authorize]
+<RadzenTemplateForm Data="@_model" Submit="@((WarehouseParameter args) => { Submit(args); })">
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeMD="12">
+            <RadzenFieldset Text="@_localizer["WarehouseParameterinformation"]">
+                <RadzenStack>
+                    <RadzenRow AlignItems="AlignItems.Start">
+                        <RadzenColumn SizeXS="12" SizeSM="6">
+                            <RadzenFormField Text="@_localizer["CompanyName"]" Variant="Variant.Outlined" Style="width:100%">
+                              
+                                    <RadzenTextBox Name="_txtCompanyName" @bind-Value="@_model.CompanyName"  />
+                               
+                            
+                            </RadzenFormField>
+                        </RadzenColumn>
+                        <RadzenColumn SizeXS="12" SizeSM="6">
+                            <RadzenFormField Text="@_localizer["CompanyAddress"]" Variant="Variant.Outlined" Style="width:100%">
+                               
+                                    <RadzenTextBox Name="_txtCompanyAddress" @bind-Value="@_model.CompanyAddress"  />
+                               
+                          
+                            </RadzenFormField>
+                        </RadzenColumn>
+                   
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Start">
+                        <RadzenColumn SizeXS="12" SizeSM="6">
+                            <RadzenFormField Text="@_localizer["CompanyPhone"]" Variant="Variant.Outlined" Style="width:100%">
+                              
+                                    <RadzenTextBox Name="_txtCompanyPhone" @bind-Value="@_model.CompanyPhone"  />
+                               
+                            </RadzenFormField>
+                        </RadzenColumn>
+                        <RadzenColumn SizeXS="12" SizeSM="6">
+                            <RadzenFormField Text="@_localizer["CompanyEmail"]" Variant="Variant.Outlined" Style="width:100%">
+                              
+                                    <RadzenTextBox Name="_txtCompanyEmail" @bind-Value="@_model.CompanyEmail" />
+                                
+
+                            </RadzenFormField>
+                        </RadzenColumn>
+
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Start">
+                        <RadzenColumn SizeXS="12" SizeSM="6">
+                            <RadzenFormField Text="@_localizer["CompanyFax"]" Variant="Variant.Outlined" Style="width:100%">
+                                
+                                    <RadzenTextBox Name="_txtCompanyFax" @bind-Value="@_model.CompanyFax"  />
+                               
+                            </RadzenFormField>
+                        </RadzenColumn>
+                        <RadzenColumn SizeXS="12" SizeSM="6">
+                            <RadzenFormField Text="@_localizer["CompanyWebsite"]" Variant="Variant.Outlined" Style="width:100%">
+                              
+                                    <RadzenTextBox Name="_txtCompanyWebsite" @bind-Value="@_model.CompanyWebsite" />
+                                
+
+                            </RadzenFormField>
+                        </RadzenColumn>
+
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Start">
+                        <RadzenColumn SizeXS="12" SizeSM="6">
+                            <RadzenFormField Text="@_localizer["InvoiceAddress"]" Variant="Variant.Outlined" Style="width:100%">
+                               
+                                    <RadzenTextBox Name="_txtInvoiceAddress" @bind-Value="@_model.InvoiceAddress"  />
+                              
+                            </RadzenFormField>
+                        </RadzenColumn>
+                        <RadzenColumn SizeXS="12" SizeSM="6">
+                            <RadzenFormField Text="@_localizer["PutawayLocation"]" Variant="Variant.Outlined" Style="width:100%">
+                                <RadzenDropDown TValue="string" Name="_dropDownLocation" @bind-Value="@_model.PutawayLocation" Data="@locations"
+                                                Multiple="false" AllowClear="true" Placeholder="@_CLoc["Location"]" Chips="true" 
+                                                TextProperty="LocationName" ValueProperty="Id" AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" />
+                               
+                            </RadzenFormField>
+                        </RadzenColumn>
+
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Start">
+                        <RadzenColumn SizeXS="12" SizeSM="6">
+                            <RadzenFormField Text="@_localizer["ReceivingLocation"]" Variant="Variant.Outlined" Style="width:100%">
+
+                                <RadzenDropDown TValue="string" Name="_dropDownLocation" @bind-Value="@_model.ReceivingLocation" Data="@locations"
+                                                Multiple="false" AllowClear="true" Placeholder="@_CLoc["Location"]" Chips="true"
+                                                TextProperty="LocationName" ValueProperty="Id" AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" />
+                                
+                            </RadzenFormField>
+                        </RadzenColumn>
+                        <RadzenColumn SizeXS="12" SizeSM="6">
+                            <RadzenFormField Text="@_localizer["ShipmentLocation"]" Variant="Variant.Outlined" Style="width:100%">
+
+                                <RadzenDropDown TValue="string" Name="_dropDownLocation" @bind-Value="@_model.ShipmentLocation" Data="@locations"
+                                                Multiple="false" AllowClear="true" Placeholder="@_CLoc["Location"]" Chips="true"
+                                                TextProperty="LocationName" ValueProperty="Id" AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" />
+                                
+
+                            </RadzenFormField>
+                        </RadzenColumn>
+
+                    </RadzenRow>
+               
+                </RadzenStack>
+            </RadzenFieldset>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeMD="12">
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Start" AlignItems="AlignItems.End" Gap="1rem">
+               
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_CLoc["Save"]" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenTemplateForm>
+

@@ -1,0 +1,53 @@
+﻿.status-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    height: 32px;
+    border-radius: 16px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.75;
+    letter-spacing: 0.02857em;
+    text-transform: uppercase;
+}
+
+    .status-chip.default {
+        background-color: #e0e0e0;
+        color: rgba(0, 0, 0, 0.87);
+    }
+
+    .status-chip.primary {
+        background-color: #7b1fa2;
+        color: #fff;
+    }
+
+    .status-chip.secondary {
+        background-color: #ff4081;
+        color: #fff;
+    }
+
+    .status-chip.info {
+        background-color: #2196f3;
+        color: #fff;
+    }
+
+    .status-chip.success {
+        background-color: #4caf50;
+        color: #fff;
+    }
+
+    .status-chip.warning {
+        background-color: #ff9800;
+        color: #fff;
+    }
+
+    .status-chip.error {
+        background-color: #f44336;
+        color: #fff;
+    }
+
+    .status-chip.dark {
+        background-color: #424242;
+        color: #fff;
+    }

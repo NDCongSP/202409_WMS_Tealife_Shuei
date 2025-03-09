@@ -1,0 +1,91 @@
+﻿@page "/detailbatch/{Title}"
+
+@using Application.Extentions
+@using BatchEntity = FBT.ShareModels.WMS.Batches;
+@using Microsoft.AspNetCore.Authorization
+@inject IStringLocalizer<CommonResources> _localizerCommon
+@inject IStringLocalizer<BatchResources> _localizer
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+@attribute [Authorize(Roles = ConstantExtention.Roles.WarehouseSystem)]
+@if (_model == null)
+{
+    <p><em>@_localizerCommon["Loading"]...</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenLink Text="@_localizerCommon["Detail.BackToList"]" Path="/batches" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@Title</strong></RadzenText>
+        </RadzenColumn>
+        @if (!Title.Contains(_localizerCommon["Detail.Create"]))
+        {
+            <RadzenColumn Size="12" SizeSM="6">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+                    <RadzenButton Click=@(args => DeleteItemAsync(_model)) Variant="Variant.Flat" Shade="Shade.Dark"
+                                  Text="@_localizerCommon["Delete"]" Icon="cancel" ButtonStyle="ButtonStyle.Danger" />
+                </RadzenStack>
+            </RadzenColumn>
+        }
+    </RadzenRow>
+    <RadzenTemplateForm Data="@_model" Submit="@((BatchEntity args) => { Submit(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Batch information"]" Disabled="@isDisabled">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Product.Code"]" Variant="Variant.Outlined" Style="display:flex; flex-direction:column; align-items:stretch; width:100%">
+                                    <RadzenTextBox Name="_txtProductCode" @bind-Value="@_model.ProductCode" Style="color:black" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtProductCode" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Tenant Id"]" Variant="Variant.Outlined" Style="display:flex; flex-direction:column; align-items:stretch; width:100%">
+                                    <RadzenNumeric Name="_txtTenantId" @bind-Value="@_model.TenantId" Style="color:black" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtTenantId" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Lot No."]" Variant="Variant.Outlined" Style="display:flex; flex-direction:column; align-items:stretch; width:100%">
+                                    <RadzenTextBox Name="_txtLotNo" @bind-Value="@_model.LotNo" Style="color:black" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtLotNo" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Manufacturing Date"]" Variant="Variant.Outlined" Style="display:flex; flex-direction:column; align-items:stretch; width:100%">
+                                    <RadzenDatePicker Name="_txtManufacturingDate" @bind-Value="@_model.ManufacturingDate" Style="color:black" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtManufacturingDate" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Expiration Date"]" Variant="Variant.Outlined" Style="display:flex; flex-direction:column; align-items:stretch; width:100%">
+                                    <RadzenDatePicker Name="_txtExpirationDate" @bind-Value="@_model.ExpirationDate" Style="color:black" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtExpirationDate" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Center" Gap="1rem">
+                    <RadzenButton Click=@(_ => _navigation.NavigateTo("/batches")) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="@_localizerCommon["Cancel"]" />
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_localizerCommon["Save"]" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}

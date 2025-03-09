@@ -1,0 +1,176 @@
+﻿@page "/inventory-preset-list"
+@using Application.DTOs
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Core
+@using WebUIFinal
+
+
+@inject IStringLocalizer<InventoryResources> _localizer
+@inject IStringLocalizer<CommonResources> _CLoc
+
+@attribute [Authorize]
+@if (bundleList == null)
+{
+    <p><em>@_CLoc["Loading"]</em></p>
+}
+else
+{
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenLink Text="@_CLoc["Detail.BackToList"]" Path="/inventory-bundle-list" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+
+    <RadzenTemplateForm Data="@_searchModel" Submit="@((BundleSearchModel args) => { OnSearch(args); })">
+        <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-2">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Search Bundle Set Records"]">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["ProductBundleCode"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox @bind-Value="@_searchModel.ProductBundleCode" Name="ProductBundleCode" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["ProductCode"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox @bind-Value="@_searchModel.ProductCode" Name="ProductCode" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                        <RadzenColumn SizeXS="6" SizeSM="3">
+                            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap" class="rz-mt-2">
+                                <RadzenButton Variant="Variant.Flat" Text="@_CLoc["Clear"]" Icon="cancel" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Base" Size="ButtonSize.Large" Click="@ClearFilter" />
+                                <RadzenButton Variant="Variant.Flat" Text="@_CLoc["Search"]" Icon="search" ButtonType="ButtonType.Submit" Size="ButtonSize.Large" />
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+    <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-2">
+        <RadzenColumn SizeXS="12" SizeMD="12">
+            <RadzenStack>
+                <RadzenFieldset Text="@_localizer["Bundleset List"]">
+                    <RadzenDataGrid @ref="_bundleListGrid" Data="@_filteredModel" TItem="ProductBundleDto" AllowFiltering="true" class="custom-grid" PageSizeText="@_CLoc["items per page"]"
+                                    AllowPaging="true" PageSize="30" AllowSorting="true"  ShowPagingSummary=@_showPagerSummary PagingSummaryFormat="@_pagingSummaryFormat" PageSizeOptions="@Constants.PageSizeOptions" EmptyText="@_CLoc["No records to display."]"
+                                 CellRender="@CellRender"   >
+                                     
+                        <Columns>
+                            <RadzenDataGridColumn TItem="ProductBundleDto" Filterable="false" Property="SaleProductBundleCode" Title="@_localizer["SaleProductBundleCode"]" />
+                            <RadzenDataGridColumn TItem="ProductBundleDto" Filterable="false" Property="ProductBundleCode" Title="@_localizer["ProductBundleCode"]" />
+                            <RadzenDataGridColumn TItem="ProductBundleDto" Filterable="false" Property="ProductBundleSetName" Title="@_localizer["ProductBundleSetName"]" />
+                            <RadzenDataGridColumn TItem="ProductBundleDto" Filterable="false" Property="OrderStatusQty" Title="@_localizer["OrderStatusQty"]" />
+                            <RadzenDataGridColumn TItem="ProductBundleDto" Filterable="false" Property="StockUpStatusQty" Title="@_localizer["StockUpStatusQty"]" />
+                            <RadzenDataGridColumn TItem="ProductBundleDto" Filterable="false" Width="70px" Property="SequenceNo" Title="@_localizer["SequenceNo"]" />
+                            <RadzenDataGridColumn TItem="ProductBundleDto" Filterable="false" Property="ProductCode" Title="@_localizer["ProductCode"]" />
+                            <RadzenDataGridColumn TItem="ProductBundleDto" Filterable="false" Property="ProductName" Title="@_localizer["ProductName"]" />
+                            <RadzenDataGridColumn TItem="ProductBundleDto" Filterable="false" Property="Quantity" Title="@_localizer["Quantity"]" />
+                            <RadzenDataGridColumn TItem="ProductBundleDto" Filterable="false" Property="DemandQty" Title="@_localizer["DemandQty"]" />
+                            <RadzenDataGridColumn TItem="ProductBundleDto" Filterable="false" Property="AvailableQty" Title="@_localizer["AvailableQty"]" />
+                            <RadzenDataGridColumn TItem="ProductBundleDto" Filterable="false" Property="OpenShipmentQty" Title="@_localizer["OpenShipmentQty"]" />
+
+                        </Columns>
+                    </RadzenDataGrid>
+                </RadzenFieldset>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+}
+
+@code {
+    public class BundleSearchModel
+    {
+        public string? ProductBundleCode { get; set; }
+        public string? ProductCode { get; set; }
+    }
+
+    List<ProductBundleDto> _filteredModel = new();
+    BundleSearchModel _searchModel = new();
+
+    private void OnSearch(BundleSearchModel args)
+    {
+        _filteredModel = bundleList;
+
+        if (!string.IsNullOrEmpty(args.ProductBundleCode))
+        {
+            _filteredModel = _filteredModel.Where(_ => _.ProductBundleCode.Contains(args.ProductBundleCode, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+        if (!string.IsNullOrEmpty(args.ProductCode))
+        {
+            _filteredModel = _filteredModel.Where(_ => _.ProductCode.Contains(args.ProductCode, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+        StateHasChanged();
+    }
+
+
+    int CalculateRowSpan(ProductBundleDto data, string propertyName)
+    {
+        string currentValue = GetPropertyValue(data, propertyName);
+        var matchingRows = _filteredModel.Where(row => GetPropertyValue(row, propertyName) == currentValue).ToList();
+        int rowIndexInGroup = matchingRows.IndexOf(data);
+        return rowIndexInGroup == 0 ? matchingRows.Count : 0;
+    }
+
+   
+
+    private void ClearFilter()
+    {
+        _searchModel = new();
+        _filteredModel = bundleList;
+        StateHasChanged();
+    }
+    void CellRender(DataGridCellRenderEventArgs<ProductBundleDto> args)
+    {
+        string[] propertiesToMerge = { "SaleProductBundleCode", "ProductBundleCode", "ProductBundleSetName", "OrderStatusQty", "StockUpStatusQty", "OpenShipmentQty" };
+
+        string style = "border-left: 1px solid #ccc;"; // Start with the border-left style
+
+        if (propertiesToMerge.Contains(args.Column.Property))
+        {
+            int rowSpan = CalculateRowSpan(args.Data, args.Column.Property);
+
+            if (rowSpan > 1)
+            {
+                args.Attributes.Add("rowspan", rowSpan);
+            }
+            else if (rowSpan == 0)
+            {
+                style += " display: none;"; // Append display: none to the style string
+            }
+        }
+
+        args.Attributes.Add("style", style); // Add the style attribute only once
+    }
+
+    string GetPropertyValue(ProductBundleDto data, string propertyName)
+    {
+        if (propertyName == "OpenShipmentQty")
+        {
+            return data.SaleProductBundleCode + data.OpenShipmentQty;
+        }
+        else if (propertyName == "OrderStatusQty")
+        {
+            return data.SaleProductBundleCode + data.OrderStatusQty;
+        }
+        else if (propertyName == "StockUpStatusQty")
+        {
+            return data.SaleProductBundleCode + data.StockUpStatusQty;
+        }
+        else if (propertyName == "ProductBundleSetName")
+        {
+            return data.SaleProductBundleCode + data.ProductBundleSetName;
+        }
+        {
+            return data.GetType().GetProperty(propertyName)?.GetValue(data)?.ToString();
+        }
+    }
+
+
+
+
+}

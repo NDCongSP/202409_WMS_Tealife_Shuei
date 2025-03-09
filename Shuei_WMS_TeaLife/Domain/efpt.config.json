@@ -1,0 +1,86 @@
+﻿{
+   "CodeGenerationMode": 4,
+   "ContextClassName": "FBT_DEVContext",
+   "ContextNamespace": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "ModelNamespace": null,
+   "OutputContextPath": null,
+   "OutputPath": "Entity\/newEntity",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "Domain",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 2,
+   "SelectedToBeGenerated": 0,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[wms].[ReturnOrderLines]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[wms].[ReturnOrders]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[wms].[ShippingBoxes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[wms].[ShippingCarriers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[wms].[WarehousePackingLines]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[wms].[WarehousePackingList]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[wms].[WarehousePickingLines]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[wms].[WarehousePickingList]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[wms].[WarehousePickingStaging]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[wms].[WarehouseShipmentLines]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[wms].[WarehouseShipments]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": null,
+   "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDateOnlyTimeOnly": true,
+   "UseDbContextSplitting": false,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": true,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false
+}

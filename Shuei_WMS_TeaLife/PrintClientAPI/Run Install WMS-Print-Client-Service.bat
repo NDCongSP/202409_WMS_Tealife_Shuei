@@ -1,0 +1,1 @@
+WinSW-x64 install minimal.xml

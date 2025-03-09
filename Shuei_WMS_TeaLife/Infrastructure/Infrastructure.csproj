@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+	  
+    <PackageReference Include="BarcodeLib" Version="3.1.4" />
+	  
+    <PackageReference Include="Bogus" Version="35.6.2" />
+	  
+    <PackageReference Include="ClosedXML" Version="0.104.1" />
+	  
+    <PackageReference Include="ClosedXML.Report" Version="0.2.10" />
+	  
+    <PackageReference Include="Dapper" Version="2.1.35" />
+	  
+    <PackageReference Include="FluentValidation" Version="11.10.0" />
+	  
+    <PackageReference Include="Magicodes.IE.Pdf" Version="2.7.5.2" />
+	  
+    <PackageReference Include="Mapster" Version="7.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="QRCoder.Core" Version="1.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\WebUIFinal\WebUIFinal.csproj" />
+  </ItemGroup>
+
+</Project>

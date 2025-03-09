@@ -1,0 +1,272 @@
+﻿@page "/putawaydetails/{title}"
+
+@using WebUIFinal.Core
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+@using Application.DTOs
+
+
+@inject IStringLocalizer<PutawayResources> _localizer;
+@inject IStringLocalizer<CommonResources> _localizerCommon;
+@inject IJSRuntime JSRuntime
+
+<style>
+    .Shelved {
+        background-color: #8A42F3; /* Purple color */
+    }
+
+    .rz-grid-table {
+        width: unset;
+    }
+</style>
+
+@attribute [Authorize]
+@if (putAwayDto == null)
+{
+    <p><em>Loading...</em></p>
+}
+
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12">
+            <RadzenLink Text="@_localizerCommon["Detail.BackToList"]" Path="/putaway" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        @* <RadzenColumn Size="12" SizeSM="6">
+    <RadzenText TextStyle="TextStyle.Body1"><strong>@Title</strong></RadzenText>
+    </RadzenColumn> *@
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+                <RadzenButton Click=@(args => DeleteItemAsync(putAwayDto)) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizerCommon["Delete"]" Icon="cancel" ButtonStyle="ButtonStyle.Danger"
+                              Disabled="@(putAwayDto.Status == EnumPutAwayStatus.Completed ? true : false)" Visible="@(GlobalVariable.AuthenticationStateTask.HasPermission("EditAll") ||GlobalVariable.AuthenticationStateTask.HasPermission("PutAwayEdit"))" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenTemplateForm Data="@putAwayDto" Submit="@((WarehousePutAwayDto args) => { Submit(args); })">
+
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+
+            <RadzenColumn Size="12">
+                <RadzenFieldset Text="@_localizer["Shelvingdetails"]">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["PutawayNo"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenTextBox Name="_txtPutAwayNo" @bind-Value="@putAwayDto.PutAwayNo" Disabled="true" />
+                                    <RadzenRequiredValidator Component="_txtPutAwayNo" Popup="false" Style="position: absolute" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["ReceiveDate"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDatePicker DateFormat="yyyy-MM-dd" @bind-Value="@putAwayDto.TransDate" Name="_txtTransDate" Placeholder="@_localizer["ExpectedDate"]"
+                                                      Disabled="@(putAwayDto.Status == EnumPutAwayStatus.Completed ? true : false)" />
+                                    <RadzenRequiredValidator Component="_txtTransDate" Popup="false" Style="position: absolute" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["PutAwayDate"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDatePicker DateFormat="yyyy-MM-dd" @bind-Value="@putAwayDto.TransDate" Name="_txtTransDate" Placeholder="@_localizer["PutAwayDate"]"
+                                                      Disabled="@(putAwayDto.Status == EnumPutAwayStatus.Completed ? true : false)" />
+                                    <RadzenRequiredValidator Component="_txtTransDate" Popup="false" Style="position: absolute" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["Location"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%"
+                                                 Disabled="@(putAwayDto.Status == EnumPutAwayStatus.Completed ? true : false)">
+                                    <RadzenDropDown TValue="string" Name="_dropDownLocation" @bind-Value="@putAwayDto.Location" Data="@locations"
+                                                    Multiple=false AllowClear=true Placeholder="@_localizer["Location"]" Chips=true
+                                                    TextProperty="LocationName" ValueProperty="Id" Change="@(args => OnLocationChanged(args.ToString()))" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["Tenant"]" Variant="Variant.Outlined"
+                                                 Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDropDown @bind-Value=@putAwayDto.TenantId Data=@tenants Name="_dropDownSelectTenant"
+                                                    TextProperty="TenantFullName" Placeholder="@_localizer["Select"]"
+                                                    ValueProperty="TenantId" AllowClear=true Chips=true />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_dropDownSelectTenant" Text="@_localizer["Tenant"]"
+                                                         Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn SizeXS="12" SizeMD="12">
+                <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Stretch" Gap="5px">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End"
+                                 AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap" class="rz-mt-2">
+
+                        <RadzenButton Variant="Variant.Flat" Shade="Shade.Dark" Text="@_localizer["HTShelfResultsReflected"]" ButtonStyle="ButtonStyle.Info" Click="@(async () => await SyncHTData())" Disabled="@(putAwayDto.Status == EnumPutAwayStatus.Completed ? true : false)" Visible="@(GlobalVariable.AuthenticationStateTask.HasPermission("EditAll") ||GlobalVariable.AuthenticationStateTask.HasPermission("PutAwayEdit"))" />
+
+                        <RadzenButton Variant="Variant.Flat" Shade="Shade.Dark"
+                                      Text="@_localizer["ProductRelease"]" ButtonStyle="ButtonStyle.Info"
+                                      Click="@(async () => await CopyAndAddNewRow(selectedPutAwayLine?.FirstOrDefault()))"
+                                      Disabled="@(putAwayDto.Status == EnumPutAwayStatus.Completed ? true : false)" Visible="@(GlobalVariable.AuthenticationStateTask.HasPermission("EditAll") ||GlobalVariable.AuthenticationStateTask.HasPermission("PutAwayEdit"))" />
+                        @if (!string.IsNullOrEmpty(qrCodeBase64))
+                        {
+                            <img src="@qrCodeBase64" alt="QR Code" id="qrCodeImage" />
+                            <br />
+
+                            <button @onclick="PrintQRCode">Print QR Code</button>
+                        }
+                        <RadzenButton Variant="Variant.Flat" Shade="Shade.Dark"
+                                      Text="@_localizerCommon["PrintLabel"]" Click="@(() => PrintSelectedLabels())" ButtonStyle="ButtonStyle.Info" Visible="@(GlobalVariable.AuthenticationStateTask.HasPermission("EditAll") ||GlobalVariable.AuthenticationStateTask.HasPermission("PutAwayEdit"))" />
+                    </RadzenStack>
+
+                    <RadzenDataGrid @ref="grid" Data="putAwayDto.WarehousePutAwayLines" TItem="WarehousePutAwayLineDto" GridLines="Radzen.DataGridGridLines.Both"
+                                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false"
+                                    FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="20"
+                                    AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" RowUpdate="@OnUpdateRow" SelectionMode="DataGridSelectionMode.Multiple"
+                                    Sort="@Reset" Page="@Reset" Filter="@Reset"
+                                    ShowPagingSummary="true" EditMode="DataGridEditMode.Single" AllowRowSelectOnRowClick="@allowRowSelectOnRowClick"
+                                    FilterPopupRenderMode="PopupRenderMode.OnDemand" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    @bind-Value=@selectedPutAwayLine Style="width: 100%;">
+                        <Columns>
+                            <RadzenDataGridColumn Width="60px" Sortable="false" Filterable="false">
+                                <HeaderTemplate>
+                                    <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
+                                                    Value="@(selectedPutAwayLine == null || selectedPutAwayLine?.Any() != true ? false : !putAwayDto.WarehousePutAwayLines.All(i => selectedPutAwayLine.Contains(i)) ? null : selectedPutAwayLine.Any(i => putAwayDto.WarehousePutAwayLines.Contains(i)))"
+                                                    Change="@(args => selectedPutAwayLine = args == true ? putAwayDto.WarehousePutAwayLines.ToList() : new List<WarehousePutAwayLineDto>())" />
+                                </HeaderTemplate>
+                                <Template Context="data">
+                                    <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(selectedPutAwayLine != null && selectedPutAwayLine.Contains(data))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
+                                                    TValue="bool" Change=@(args => { if(!allowRowSelectOnRowClick) { grid.SelectRow(data); }}) />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="WarehousePutAwayDto" Property="ReceiptNo" Title="@_localizer["ReceiptNo"]" TextAlign="TextAlign.Center" Filterable="false" Width="200px">
+                                <EditTemplate Context="ReceiptNo">
+                                    <RadzenTextBox @bind-Value="@putAwayDto.ReceiptNo" Style="width:100%; display:block" Name="ReceiptNo" />
+                                </EditTemplate>
+
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="WarehousePutAwayLineDto" Property="ProductCode" Title="@_localizer["Productcode"]" TextAlign="TextAlign.Center" Filterable="false" Width="200px">
+                                <EditTemplate Context="staging">
+                                    <RadzenTextBox @bind-Value="@staging.ProductCode" Style="width:100%; display:block" Name="ProductCode" Disabled="true" />
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="WarehousePutAwayLineDto" Property="ProductName" Title="@_localizerCommon["Product.Name"]" TextAlign="TextAlign.Center" Filterable="false" Width="200px">
+                                <EditTemplate Context="staging">
+                                    <RadzenTextBox @bind-Value="@staging.ProductName" Style="width:100%; display:block" Name="ProductName" Disabled="true" />
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="WarehousePutAwayLineDto" Property="UnitName" Title="@_localizer["Unit"]" TextAlign="TextAlign.Center" Filterable="false" Width="200px">
+
+                                <EditTemplate Context="staging">
+
+                                    <RadzenTextBox @bind-Value="@staging.UnitName" Style="width:100%; display: block" Name="LotNo" Disabled="true" />
+                                </EditTemplate>
+
+                            </RadzenDataGridColumn>
+
+                            <RadzenDataGridColumn TItem="WarehousePutAwayLineDto" Property="Bin" Title="@_localizer["Bin"]" TextAlign="TextAlign.Center" Filterable="false" Width="200px">
+                                <EditTemplate Context="staging">
+                                    <RadzenDropDown @bind-Value="@staging.Bin"
+                                                    Style="width:100%"
+                                                    Data="Bins"
+                                                    TextProperty="BinCode"
+                                                    ValueProperty="BinCode"
+                                                    Name="itemBin"
+                                                    TValue="string"
+                                                    Multiple=false
+                                                    Placeholder="@_localizerCommon["Select"]"
+                                                    AllowClear="true" />
+                                </EditTemplate>
+
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="WarehousePutAwayLineDto" Property="LotNo" Title="@_localizer["LotNumber"]" TextAlign="TextAlign.Center" Filterable="false" Width="200px">
+                                <EditTemplate Context="staging">
+                                    <RadzenTextBox @bind-Value="@staging.LotNo" Style="width:100%; display: block" Name="LotNo" />
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="WarehousePutAwayLineDto" Property="JournalQty" Title="@_localizer["Received"]" TextAlign="TextAlign.Center" Filterable="false" Width="200px">
+                                <Template Context="staging">
+                                    @(staging.JournalQty)
+                                </Template>
+
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="WarehousePutAwayLineDto" Property="TransQty" Title="@_localizer["PutawayQty"]" TextAlign="TextAlign.Center" Filterable="false" Width="200px">
+                                <EditTemplate Context="staging">
+                                    <RadzenNumeric @bind-Value="@staging.TransQty" Style="width:100%; display: block" Name="UnitPrice" />
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="WarehousePutAwayLineDto" Property="TotalPrice" Title="@_localizer["RemaingQty"]" TextAlign="TextAlign.Center" Filterable="false" Width="200px">
+                                <Template Context="staging">
+                                    @((staging.JournalQty - staging.TransQty))
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="WarehousePutAwayLineDto" Property="IsDeleted" Title="@_localizer["Partition"]" TextAlign="TextAlign.Center" Filterable="false" Width="100px">
+                                <Template Context="staging">
+                                    @if (staging.IsDeleted == true)
+                                    {
+                                        <span>Yes</span>
+                                    }
+                                    else
+                                    {
+                                        <span>No</span>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="WarehousePutAwayLineDto" Property="ExpirationDate" Title="@_localizerCommon["ExpirationDate"]" TextAlign="TextAlign.Center" Filterable="false" Width="200px" FormatString="{0:yyyy/MM/dd}">
+
+                                <EditTemplate Context="staging">
+                                    <RadzenDatePicker DateFormat="yyyy/MM/dd" @bind-Value="staging.ExpirationDate" Style="width:100%" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select order date" }})" />
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                             <RadzenDataGridColumn TItem="WarehousePutAwayLineDto" Context="staging" Filterable="false" Sortable="false" 
+                                    TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right"
+                                                  Visible="@(putAwayDto.Status == EnumPutAwayStatus.PutAway && (GlobalVariable.AuthenticationStateTask.HasPermission("EditAll") || GlobalVariable.AuthenticationStateTask.HasPermission("PutAwayEdit")))">
+                                    <Template Context="staging">
+                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Class="m-1" Click="@(args => EditRow(staging))" @onclick:stopPropagation="true" />
+                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Click="@(args => DeleteRow(staging))" @onclick:stopPropagation="true">
+                                        </RadzenButton>
+                                    </Template>
+
+                                    <EditTemplate Context="staging">
+                                        <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Class="m-1" Click="@((args) => SaveRow(staging))" />
+                                        <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Class="m-1" Click="@((args) => CancelEdit(staging))" />
+                                    </EditTemplate>
+
+
+                                </RadzenDataGridColumn>
+                            
+
+                        </Columns>
+                    </RadzenDataGrid>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn SizeXS="12" SizeMD="12">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem">
+                    <RadzenButton Click=@(_ => _navigation.NavigateTo("/putaway")) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="@_localizer["Cancel"]" />
+                    <RadzenButton Variant="Variant.Flat" Shade="Shade.Dark"
+                                  Text="@_localizer["CoompletedPutaway"]" ButtonStyle="ButtonStyle.Success" Click="@(async () => await CompletePutawayAsync())"
+                                  Disabled="@(putAwayDto.Status == EnumPutAwayStatus.Completed ? true : false)" Visible="@(GlobalVariable.AuthenticationStateTask.HasPermission("EditAll") ||GlobalVariable.AuthenticationStateTask.HasPermission("PutAwayEdit"))" />
+                    <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_localizer["Save"]"
+                                  Disabled="@(putAwayDto.Status == EnumPutAwayStatus.Completed ? true : false)" Visible="@(GlobalVariable.AuthenticationStateTask.HasPermission("EditAll") ||GlobalVariable.AuthenticationStateTask.HasPermission("PutAwayEdit"))" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}
+@code {
+
+}
+
+
+
+
+
+
+
+
+
+

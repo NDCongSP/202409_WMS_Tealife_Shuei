@@ -1,0 +1,118 @@
+﻿@inject IStringLocalizer<CommonResources> _localizer
+@if (IsAutocomplete)
+{
+    <RadzenDropDownDataGrid TValue="string" @bind-Value=@SelectedValue Data=@Values TextProperty="ProductCode" ValueProperty="ProductCode"
+                            AllowColumnResize="false" AllowFilteringByAllStringColumns="true" Name="_dropDownSelectProduct"
+                            SearchTextPlaceholder="@_localizer["Search"]" EmptyText="@_localizer["No records to display."]"
+                            LoadData="@(args => AutocompleteProduct(args))" Change="@(args => OnChange(args))">
+        <Columns>
+            <RadzenDropDownDataGridColumn Property="ProductCode" Title="@_localizer["ProductCode"]"/>
+            <RadzenDropDownDataGridColumn Property="ProductName" Title="@_localizer["ProductName"]"/>
+        </Columns>
+    </RadzenDropDownDataGrid>
+}
+else
+{
+
+    <RadzenDropDownDataGrid TValue="string" @bind-Value=@SelectedValue Data=@Values TextProperty="ProductCode" ValueProperty="ProductCode"
+                            AllowColumnResize="false" AllowFilteringByAllStringColumns="true" Name="_dropDownSelectProduct"
+                            SearchTextPlaceholder="@_localizer["Search"]" EmptyText="@_localizer["No records to display."]"
+                            Change="@(args => OnChange(args))">
+        <Columns>
+            <RadzenDropDownDataGridColumn Property="ProductCode" Title="@_localizer["ProductCode"]"/>
+            <RadzenDropDownDataGridColumn Property="ProductName" Title="@_localizer["ProductName"]"/>
+        </Columns>
+    </RadzenDropDownDataGrid>
+}
+
+@code{
+    [Parameter]
+    public int TenantId { get; set; } = 0;
+    [Parameter]
+    public string SelectedValue { get; set; }
+    [Parameter]
+    public bool IsAutocomplete { get; set; } = false;
+    [Parameter]
+    public IEnumerable<ProductDto> Values { get; set; }
+    [Parameter]
+    public List<string> ProductCodeFilter { get; set; }
+    [Parameter]
+    public EventCallback<ProductDto> Change { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await base.OnInitializedAsync();
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await ReloadData();
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task AutocompleteProduct(LoadDataArgs args)
+    {
+        try
+        {
+            await ReloadData(args.Filter);
+        }
+        catch (Exception ex)
+        {
+            _notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = _localizer["Error"],
+                    Detail = _localizer["ErrorOccurredWhileSearchingProducts", ex.Message],
+                    Duration = 4000
+                });
+        }
+    }
+
+    private async Task OnChange(object value)
+    {
+        if (value != null)
+        {
+            SelectedValue = value.ToString();
+            var selectedProduct = Values.FirstOrDefault(p => p.ProductCode == value.ToString());
+            if (selectedProduct != null)
+            {
+                await Change.InvokeAsync(selectedProduct);
+            }
+        }
+    }
+
+    private async Task ReloadData(string? keyword = null)
+    {
+        var result = await _productServices.AutocompleteProductAsync(keyword, TenantId);
+
+        if (result.Succeeded)
+        {
+            Values = result.Data;
+            if (ProductCodeFilter != null && ProductCodeFilter.Count() > 0)
+            {
+                Values = Values.Where(x => ProductCodeFilter.Contains(x.ProductCode));
+            }
+        }
+        else
+        {
+            _notificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = _localizer["Error"],
+                    Detail = _localizer["FailedToSearchProducts", result.Messages],
+                    Duration = 4000
+                });
+        }
+    }
+}

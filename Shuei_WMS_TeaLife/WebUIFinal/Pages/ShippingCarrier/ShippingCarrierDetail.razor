@@ -1,0 +1,95 @@
+﻿@page "/detailshippingcarrier/{Title}"
+
+@using ShippingCarrierEntity = FBT.ShareModels.WMS.ShippingCarrier;
+@using Application.Extentions
+@using Microsoft.AspNetCore.Authorization
+
+@inject IStringLocalizer<CommonResources> _localizerCommon
+@inject IStringLocalizer<ShippingResources> _localizer
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+@attribute [Authorize(Policy = "AdminAndStaff")]
+@if (_model == null)
+{
+    <p><em>@_localizerCommon["Loading"]</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenLink Text="@_localizerCommon["Detail.BackToList"]" Path="/shippingcarrierlist" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@_localizer[Title]</strong></RadzenText>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+                <RadzenButton Click=@(args => DeleteItemAsync(_model)) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizerCommon["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Disabled="@isDisabled" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTemplateForm Data="@_model" Submit="@((ShippingCarrierEntity args) => { Submit(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Information"]">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["ShippingCarrierCode"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtShippingCarrierCode" @bind-Value="@_model.ShippingCarrierCode" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtShippingCarrierCode" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["ShippingCarrierName"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtShippingCarrierName" @bind-Value="@_model.ShippingCarrierName" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtShippingCarrierName" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["PrinterName"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtPrinterName" @bind-Value="@_model.PrinterName" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtPrinterName" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                              
+                                <RadzenFormField Text="@_localizerCommon["Status"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDropDown @bind-Value="@selectStatus"
+                                                    Data="@(Enum.GetValues(typeof(EnumStatus)).Cast<EnumStatus>().Select(e => new
+                                                    {
+                                                        Text = _localizer[e.ToString()],
+                                                        Value = e
+                                                    }))"
+                                                    TextProperty="Text"
+                                                    ValueProperty="Value"
+                                                    Name="_dropDownStatus"
+                                                    Multiple=false
+                                                    AllowClear=true
+                                                    Placeholder="@_localizerCommon["Select"]"
+                                                    Chips=true
+                                                    Disabled="@isDisabled" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Center" Gap="1rem">
+                    <RadzenButton Click=@(_ => _navigation.NavigateTo("/shippingcarrierlist")) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="@_localizerCommon["Cancel"]" />
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_localizerCommon["Save"]" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}

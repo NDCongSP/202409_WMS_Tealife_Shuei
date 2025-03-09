@@ -1,0 +1,49 @@
+﻿@page "/printlabel"
+@layout PrintLayout
+
+@inject IStringLocalizer<CommonResources> _CLoc
+
+@if (LabelPrintModel == null || LabelPrintModel.Count <= 0)
+{
+    <h3 class="w-100 text-center">Please wait...</h3>
+}
+else
+{
+    <div id="printableArea" style="width: 344px; height: 208px;">
+        @foreach (var label in LabelPrintModel)
+        {
+            <div class="label-container">
+                <div class="flex-container">
+                    <div class="div-qr-code">
+                        <img class="qr-code" src="@label.QrValue" alt="QR Code" id="qrCodeImage" />
+                    </div>
+                    <div class="label-info">
+                        <div class="info-line">
+                            <strong>@_CLoc[$"{label.Title1}"]</strong>
+                            <span>@label.Content1</span>
+                        </div>
+                        <div class="info-line">
+                            <strong>@_CLoc[$"{label.Title2}"]</strong>
+                            @* <strong>@label.Title2</strong> *@
+                            <span>@label.Content2</span>
+                        </div>
+                        <div class="info-line">
+                            <strong>@label.Title3</strong>
+                            <span>@label.Content3</span>
+                        </div>
+                        <div class="info-line">
+                            <strong>@label.Title4</strong>
+                            <span>@label.Content4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<script>
+    function printLabel() {
+        window.print();
+    }
+</script>

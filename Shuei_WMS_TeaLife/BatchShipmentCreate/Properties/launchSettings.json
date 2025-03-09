@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "BatchShipmentCreate": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

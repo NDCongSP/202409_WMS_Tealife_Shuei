@@ -1,0 +1,53 @@
+﻿@using System.Globalization
+@using System.Diagnostics
+
+@inject IStringLocalizer<CommonResources> _localizer
+
+@* <select @onchange="ChangeLanguage">
+    <option value="ja-JP">Japanese</option>
+    <option value="en-US">English</option>
+</select>  *@
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">
+    <RadzenSplitButton Click=@(args => OnClick(args, "Change Language")) Text="@_localizer["Language"]" Image="@(CultureInfo.DefaultThreadCurrentCulture.Name=="ja-JP"?"images/japanFlag.png":"images/usFlag.png")">
+        <ChildContent>
+            <RadzenSplitButtonItem Text="@_localizer["Japanese"]" Value="ja-JP" Icon="keyboard_double_arrow_right" />
+            <RadzenSplitButtonItem Text="@_localizer["English"]" Value="en-US" Icon="keyboard_double_arrow_right" />
+        </ChildContent>
+    </RadzenSplitButton>
+</RadzenStack>
+
+@code {
+    string _language = "ja-JP";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender)
+        {
+            // _language = CultureInfo.DefaultThreadCurrentCulture.Name;
+            // Debug.WriteLine($"Culture: {_language}");
+        }
+    }
+
+    async void OnClick(RadzenSplitButtonItem item, string buttonName)
+    {
+        if (item != null)
+        {
+            _language = item.Value;
+
+            StateHasChanged();
+
+            await _jsRuntime.InvokeVoidAsync("blazorCulture.set", _language);
+            _navigation.NavigateTo(_navigation.Uri, forceLoad: true);
+
+            // _notificationService.Notify(new NotificationMessage
+            //     {
+            //         Severity = NotificationSeverity.Info,
+            //         Summary = "Change language",
+            //         Detail = $"{buttonName},item with value {item.Value} clicked"
+            //     });
+        }
+    }
+}

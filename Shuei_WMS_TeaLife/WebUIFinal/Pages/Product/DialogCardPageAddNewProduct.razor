@@ -1,0 +1,584 @@
+﻿@page "/addproduct/{Title}"
+@using Application.DTOs.Request.Products
+@using Application.Extentions
+@using FBT.ShareModels.Entities
+@using ProductModel = FBT.ShareModels.Entities.Product
+@using Microsoft.AspNetCore.Authorization
+@using ProductJanCode = FBT.ShareModels.Entities.ProductJanCode
+@using WebUIFinal.Core
+
+@inject IStringLocalizer<CommonResources> _localizerCommon
+@inject IStringLocalizer<CurrencyResources> _localizerCurrency
+@inject IStringLocalizer<EnumProductStatusResources> _localizerEnum
+@inject IStringLocalizer<EnumProductTypeResources> _localizerEnumProductType
+@inject IStringLocalizer<CountryMasterResources> _localizerCountryMaster
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+<style>
+    .input-image-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .image-container {
+        position: relative;
+        display: inline-block;
+        margin-left: 10px;
+    }
+
+    .img-thumbnail {
+        border-radius: 4px;
+        height: 102px;
+        width: 102px;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .image-container:hover .overlay {
+        opacity: 0.6;
+    }
+
+    .icon {
+        color: white;
+        font-size: 24px;
+    }
+
+    .fa-times:hover {
+        color: #eee;
+        cursor: pointer;
+    }
+
+    .hidden-input input[type="file"] {
+        display: none; /* Ẩn thẻ InputFile mặc định */
+    }
+</style>
+
+@attribute [Authorize(Policy = "Admin")]
+@if (_model == null || (!Title.Contains(_localizerCommon["Detail.Create"]) && string.IsNullOrEmpty(_model.ProductCode))
+|| _currencyList == null || _currencyList.Count <= 0)
+{
+    <p><em>@_localizerCommon["Loading"]...</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            @* <RadzenLink Text="@_localizerCommon["Detail.BackToList"]" Path="/productlist" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" /> *@
+            <RadzenButton Size="ButtonSize.ExtraSmall" Click="@(()=>_navigation.NavigateTo("/productlist"))" Icon="arrow_back_ios"
+                          Style="background-color:dimgrey"
+                          Text="@_localizerCommon["Detail.BackToList"]" Visible="true" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@Title</strong></RadzenText>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px" class="mb-2">
+                <RadzenButton Click=@(args => DeleteItemAsync(new ProductModel(){Id = _model.Id,ProductName=_model.ProductIname})) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizerCommon["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Disabled="@_disableBtnDelete" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTemplateForm Data="@_model" Submit="@((ProductAddUpdateRequestDTO args) => {Submit(args);})">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizerCommon["Product.Info"]" Disabled="@isDisabled">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Start">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Product.Code"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtProductCode" @bind-Value="@_model.ProductCode" Placeholder="@_localizerCommon["Typing ..."]"
+                                                       @onchange="@(args => _model.ProductCode = args.Value.ToString())" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_txtProductCode" Popup="false" Text="@_localizerCommon["Required"]" />
+                                        <RadzenRegexValidator Component="_txtProductCode" Pattern="@Constants.ValidateChar"
+                                                              Text="@_localizerCommon["Do not enter the ':' character in the product code."]"
+                                                              Popup="false" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Supplier.Code"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDown TValue="int" Name="_dropDownSupplier" @bind-Value="@_model.SupplierId" Data="@suppliers"
+                                                        Multiple=false AllowClear=true Placeholder="@_localizerCommon["Select"]" Chips=true Disabled="@isDisabled"
+                                                        TextProperty="SupplierName" ValueProperty="Id" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_dropDownSupplier" Popup="false" Style="position: absolute"
+                                                                 Text="@_localizerCommon["Required"]" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6" Visible="false">
+                                <RadzenFormField Text="@_localizerCommon["Product.ShortCode"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtProductShortCode" @bind-Value="@_model.ProductShortCode" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_txtProductShortCode" Popup="false" Style="position: absolute"
+                                                                 Text="@_localizerCommon["Required"]" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Product.MaxShipDays"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <ChildContent>
+                                        <RadzenNumeric TValue="int" Name="_txtShippingLimitDays" @bind-Value="@_model.ShippingLimitDays" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </ChildContent>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Product.Name"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtProductName" @bind-Value="@_model.ProductName" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_txtProductName" Popup="false" Style="position: absolute"
+                                                                 Text="@_localizerCommon["Required"]" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Product.MfgCode"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox Name="_txtMakerManagementCode" @bind-Value="@_model.MakerManagementCode" Placeholder="@_localizerCommon["Typing ..."]" />
+                                </RadzenFormField>
+                                @* <RadzenRequiredValidator Component="_txtMakerManagementCode" Popup="false" Style="position: absolute" /> *@
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Category"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDownDataGrid Style="width:100%" @bind-Value=@_selectCatetgory Data=@_productCategories TextProperty="@nameof(ProductCategory.CategoryName)"
+                                                                AllowColumnResize="true" AllowFilteringByAllStringColumns="true" Name="_dropDownCategory"
+                                                                SearchTextPlaceholder="@_localizerCommon["Search"]" EmptyText="@_localizerCommon["No records to display."]" Disabled="@isDisabled"
+                                                                ShowPagingSummary="@_showPagerSummary" PagingSummaryFormat="@Constants.PagingSummaryFormat" PageSize="5">
+                                            <Columns>
+                                                <RadzenDropDownDataGridColumn Width="50px" Property="@nameof(ProductCategory.CategoryName)" Title="@_localizerCommon["Category.Name"]" />
+                                                @* <RadzenDropDownDataGridColumn Width="50px" Property="@nameof(ProductCategory.SlipDeliveryPrinting)" Title="@_localizerCommon["Category.For slip delivery printing"]" /> *@
+                                                <RadzenDropDownDataGridColumn Width="50px" Property="@nameof(ProductCategory.Description)" Title="@_localizerCommon["Description"]" />
+                                            </Columns>
+                                        </RadzenDropDownDataGrid>
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_dropDownCategory" Popup="false" Style="position: absolute"
+                                                                 Text="@_localizerCommon["Required"]" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6" Visible="false">
+                                <RadzenFormField Text="@_localizerCommon["Category.For slip delivery printing"]" Variant="Variant.Outlined" Style="width:100%">
+                                    @if (_selectCatetgory != null)
+                                    {
+                                        <RadzenTextBox @bind-Value="@_selectCatetgory.SlipDeliveryPrinting" Disabled="true" />
+                                    }
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Weight"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenNumeric TValue="double?" Name="_txtWeight" @bind-Value="@_model.Weight" Placeholder="@_localizerCommon["Typing ..."]" />
+                                </RadzenFormField>
+                                @* <RadzenRequiredValidator Component="_txtWeight" Popup="false" Style="position: absolute" /> *@
+                            </RadzenColumn>
+
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Depth"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenNumeric TValue="double?" Name="_txtDepth" @bind-Value="@_model.Depth" Placeholder="@_localizerCommon["Typing ..."]" />
+                                </RadzenFormField>
+                                @* <RadzenRequiredValidator Component="_txtDepth" Popup="false" Style="position: absolute" /> *@
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Width"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenNumeric TValue="double?" Name="_txtWidth" @bind-Value="@_model.Width" Placeholder="@_localizerCommon["Typing ..."]" />
+                                </RadzenFormField>
+                                @* <RadzenRequiredValidator Component="_txtWidth" Popup="false" Style="position: absolute" /> *@
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Height"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenNumeric TValue="double?" Name="_txtHeight" @bind-Value="@_model.Height" Placeholder="@_localizerCommon["Typing ..."]" />
+                                </RadzenFormField>
+                                @* <RadzenRequiredValidator Component="_txtHeight" Popup="false" Style="position: absolute" /> *@
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Unit"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDown TValue="int" @bind-Value=@_model.UnitId Data="@units" TextProperty="UnitName" ValueProperty="Id" Name="_dropDownUnit"
+                                                        Multiple=false AllowClear=true Placeholder="@_localizerCommon["Select"]" Chips=true Disabled="@isDisabled" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_dropDownUnit" Popup="false" Style="position: absolute"
+                                                                 Text="@_localizerCommon["Required"]" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Currency"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDownDataGrid Style="width:100%" @bind-Value=@_selectedCurrency Data=@_currencyList TextProperty="@nameof(Currency.CurrencyCode)"
+                                                                AllowColumnResize="true" AllowFilteringByAllStringColumns="true" Name="_dropDownSelectCurrency"
+                                                                SearchTextPlaceholder="@_localizerCommon["Search"]" EmptyText="@_localizerCommon["No records to display."]" Disabled="@isDisabled"
+                                                                ShowPagingSummary="@_showPagerSummary" PagingSummaryFormat="@Constants.PagingSummaryFormat" PageSize="5">
+                                            <Columns>
+                                                <RadzenDropDownDataGridColumn Property="@nameof(Currency.CurrencyCode)" Title="@_localizerCurrency["Currency Code"]" Width="50px" />
+                                                <RadzenDropDownDataGridColumn Property="@nameof(Currency.Country)" Title="@_localizerCurrency["Country"]" Width="50px" />
+                                                <RadzenDropDownDataGridColumn Property="@nameof(Currency.Description)" Title="@_localizerCommon["Description"]" Width="50px" />
+                                            </Columns>
+                                        </RadzenDropDownDataGrid>
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_dropDownSelectCurrency" Popup="false" Style="position: absolute"
+                                                                 Text="@_localizerCommon["Required"]" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Product.StandardPrice"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenNumeric TValue="double?" Name="_txtStandardPrice" @bind-Value="@_model.StandardPrice" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_txtStandardPrice" Popup="false" Style="position: absolute"
+                                                                 Text="@_localizerCommon["Required"]" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Product.Type"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%;height:100%">
+                                    <RadzenTextBox Disabled="true" @bind-Value="@_productType" />
+                                    @*  <RadzenDropDown @bind-Value="@selectedProductType"
+                                Data="@(Enum.GetValues(typeof(EnumProductType)).Cast<EnumProductType>().Select(e=>new {
+                                DisplayValue = _localizerEnumProductType[e.ToString()],
+                                Value = e
+                                }))"
+                                Name="_dropDownProductType"
+                                Multiple=false AllowClear=true Placeholder="@_localizerCommon["Select"]" Chips=true Disabled="true"
+                                TextProperty="DisplayValue" ValueProperty="Value" /> *@
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Product.URL"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtProductUrl" @bind-Value="@_model.ProductUrl" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_txtProductUrl" Popup="false" Style="position: absolute"
+                                                                 Text="@_localizerCommon["Required"]" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Status"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <ChildContent>
+                                        <RadzenDropDown @bind-Value="@_model.ProductStatus"
+                                                        Data="@(Enum.GetValues(typeof(EnumProductStatus)).Cast<EnumProductStatus>().Where(e => e!=EnumProductStatus.All).Select(e => new
+                                                     {
+                                                         DisplayValue = _localizerEnum[e.ToString()],
+                                                         Value = e
+                                                     }))"
+                                                        ValueProperty="Value" TextProperty="DisplayValue"
+                                                        Name="_dropDownStatus"
+                                                        Multiple=false AllowClear=true Placeholder="@_localizerCommon["Select"]" Chips=true />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_dropDownStatus" Popup="false" Style="position: absolute"
+                                                                 Text="@_localizerCommon["Required"]" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+
+                            <RadzenColumn SizeXS="12" SizeSM="3" Visible="false">
+                                <RadzenFormField Text="@_localizerCommon["Product.SaleProductCode"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtSaleProductCode" @bind-Value="@_model.SaleProductCode" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtSaleProductCode" Popup="false" Style="position: absolute" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3" Visible="false">
+                                <RadzenFormField Text="@_localizerCommon["Product.SaleProductname"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtSaleProductName" @bind-Value="@_model.SaleProductName" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtSaleProductCode" Popup="false" Style="position: absolute" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizerCommon["Product.ProductEname"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtProductEname" @bind-Value="@_model.ProductEname" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtProductEname" Popup="false" Style="position: absolute" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizerCommon["Product.ProductIname"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtProductIname" @bind-Value="@_model.ProductIname" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtProductIname" Popup="false" Style="position: absolute" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizerCommon["Product.BaseCost"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenNumeric Name="_numBaseCost" @bind-Value="@_model.BaseCost" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_numBaseCost" Popup="false" Style="position: absolute" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizerCommon["Product.BaseCostOther"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenNumeric Name="_numBaseCostOther" @bind-Value="@_model.BaseCostOther" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_numBaseCostOther" Popup="false" Style="position: absolute" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizerCommon["Product.CountryOfOrigin"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        @* <RadzenTextBox Name="_txtCountryOfOrigin" @bind-Value="@_model.CountryOfOrigin" Placeholder="@_localizerCommon["Typing ..."]" /> *@
+                                        <RadzenDropDownDataGrid Style="width:100%" @bind-Value=@_selectedCountryMaster Data=@_countryMasterList TextProperty="@nameof(CountryMaster.CountryNameEn)"
+                                                                AllowColumnResize="true" AllowFilteringByAllStringColumns="true" Name="_dropDownSelectCountryOfOrigin"
+                                                                SearchTextPlaceholder="@_localizerCommon["Search"]" EmptyText="@_localizerCommon["No records to display."]" Disabled="@isDisabled"
+                                                                ShowPagingSummary="@_showPagerSummary" PagingSummaryFormat="@Constants.PagingSummaryFormat" PageSize="5">
+                                            <Columns>
+                                                <RadzenDropDownDataGridColumn Property="@nameof(CountryMaster.CountryIso2)" Title="@_localizerCountryMaster["CountryIso 2"]" Width="50px" />
+                                                <RadzenDropDownDataGridColumn Property="@nameof(CountryMaster.CountryNameEn)" Title="@_localizerCountryMaster["CountryNameEn"]" Width="50px" />
+                                            </Columns>
+                                        </RadzenDropDownDataGrid>
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtCountryOfOrigin" Popup="false" Style="position: absolute" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizerCommon["Product.HsCode"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtHsCode" @bind-Value="@_model.HsCode" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtHsCode" Popup="false" Style="position: absolute" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3" style="margin-top: 5px;">
+                                <RadzenLabel Text="@_localizerCommon["Product.WmsProcessingFlag"]" Component="CheckBox1" class="rz-ms-2" />
+                                <RadzenCheckBox @bind-Value="@_model.WarehouseProcessingFlag" Name="WarehouseProcessingFlag" Disabled="@isDisabled" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="12">
+                                <RadzenFormField Text="@_localizerCommon["Remarks"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextArea @bind-Value=@_model.Remark oninput="event.target.style.height = Math.max(event.target.clientHeight, event.target.scrollHeight) + 'px';"
+                                                        Change=@(args => OnChange(args, "Auto-resize")) Style="width: 100%" aria-label="Auto-resize" />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtSaleProductCode" Popup="false" Style="position: absolute" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="12">
+                                <RadzenFieldset Text="@_localizerCommon["Product image"]">
+                                    <RadzenStack AlignItems="AlignItems.Center">
+                                        <RadzenCard class="rz-m-0 rz-m-md-0" Style="width: 100%;" Variant="Variant.Filled">
+                                            @if (!Title.Contains(_localizerCommon["Detail.View"]))
+                                            {
+                                                <RadzenFileInput @bind-Value=@imageBase64String @bind-FileName=@fileName @bind-FileSize=@fileSize TValue="string"
+                                                                 Style="width: 100%" ChooseText="@_localizerCommon["Choose file"]"
+                                                                 Change=@(args => OnChange(args, "FileInput")) Error=@(args => OnError(args, "FileInput"))
+                                                                 InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "select file" }})" />
+                                            }
+                                            else
+                                            {
+                                                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center"
+                                                             AlignItems="AlignItems.Center" Gap="5px" Wrap="FlexWrap.Wrap">
+                                                    <RadzenImage Path="@imageBase64String" AlternateText="base64 image" Style="width: 15rem" />
+                                                    <RadzenText TextStyle="TextStyle.Body1"><b>@fileName</b></RadzenText>
+                                                </RadzenStack>
+                                            }
+                                        </RadzenCard>
+                                    </RadzenStack>
+                                </RadzenFieldset>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizerCommon["Tenant.Info"]" Disabled="@isDisabled">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Start">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Tenant"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDown @bind-Value="@_selectTenant" Data="@_tenants" TextProperty="@nameof(CompanyTenant.FullName)" Name="_dropDownTenant"
+                                                        Multiple=false AllowClear=true Placeholder="@_localizerCommon["Select"]" Chips=true Disabled="@isDisabled" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_dropDownTenant" Popup="false" Style="position: absolute"
+                                                                 Text="@_localizerCommon["Required"]" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizerCommon["Product.StockInfo"]" Disabled="@_disable">
+                    <RadzenStack Gap="5px">
+                        @if (_inventory != null)
+                        {
+                            <RadzenRow AlignItems="AlignItems.Center">
+                                <RadzenColumn SizeXS="12" SizeSM="4">
+                                    <RadzenFormField Text="@_localizerCommon["Product.StockQty"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                        <RadzenNumeric TValue="double" @bind-Value="@_inventory.InventoryStock" Name="_txtStockQuantity" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </RadzenFormField>
+                                    @* <RadzenRequiredValidator Component="_txtStockQuantity" Popup="false" Style="position: absolute" /> *@
+                                </RadzenColumn>
+                                <RadzenColumn SizeXS="12" SizeSM="4">
+                                    <RadzenFormField Text="@_localizerCommon["Product.OrderQty"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                        <RadzenNumeric TValue="double" @bind-Value="@_inventory.OnOrder" Name="_txtOrderQuantity" Placeholder="@_localizerCommon["Typing ..."]" />
+                                    </RadzenFormField>
+                                    @* <RadzenRequiredValidator Component="_txtOrderQuantity" Popup="false" Style="position: absolute" /> *@
+                                </RadzenColumn>
+                                <RadzenColumn SizeXS="12" SizeSM="4">
+                                    <RadzenFormField Text="@_localizerCommon["Inventory Available"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                        <RadzenNumeric TValue="double" @bind-Value="@_inventory.InventoryAvailable" Name="_txtShippingQuantity" Placeholder="@_localizerCommon["Typing ..."]" />
+                                        @* <RadzenRequiredValidator Component="_txtShippingQuantity" Popup="false" Style="position: absolute" /> *@
+                                    </RadzenFormField>
+                                </RadzenColumn>
+                            </RadzenRow>
+                        }
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizerCommon["Product.JanCode"]">
+                    <RadzenStack Orientation=Orientation.Vertical JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Stretch" Gap="5px">
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+                            <RadzenButton Click=@(args => AddProductJanCode()) Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_localizerCommon["Detail.Create"]" Icon="add_circle" ButtonStyle="ButtonStyle.Success" Disabled="@isDisabled" />
+                        </RadzenStack>
+                        <RadzenDataGrid @ref="_productJanCodeProfileGrid" Data="@_model.JanCodeList" TItem="ProductJanCode" AllowFiltering="true" class="custom-grid"
+                                        FilterPopupRenderMode="PopupRenderMode.OnDemand" AllowPaging="true" PageSize="20" PageSizeText="@_localizerCommon["items per page"]" AllowSorting="true"
+                                        AllowColumnPicking="false" AllowColumnResize="true" AllowGrouping="false" EmptyText="@_localizerCommon["No records to display."]"
+                                        GridLines="Radzen.DataGridGridLines.Both" AllowAlternatingRows="false"
+                                        ShowPagingSummary=@_showPagerSummary PagingSummaryFormat="@Constants.PagingSummaryFormat" PageSizeOptions="@Constants.PageSizeOptions"
+                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        SelectionMode="DataGridSelectionMode.Multiple" Disabled="@isDisabled">
+                            <Columns>
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(ProductJanCode.JanCode)" TextAlign="TextAlign.Center" CssClass="rz-grid-col-flex-start">
+                                    <HeaderTemplate>
+                                        JAN
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <a class="text-green" @onclick="@(() => EditJanCodeItemAsync(data))" style="cursor:pointer;">
+                                            @data.JanCode
+                                        </a>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(ProductJanCode.Description)" Title="@_localizerCommon["Description"]" />
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(ProductJanCode.DataKey)" Title="@_localizerCommon["Data Key"]" />
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(ProductJanCode.Status)" Title="@_localizerCommon["Status"]" />
+                            </Columns>
+                        </RadzenDataGrid>
+
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeSM="12">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Start" AlignItems="AlignItems.Center" Gap="1rem">
+                    @* <RadzenButton Click=@(_ => _navigation.NavigateTo("/productlist")) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="@_localizerCommon["Cancel"]" /> *@
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_localizerCommon["Save"]" Visible="true" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}
+
+@code {
+    //string photo = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIyLjEuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNTAgNTAiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDUwIDUwOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8ZyBpZD0iTGF5ZXJfMSI+DQoJPHBhdGggZD0iTTI1LDFDMTEuNzY3LDEsMSwxMS43NjcsMSwyNWMwLDcuMDkxLDMuMDk0LDEzLjQ3Miw4LDE3Ljg2OXYwLjAxN2wwLjM0OCwwLjNjMC4wNjEsMC4wNTMsMC4xMjgsMC4wOTcsMC4xOSwwLjE0OQ0KCQljMC40MzEsMC4zNjQsMC44NzUsMC43MTMsMS4zMzEsMS4wNDdjMC4xMjMsMC4wOSwwLjI0NiwwLjE3NywwLjM3MSwwLjI2NGMwLjQ4NCwwLjM0LDAuOTc5LDAuNjY0LDEuNDg3LDAuOTY4DQoJCWMwLjA4NSwwLjA1MSwwLjE3MiwwLjA5OSwwLjI1NywwLjE0OGMwLjU1NywwLjMyNCwxLjEyNiwwLjYyOSwxLjcxLDAuOTA4YzAuMDA2LDAuMDAzLDAuMDEyLDAuMDA1LDAuMDE4LDAuMDA4DQoJCWMxLjI0OSwwLjU5NSwyLjU1OSwxLjA4MiwzLjkxNSwxLjQ1NmMwLjAyNSwwLjAwNywwLjA1LDAuMDE1LDAuMDc1LDAuMDIxYzAuNjQxLDAuMTc1LDEuMjkzLDAuMzIyLDEuOTU0LDAuNDQzDQoJCWMwLjA2MiwwLjAxMSwwLjEyMywwLjAyMiwwLjE4NSwwLjAzM2MwLjYzOCwwLjExMiwxLjI4NCwwLjIwMSwxLjkzOSwwLjI2MmMwLjA3NSwwLjAwNywwLjE1LDAuMDExLDAuMjI0LDAuMDE3DQoJCUMyMy42NjMsNDguOTY1LDI0LjMyNyw0OSwyNSw0OXMxLjMzNy0wLjAzNSwxLjk5Ni0wLjA5YzAuMDc1LTAuMDA2LDAuMTUtMC4wMSwwLjIyNC0wLjAxN2MwLjY1NS0wLjA2LDEuMzAxLTAuMTUsMS45MzktMC4yNjINCgkJYzAuMDYyLTAuMDExLDAuMTIzLTAuMDIyLDAuMTg1LTAuMDMzYzAuNjYxLTAuMTIxLDEuMzEzLTAuMjY4LDEuOTU0LTAuNDQzYzAuMDI1LTAuMDA3LDAuMDUtMC4wMTQsMC4wNzUtMC4wMjENCgkJYzEuMzU2LTAuMzc0LDIuNjY2LTAuODYxLDMuOTE1LTEuNDU2YzAuMDA2LTAuMDAzLDAuMDEyLTAuMDA1LDAuMDE4LTAuMDA4YzAuNTg0LTAuMjc5LDEuMTUzLTAuNTg1LDEuNzEtMC45MDgNCgkJYzAuMDg2LTAuMDUsMC4xNzItMC4wOTcsMC4yNTctMC4xNDhjMC41MDktMC4zMDQsMS4wMDQtMC42MjksMS40ODctMC45NjhjMC4xMjQtMC4wODcsMC4yNDgtMC4xNzQsMC4zNzEtMC4yNjQNCgkJYzAuNDU2LTAuMzM0LDAuOS0wLjY4MywxLjMzMS0xLjA0N2MwLjA2Mi0wLjA1MiwwLjEyOS0wLjA5NiwwLjE5LTAuMTQ5bDAuMzQ4LTAuM3YtMC4wMTdjNC45MDYtNC4zOTgsOC0xMC43NzgsOC0xNy44NjkNCgkJQzQ5LDExLjc2NywzOC4yMzMsMSwyNSwxeiBNMjUsMjVjLTQuNDExLDAtOC0zLjU4OS04LThzMy41ODktOCw4LThzOCwzLjU4OSw4LDhTMjkuNDExLDI1LDI1LDI1eiBNMjgsMjdjNi4wNjUsMCwxMSw0LjkzNSwxMSwxMQ0KCQl2My45NThjLTAuMDQyLDAuMDM1LTAuMDg2LDAuMDY3LTAuMTI4LDAuMTAyYy0wLjM5NSwwLjMyMS0wLjgsMC42MjYtMS4yMTQsMC45MThjLTAuMDkyLDAuMDY1LTAuMTgyLDAuMTMyLTAuMjc0LDAuMTk1DQoJCWMtMC40NDcsMC4zMDUtMC45MDYsMC41OTEtMS4zNzMsMC44NjJjLTAuMDg1LDAuMDUtMC4xNzEsMC4wOTktMC4yNTcsMC4xNDhjLTAuNDksMC4yNzUtMC45ODksMC41MzMtMS40OTgsMC43NjkNCgkJYy0wLjA1MywwLjAyNS0wLjEwNywwLjA0OS0wLjE2MSwwLjA3M2MtMS42NjEsMC43NTUtMy40MTEsMS4zMDItNS4yMTIsMS42MjZjLTAuMDU3LDAuMDEtMC4xMTQsMC4wMjEtMC4xNzEsMC4wMzENCgkJYy0wLjU2NywwLjA5Ny0xLjEzOSwwLjE3Mi0xLjcxNSwwLjIyNWMtMC4wNzksMC4wMDctMC4xNTksMC4wMTItMC4yMzksMC4wMThDMjYuMTc1LDQ2Ljk3LDI1LjU4OSw0NywyNSw0Nw0KCQlzLTEuMTc1LTAuMDMtMS43NTgtMC4wNzdjLTAuMDc5LTAuMDA2LTAuMTU5LTAuMDExLTAuMjM5LTAuMDE4Yy0wLjU3Ni0wLjA1My0xLjE0OC0wLjEyNy0xLjcxNS0wLjIyNQ0KCQljLTAuMDU3LTAuMDEtMC4xMTQtMC4wMi0wLjE3MS0wLjAzMWMtMS44MDEtMC4zMjQtMy41NTEtMC44NzEtNS4yMTItMS42MjZjLTAuMDU0LTAuMDI1LTAuMTA4LTAuMDQ4LTAuMTYxLTAuMDczDQoJCWMtMC41MDktMC4yMzYtMS4wMDgtMC40OTQtMS40OTgtMC43NjljLTAuMDg2LTAuMDQ5LTAuMTcxLTAuMDk4LTAuMjU3LTAuMTQ4Yy0wLjQ2Ny0wLjI3LTAuOTI2LTAuNTU3LTEuMzczLTAuODYyDQoJCWMtMC4wOTMtMC4wNjMtMC4xODMtMC4xMy0wLjI3NC0wLjE5NWMtMC40MTQtMC4yOTItMC44MTktMC41OTYtMS4yMTQtMC45MThjLTAuMDQyLTAuMDM0LTAuMDg2LTAuMDY3LTAuMTI4LTAuMTAyVjM4DQoJCWMwLTYuMDY1LDQuOTM1LTExLDExLTExSDI4eiBNNDEsNDAuMDc2VjM4YzAtNi4yNzEtNC40NjQtMTEuNTE5LTEwLjM4LTEyLjczNUMzMy4yNjEsMjMuNDY0LDM1LDIwLjQzMSwzNSwxNw0KCQljMC01LjUxNC00LjQ4Ni0xMC0xMC0xMHMtMTAsNC40ODYtMTAsMTBjMCwzLjQzMSwxLjczOSw2LjQ2NCw0LjM4LDguMjY1QzEzLjQ2NCwyNi40ODEsOSwzMS43MjksOSwzOHYyLjA3Ng0KCQlDNS4yODQsMzYuMTM1LDMsMzAuODMxLDMsMjVDMywxMi44NjksMTIuODY5LDMsMjUsM3MyMiw5Ljg2OSwyMiwyMkM0NywzMC44MzEsNDQuNzE2LDM2LjEzNSw0MSw0MC4wNzZ6Ii8+DQo8L2c+DQo8Zz4NCjwvZz4NCjwvc3ZnPg0K";
+    //string img = "data:image/svg+xml;base64,";
+
+    string fileName;
+    long? fileSize;
+
+    async void OnChange(string value, string name)
+    {
+        if (string.IsNullOrEmpty(value)) return;
+
+        // Console.WriteLine($"{name} value changed");
+
+        if (string.IsNullOrEmpty(_model.ProductCode))
+        {
+            _notificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = _localizerCommon["Warning"],
+                    Detail = _localizerNotification["The product code is required to upload image. Please enter the product code."],
+                    Duration = 5000
+                });
+
+            return;
+        }
+
+        // Only handle image files
+        if (!value.Contains("base64"))
+        {
+            _notificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = _localizerCommon["Warning"],
+                    Detail = _localizerNotification["Select images only."],
+                    Duration = 5000
+                });
+
+            return;
+        }
+
+        imageBase64String = value;
+        _model.IsUpdateImage = true;
+    }
+
+    void OnError(UploadErrorEventArgs args, string name)
+    {
+        Console.WriteLine($"{args.Message}");
+    }
+}

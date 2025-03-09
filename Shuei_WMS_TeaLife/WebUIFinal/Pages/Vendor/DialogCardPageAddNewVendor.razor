@@ -1,0 +1,131 @@
+﻿@page "/addvendor/{Title}"
+
+@using Application.Extentions
+@using Microsoft.AspNetCore.Authorization
+@using VendorEntity = FBT.ShareModels.Entities.Vendor;
+
+@inject IStringLocalizer<CommonResources> _localizerCommon
+
+@attribute [Authorize(Policy = "Admin")]
+@if (_model == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <RadzenRow>
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@Title</strong></RadzenText>
+        </RadzenColumn>
+        @if (!Title.Contains("Create"))
+        {
+            <RadzenColumn Size="12" SizeSM="6">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+                    <RadzenButton Click=@(args => DeleteItemAsync(_model)) Variant="Variant.Flat" Shade="Shade.Dark"
+                                  Text="Delete" Icon="cancel" ButtonStyle="ButtonStyle.Danger" />
+                </RadzenStack>
+            </RadzenColumn>
+        }
+    </RadzenRow>
+    <RadzenTemplateForm Data="@_model" Submit="@((VendorEntity args) => { Submit(args); })">
+       <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="Vendor information" Disabled="@isDisabled">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="Vendor Code" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtVendorCode" @bind-Value="@_model.VendorCode" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtVendorCode" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="Vendor Name" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtVendorName" @bind-Value="@_model.VendorName" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtVendorName" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="Address" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtBillingAddress" @bind-Value="@_model.BillingAddress" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtBillingAddress" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="Billing Phone" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtBillingPhone" @bind-Value="@_model.BillingPhone" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtBillingPhone" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="Billing Mail" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtBillingMail" @bind-Value="@_model.BillingMail" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtBillingMail" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="Head Office Fax" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtHeadOfficeFax" @bind-Value="@_model.HeadOfficeFax" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtHeadOfficeFax" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="Status" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDropDown Disabled="@isDisabled" @bind-Value=@selectStatus Data=@(Enum.GetValues(typeof(EnumStatus)).Cast<Enum>()) Name="_dropDownStatus"
+                                                    Multiple=false AllowClear=true Placeholder="Select status" Chips=true />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_dropDownStatus" Text="Select status" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="Bank information" Disabled="@isDisabled">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="Bank Name" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtBankName" @bind-Value="@_model.BankName" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtBankName" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="Bank Branch" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtBankBranch" @bind-Value="@_model.BankBranch" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtBankBranch" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="Bank Account Number" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtBankAccountNumber" @bind-Value="@_model.BankAccountNumber" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtBankAccountNumber" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="Bank Account Holder" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtBankAccountHolder" @bind-Value="@_model.BankAccountHolder" Placeholder="Typing..." />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtBankAccountHolder" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Center" Gap="1rem" Class="rz-mt-8 rz-mb-4">
+            @if (!isDisabled)
+            {
+                <RadzenButton Click=@(_ => _navigation.NavigateTo("/vendorlist")) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="Cancel" />
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="Save" />
+            }
+            else
+            {
+                <RadzenButton Click=@(_ => _navigation.NavigateTo("/vendorlist")) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="Cancel" />
+                <RadzenButton Click=@(_ => _navigation.NavigateTo($"/addvendor/Edit Vendor|{_model.Id}", true)) ButtonType="Radzen.ButtonType.Button" Size="ButtonSize.Large" Icon="edit" Text="Edit" />
+            }
+        </RadzenStack>
+    </RadzenTemplateForm>
+}

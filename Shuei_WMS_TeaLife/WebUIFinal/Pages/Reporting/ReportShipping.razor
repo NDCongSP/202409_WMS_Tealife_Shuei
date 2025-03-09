@@ -1,0 +1,216 @@
+﻿@page "/Dashboard"
+@using Application.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Core
+@using WebUIFinal.Pages.Components
+@using WebUIFinal
+
+
+@inject IStringLocalizer<CommonResources> _CLoc
+@inject IStringLocalizer<ReportResources> _localizer
+@attribute [Authorize]
+
+<RadzenTabs Change=@OnChange TabPosition="@tabPosition" RenderMode="TabRenderMode.Client">
+    <Tabs>
+        <RadzenTabsItem Text="@_localizer["Dashboard 1"]">
+            <RadzenFieldset Text="@_localizer["ShippingReports"]">
+                @if (ShippingReports == null || !ShippingReports.Any())
+                {
+                    <p><em>@_CLoc["Loading"]</em></p>
+                }
+                else
+                {
+                    <RadzenDataGrid @ref="_shipmentReportGrid" Data="ShippingReports" TItem="ShipmentReportDTO" ColumnWidth="200px"
+                                    AllowColumnResize="true" AllowSorting="true" GridLines="Radzen.DataGridGridLines.Vertical" AllowVirtualization="true"
+                                    Style="width: 100%;padding-bottom:40px;height:400px">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="ShipmentReportDTO" Property="TenantName" Title="@_localizer["TenantName"]">
+                                <FooterTemplate>
+                                    <p><em>@_localizer["Total"]</em></p>
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ShipmentReportDTO" Property="ShipmentType" Title="@_localizer["ShipmentType"]" />
+                            <RadzenDataGridColumn TItem="ShipmentReportDTO" Property="PackedQty" Title="@_localizer["PackedQty"]">
+                                <FooterTemplate>  @ShippingReports.Sum(x => x.totalPackedQty) / @ShippingReports.Sum(x => x.totalShipmentQty) </FooterTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ShipmentReportDTO" Property="RemainingQty" Title="@_localizer["RemainingQty"]">
+                                <FooterTemplate>
+                                    @ShippingReports.Sum(x => x.RemainingQty)
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ShipmentReportDTO" Property="ProgressRateString" Title="@_localizer["ProgressRate"]">
+                                <FooterTemplate>
+                                    @ShippingReports.Average(x => x.ProgressRate)%
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ShipmentReportDTO" Property="Productivity" Title="@_localizer["Productivity"]" />
+                            <RadzenDataGridColumn TItem="ShipmentReportDTO" Property="RemainingIdentificationNumber" Title="@_localizer["RemainingIdentification"]">
+                                <FooterTemplate>
+                                    @ShippingReports.Sum(x => x.RemainingIdentificationNumber)
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                }
+            </RadzenFieldset>
+
+            <RadzenFieldset Text="@_localizer["ReceiptReports"]">
+                @if (ReceiptReports == null || !ReceiptReports.Any())
+                {
+                    <p><em>@_CLoc["Loading"]</em></p>
+                }
+                else
+                {
+                    <RadzenDataGrid @ref="_ReceiptReportGrid" Data="ReceiptReports" TItem="ReceiptReportDTO" ColumnWidth="200px"
+                                    AllowColumnResize="true" AllowSorting="true" GridLines="Radzen.DataGridGridLines.Vertical" AllowVirtualization="true"
+                                    Style="width: 100%;  padding-bottom:20px;height:400px">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="ReceiptReportDTO" Property="Period" Title="@_localizer["Period"]">
+                                <FooterTemplate>
+                                    <p><em>@_localizer["Total"]</em></p>
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ReceiptReportDTO" Property="Tenant" Title="@_localizer["TenantName"]" />
+                            <RadzenDataGridColumn TItem="ReceiptReportDTO" Property="NumberPutaway" Title="@_localizer["NumberPutaway"]">
+                                <FooterTemplate>
+                                    @ReceiptReports.Sum(x => x.TotalOrderQty) / @ReceiptReports.Sum(x => x.TotalTransQty)
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ReceiptReportDTO" Property="RemainingNumber" Title="@_localizer["RemainingQty"]">
+                                <FooterTemplate>
+                                    @ReceiptReports.Sum(x => x.TotalRemainingNumber) / @ReceiptReports.Sum(x => x.TotalOrderQty)
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ReceiptReportDTO" Property="ProgressRateString" Title="@_localizer["ProgressRate"]">
+                                <FooterTemplate>
+                                    @(Math.Round(ReceiptReports.Average(x => x.ProgressRate), 2))%
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ReceiptReportDTO" Property="Productivity" Title="@_localizer["Productivity"]" />
+                        </Columns>
+                    </RadzenDataGrid>
+                }
+            </RadzenFieldset>
+
+            <RadzenFieldset Text="@_localizer["PutawayReports"]">
+                @if (PutawayReports == null || !PutawayReports.Any())
+                {
+                    <p><em>@_CLoc["Loading"]</em></p>
+                }
+                else
+                {
+                    <RadzenDataGrid @ref="_PutawayReportGrid" Data="PutawayReports" TItem="PutawayReportDTO" ColumnWidth="200px"
+                                    AllowColumnResize="true" AllowSorting="true" GridLines="Radzen.DataGridGridLines.Vertical" AllowVirtualization="true"
+                                    Style="width: 100%;  padding-bottom:20px;height:400px">
+                        <Columns>
+                            <RadzenDataGridColumn Property="@nameof(PutawayReportDTO.Period)" Title="@_localizer["Period"]">
+                                <FooterTemplate>
+                                    <p><em>@_localizer["Total"]</em></p>
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn Property="@nameof(PutawayReportDTO.Tenant)" Title="@_localizer["TenantName"]" />
+                            <RadzenDataGridColumn Property="@nameof(PutawayReportDTO.ExpectedStock)" Title="@_localizer["ExpectedStock"]">
+                                <FooterTemplate>
+                                    @PutawayReports.Sum(x => x.TotalTransQty) / @PutawayReports.Sum(x => x.TotalJournalQty)
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn Property="@nameof(PutawayReportDTO.RemainingNumber)" Title="@_localizer["RemainingQty"]">
+                                <FooterTemplate>
+                                    @* @PutawayReports.Sum(x => x.TotalRemainingNumber) / @PutawayReports.Sum(x => x.TotalJournalQty) *@
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn Title="@_localizer["ProgressRate"]">
+                                <Template Context="data">
+                                    <RadzenText Text="@($"{data .ProgressRate} %")" />
+                                </Template>
+                                <FooterTemplate>
+                                    @(Math.Round(PutawayReports.Average(x => x.ProgressRate), 2))%
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn Title="@_localizer["Productivity"]">
+                                <Template Context="data">
+                                    @if(data.Productivity.HasValue){
+                                        <RadzenText Text="@($"{data .Productivity}/h")" />
+                                    }
+                                    else{
+                                        <RadzenText Text="@("0/h")" />
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                }
+            </RadzenFieldset>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="@_localizer["Dashboard 2"]">
+            <RadzenFieldset Text="@_localizer["OrderReports"]">
+                @if (orderReports == null)
+                {
+                    <p><em>@_CLoc["Loading"]</em></p>
+                }
+                else
+                {
+                    <RadzenDataGrid @ref="_orderReportGrid" Data="orderReports" TItem="OrderReportDto" ColumnWidth="200px"
+                                    AllowColumnResize="true" AllowSorting="true" GridLines="Radzen.DataGridGridLines.Vertical" AllowVirtualization="true"
+                                    Style="width: 100%;  padding-bottom:20px;height:400px">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="OrderReportDto" Property="TenantName" Title="@_localizer["TenantName"]" />
+                            <RadzenDataGridColumn TItem="OrderReportDto" Property="Status" Title="@_CLoc["Status"]">
+                                <Template Context="data">
+                                    @_localizer[data.Status]
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="OrderReportDto" Property="QtyOrderedIsPending" Title="@_localizer["QtyOrderedIsPending"]">
+                                <FooterTemplate>
+                                    @orderReports.Sum(x => x.QtyOrderedIsPending)
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                }
+            </RadzenFieldset>
+
+            <RadzenFieldset Text="@_localizer["TaskModelReports"]">
+                @if (taskModelReports == null)
+                {
+                    <p><em>@_CLoc["Loading"]</em></p>
+                }
+                else
+                {
+                    <RadzenDataGrid @ref="_taskModelReportGrid" Data="taskModelReports" TItem="TaskReportDto" ColumnWidth="200px"
+                                    AllowColumnResize="true" AllowSorting="true" GridLines="Radzen.DataGridGridLines.Vertical" AllowVirtualization="true"
+                                    Style="width: 100%;  padding-bottom:20px;height:400px">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="TaskReportDto" Property="TenantName" Title="@_localizer["TenantName"]" />
+                            <RadzenDataGridColumn TItem="TaskReportDto" Property="Responsibility" Title="@_localizer["Responsibility"]">
+                                <FooterTemplate>
+                                    @taskModelReports.Sum(x => x.Responsibility)
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="TaskReportDto" Property="TaskIsOnHold" Title="@_localizer["TaskIsOnHold"]">
+                                <FooterTemplate>
+                                    @taskModelReports.Sum(x => x.Responsibility)
+                                </FooterTemplate>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                }
+            </RadzenFieldset>
+        </RadzenTabsItem>
+    </Tabs>
+</RadzenTabs>
+
+
+@code {
+
+
+    TabPosition tabPosition = TabPosition.Top;
+
+
+
+    void OnChange(int index)
+    {
+
+    }
+}

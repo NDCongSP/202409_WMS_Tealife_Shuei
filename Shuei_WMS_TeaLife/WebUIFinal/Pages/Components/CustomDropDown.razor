@@ -1,0 +1,42 @@
+﻿@typeparam T
+
+<RadzenFormField Text="@Text" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+    <RadzenDropDown TValue="T" Name="@Name" @bind-Value="@Value" Data="@Data"
+                    Multiple="false" AllowClear="true" Placeholder="@Placeholder" Chips="true" Disabled="@IsDisabled"
+                    TextProperty="@TextProperty" ValueProperty="@ValueProperty" AllowFiltering="true"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains"
+                    Change="@(async args => await OnChange.InvokeAsync())" />
+
+</RadzenFormField>
+<RadzenRequiredValidator Component="@Name" Text="@_CLoc["Required"]" Popup="false" Style="position: absolute" />
+
+@code {
+    [Parameter] public string Text { get; set; }
+    [Parameter] public string Name { get; set; }
+
+    private T _value;
+    [Parameter]
+    public T Value
+    {
+        get => _value;
+        set
+        {
+            if (!EqualityComparer<T>.Default.Equals(_value, value))
+            {
+                _value = value;
+                ValueChanged.InvokeAsync(value);
+            }
+        }
+    }
+    @inject IStringLocalizer<CommonResources> _CLoc
+
+
+    [Parameter] public EventCallback<T> ValueChanged { get; set; }
+    [Parameter] public EventCallback OnChange { get; set; }
+
+    [Parameter] public IEnumerable<object> Data { get; set; }
+    [Parameter] public string Placeholder { get; set; }
+    [Parameter] public bool IsDisabled { get; set; }
+    [Parameter] public string TextProperty { get; set; }
+    [Parameter] public string ValueProperty { get; set; }
+}

@@ -1,0 +1,139 @@
+﻿@page "/devicedetail/{Title}"
+
+@using Application.Extentions
+@using Blazored.LocalStorage
+@using DeviceEntity = FBT.ShareModels.WMS.Device;
+@using Microsoft.AspNetCore.Authorization
+
+@inject IStringLocalizer<CommonResources> _localizerCommon
+@inject IStringLocalizer<DeviceResources> _localizer
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+@attribute [Authorize(Policy = "Admin")]
+
+@if (_model == null)
+{
+    <p><em>@_localizer["Loading"]...</em></p>
+}
+else
+{
+    <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-2">
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenLink Text="@_localizerCommon["Detail.BackToList"]" Path="/devicelist" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@_localizer["Information"]</strong></RadzenText>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px" class="mb-2">
+                <RadzenButton Click=Delete Variant="Variant.Flat" Shade="Shade.Dark" Visible="_visibled"
+                              Text="@_localizerCommon["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTemplateForm Data="@_model" Submit="@((DeviceEntity args) => { Submit(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizerCommon["Information"]">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Start">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Name"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox Name="_txtname" @bind-Value="@_model.Name" Style="color:black" />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_txtname" Popup="false" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField AllowFloatingLabel="false" Text="@_localizer["Type"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox Name="_txtType" @bind-Value="@_model.Type" Style="color:black" Placeholder="Handheld..." />
+                                </RadzenFormField>
+                                @* <RadzenRequiredValidator Component="_txtType" Popup="false" Style="position: absolute" /> *@
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField AllowFloatingLabel="false" Text="@_localizer["Model"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox Name="_txtModel" @bind-Value="@_model.Model" Style="color:black" Placeholder="BT-A500 Series..." />
+                                </RadzenFormField>
+                                @* <RadzenRequiredValidator Component="_txtModel" Popup="false" Style="position: absolute" /> *@
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField AllowFloatingLabel="false" Text="@_localizer["Memory"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox Name="_txtMemory" @bind-Value="@_model.Memory" Style="color:black" Placeholder="16 GB ..." />
+                                </RadzenFormField>
+                                @* <RadzenRequiredValidator Component="_txtMemory" Popup="false" Style="position: absolute" /> *@
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField AllowFloatingLabel="false" Text="OS" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox Name="_txtOS" @bind-Value="@_model.OS" Style="color:black" Placeholder="Android 10 ..." />
+                                </RadzenFormField>
+                                @* <RadzenRequiredValidator Component="_txtOS" Popup="false" Style="position: absolute" /> *@
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField AllowFloatingLabel="false" Text="CPU" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox Name="_txtCPU" @bind-Value="@_model.CPU" Style="color:black" Placeholder="Qualcomm™ Quad-core..." />
+                                </RadzenFormField>
+                                @* <RadzenRequiredValidator Component="_txtCPU" Popup="false" Style="position: absolute" /> *@
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Status"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDown @bind-Value=@_model.Status Data="@(Enum.GetValues(typeof(EnumStatus)).Cast<Enum>())"
+                                                        Name="_dropDownStatus"
+                                                        Multiple=false AllowClear=true Placeholder="@_localizerCommon["Select"]" Chips=true />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_dropDownStatus" Popup="false" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["ActiveUser"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDown @bind-Value="@_model.ActiveUser" Data="@_users" TextProperty="FullName"
+                                                        ValueProperty="FullName" Name="_dropDownActiveUser"
+                                                        Placeholder="@_localizerCommon["Select"]" AllowClear="true" Multiple=false Chips=true />
+                                    </ChildContent>
+                                    <Helper>
+                                        <RadzenRequiredValidator Component="_dropDownActiveUser" Popup="false" />
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="12">
+                                <RadzenFormField Text="@_localizerCommon["Description"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextArea @bind-Value=@_model.Description oninput="event.target.style.height = Math.max(event.target.clientHeight, event.target.scrollHeight) + 'px';"
+                                                        Style="width: 100% ; color:black" aria-label="Auto-resize" />
+                                    </ChildContent>
+                                    <Helper>
+
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-2">
+            <RadzenColumn Size="12" SizeSM="12">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem">
+                    <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Success" Icon="save" Text="@_localizerCommon["Save"]" Visible="_visibled" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}

@@ -1,0 +1,69 @@
+﻿@inherits LayoutComponentBase
+
+@using Application.Extentions
+@using WebUIFinal.Pages.Components
+@inject IStringLocalizer<CommonResources> _localizer
+
+<RadzenComponents />
+
+<RadzenLayout Style="grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body' 'rz-sidebar rz-footer'">
+    <RadzenHeader Style="background-color:#EDEDED">
+        <RadzenRow>
+            <RadzenColumn Size="5">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Start" AlignItems="AlignItems.Center" Gap="4px">
+                    <RadzenSidebarToggle Click="@(() => _sidebarExpanded = !_sidebarExpanded)" Style="color:black" />
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="7">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="Radzen.JustifyContent.End" Gap="4px">
+                    @*  <Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+                    <Authorized> *@
+                    <RadzenAppearanceToggle />
+                    @* <RadzenLabel Style="color:black">@context.User?.Identity?.Name</RadzenLabel> *@
+                    <RadzenLabel Style="color:black">
+                        @GlobalVariable.UserAuthorizationInfo?.EmailName
+                    </RadzenLabel>
+                    <RadzenProfileMenu Click="OnParentClicked" Style="background-color:#EDEDED">
+                        <Template>
+                            <RadzenIcon Icon="account_circle" />
+                        </Template>
+                        <ChildContent>
+                            <LanguageSwitcher />
+                            <RadzenProfileMenuItem Visible="true" Text="@_localizer["Profile.UserInfo"]" Path="@($"/adduser/View User||False")" Icon="manage_accounts"></RadzenProfileMenuItem>
+                            @* <RadzenProfileMenuItem Visible="@context.User.IsInRole(ConstantExtention.Roles.WarehouseAdmin)" Text="@_localizer["Profile.UserManager"]" Path="/userlist" Icon="people_alt"></RadzenProfileMenuItem> *@
+                            @if (GlobalVariable.AuthenticationStateTask?.User?.Identity?.Name != "OMS")
+                            {
+                                <RadzenProfileMenuItem Text="@_localizer["Profile.ChangePassword"]" Path="/changepass" Icon="password"></RadzenProfileMenuItem>
+                            }
+                            <RadzenProfileMenuItem Text="@_localizer["Profile.Logout"]" Icon="logout"></RadzenProfileMenuItem>
+                        </ChildContent>
+                    </RadzenProfileMenu>
+                    @*  </Authorized>
+                    </Microsoft.AspNetCore.Components.Authorization.AuthorizeView> *@
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenHeader>
+    <NavMenuCSS SidebarToggle="@_sidebarExpanded" />
+    <RadzenBody>
+        <RadzenBreadCrumb>
+            @if (GlobalVariable.BreadCrumbData != null && GlobalVariable.BreadCrumbData.Count > 0)
+            {
+                @foreach (var item in GlobalVariable.BreadCrumbData)
+                {
+                    <RadzenBreadCrumbItem Path="@item.Path" Text="@item.Text" />
+                }
+            }
+        </RadzenBreadCrumb>
+        <div class="">
+            <RadzenPanel class="rz-border-radius-1">
+                @Body
+            </RadzenPanel>
+        </div>
+    </RadzenBody>
+    @* <RadzenFooter>
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="Radzen.JustifyContent.End">
+    <RadzenLabel>© 2024 SHUEI. All Rights Reserved.</RadzenLabel>
+    </RadzenStack>
+    </RadzenFooter> *@
+</RadzenLayout>

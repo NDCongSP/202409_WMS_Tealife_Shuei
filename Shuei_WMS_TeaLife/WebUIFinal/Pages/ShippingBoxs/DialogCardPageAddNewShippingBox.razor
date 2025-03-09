@@ -1,0 +1,178 @@
+﻿@page "/addshippingbox/{Mode}"
+@using Application.DTOs.Response.ShippingBoxs
+@using Application.Extentions
+@using ShippingBoxModel = FBT.ShareModels.WMS.ShippingBox
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Core
+@inject IStringLocalizer<ShippingBoxResources> _localizer
+@inject IStringLocalizer<CommonResources> _CLoc
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+<style>
+    .input-image-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .image-container {
+        position: relative;
+        display: inline-block;
+        margin-left: 10px;
+    }
+
+    .img-thumbnail {
+        border-radius: 4px;
+        height: 102px;
+        width: 102px;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .image-container:hover .overlay {
+        opacity: 0.6;
+    }
+
+    .icon {
+        color: white;
+        font-size: 24px;
+    }
+
+    .fa-times:hover {
+        color: #eee;
+        cursor: pointer;
+    }
+</style>
+
+@attribute [Authorize(Policy = "AdminAndStaff")]
+@if (model == null)
+{
+    <p><em>@_CLoc["Loading"]</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenLink Text="@_localizer["BackToShippingBoxList"]" Path="/shippingboxlist" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@_localizer[Title]</strong></RadzenText>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+                <RadzenButton Click=@(args => DeleteItemAsync(model)) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_CLoc["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Disabled="@(Mode=="Create")" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenTemplateForm Data="@model" Submit="@((ShippingBoxModel args) => {Submit(args);})">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["ShippingBoxInformation"]" Disabled="@isDisabled">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["BoxName"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtBoxName" @bind-Value="@model.BoxName" @onchange="@(args => model.BoxName = args.Value.ToString())" Placeholder="@_CLoc["Typing ..."]" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtBoxName" Popup="false" Style="position: absolute" Text="@_CLoc["Required"]" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["BoxType"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtBoxType" @bind-Value="@model.BoxType" Placeholder="@_CLoc["Typing ..."]" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtBoxType" Popup="false" Style="position: absolute" Text="@_CLoc["Required"]" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Length"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenNumeric TValue="double?" Name="_txtLength" @bind-Value="@model.Length" Placeholder="@_CLoc["Typing ..."]" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtLength" Popup="false" Style="position: absolute" Text="@_CLoc["Required"]" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_CLoc["Width"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenNumeric TValue="double?" Name="_txtWidth" @bind-Value="@model.Width" Placeholder="@_CLoc["Typing ..."]" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtWidth" Popup="false" Style="position: absolute" Text="@_CLoc["Required"]" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_CLoc["Height"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenNumeric TValue="double?" Name="_txtHeight" @bind-Value="@model.Height" Placeholder="@_CLoc["Typing ..."]" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtHeight" Popup="false" Style="position: absolute" Text="@_CLoc["Required"]" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["MaxWeight"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenNumeric TValue="double?" Name="_txtMaxWeight" @bind-Value="@model.MaxWeight" Placeholder="@_CLoc["Typing ..."]" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtMaxWeight" Popup="false" Style="position: absolute" Text="@_CLoc["Required"]" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenRow AlignItems="AlignItems.Center">
+                             <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["ShippingCarrier"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDropDown @bind-Value="@model.ShippingCarrierCode"
+                                                    Data="@_shippingCarriers"
+                                                    Name="_txtShippingCarrier"
+                                                    Multiple="false"
+                                                    AllowClear="true"
+                                                    Placeholder="@_localizer["Select"]"
+                                                    Chips="true"
+                                                    TextProperty="ShippingCarrierName"
+                                                    ValueProperty="ShippingCarrierCode" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtShippingCarrier" Popup="false" Style="position: absolute" Text="@_CLoc["Required"]" />
+                            </RadzenColumn> 
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_CLoc["Status"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDropDown @bind-Value="@selectedStatus"
+                                                    Data="@(Enum.GetValues(typeof(EnumStatus)).Cast<EnumStatus>().Select(e => new
+                                                    {
+                                                        Text = _localizer[e.ToString()],
+                                                        Value = e
+                                                    }))"
+                                                    TextProperty="Text"
+                                                    ValueProperty="Value"
+                                                    Name="_dropDownBoxStatus"
+                                                    Multiple=false
+                                                    AllowClear=true
+                                                    Placeholder="@_localizer["Select"]"
+                                                    Chips=true
+                                                    Disabled="@isDisabled" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_dropDownBoxStatus" Popup="false" Style="position: absolute" Text="@_CLoc["Required"]" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Center" Gap="1rem">
+                    <RadzenButton Click=@(_ => _navigation.NavigateTo("/shippingboxlist")) Style="background-color:cadetblue" Size="ButtonSize.Large" Icon="cancel" Text="@_CLoc["Cancel"]" />
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_CLoc["Save"]" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}

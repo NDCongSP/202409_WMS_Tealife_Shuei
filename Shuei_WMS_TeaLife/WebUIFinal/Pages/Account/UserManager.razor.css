@@ -1,0 +1,24 @@
+﻿/* Change the background color of the entire grid */
+/*.custom-grid .rz-datatable {
+    background-color: lightgray;
+}*/
+
+/* Change the background color of the header */
+/*::deep .custom-grid .rz-datatable-header {
+    background-color: #CC686F !important;*/
+    /*color: white;*/
+/*}
+
+.rz-grid-table.rz-grid-gridlines-both > thead > tr > th {
+    background-color: #CC686F !important;
+}*/
+
+/* Change the background color of the rows */
+/*.custom-grid .rz-datatable-data .rz-datatable-row {
+    background-color: lightyellow;
+}*/
+
+    /* Optional: Different background color for alternating rows */
+    /*.custom-grid .rz-datatable-data .rz-datatable-row:nth-child(even) {
+        background-color: lightblue;
+    }*/

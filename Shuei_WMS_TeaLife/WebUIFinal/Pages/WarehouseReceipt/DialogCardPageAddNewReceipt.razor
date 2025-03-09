@@ -1,0 +1,324 @@
+﻿@page "/addreceipt/{Title}"
+
+@using Application.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Core
+@using WebUIFinal.Pages.Components
+
+@inject IStringLocalizer<WarehouseReceiptResource> _localizer
+@inject IStringLocalizer<CommonResources> _CLoc
+
+@attribute [Authorize(Policy = "AdminAndStaff")]
+@if (warehouseReceiptOrder == null)
+{
+    <p><em>@_CLoc["Loading"]</em></p>
+}
+else
+{
+   <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenLink Text="@_CLoc["Detail.BackToList"]" Path="/" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+   <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@Title</strong></RadzenText>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px" class="mb-2">
+                    <RadzenButton Click=@(args => DeleteReceip()) Variant="Variant.Flat" Shade="Shade.Dark"
+                                  Text="@_CLoc["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Visible="_visibleBtnSubmit"
+                              Disabled="@(warehouseReceiptOrder.Status != EnumReceiptOrderStatus.Draft || string.IsNullOrEmpty(warehouseReceiptOrder.ReceiptNo))" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenTemplateForm Data="@warehouseReceiptOrder" Submit="@((WarehouseReceiptOrderDto args) => { Submit(args); })">
+       <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Receipt.BasicInformation"]" Disabled="@isDisabled">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["ReceiptNo"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenTextBox Name="_txtReceiptNo" @bind-Value="@warehouseReceiptOrder.ReceiptNo" Disabled />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["ScheduledArrivalNumber"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenNumeric TValue="double?" Name="_txtScheduledArrivalNumber" @bind-Value="@warehouseReceiptOrder.ScheduledArrivalNumber" Disabled="@isDisabled" Change="@(args => CheckArrivalNo(args))" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_CLoc["Tenant"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenDropDown @bind-Value="@warehouseReceiptOrder.TenantId"
+                                                    Data="tenants"
+                                                    TextProperty="FullName"
+                                                    ValueProperty="AuthPTenantId"
+                                                    Name="_dropDownTenant"
+                                                    TValue="int" Chips="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    Multiple=false FilterOperator="StringFilterOperator.Contains"
+                                                    Placeholder="@_CLoc["Tenant"]"
+                                                    AllowClear="true"
+                                                    Change="@(args => OnChangeTenant((int)args))"
+                                                    Disabled="@isDisabled" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_dropDownTenant" Popup="false" Style="position: absolute"/>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_CLoc["Location"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDropDown TValue="string" Name="_dropDownLocation" @bind-Value="@warehouseReceiptOrder.Location" Data="@locations"
+                                                    Multiple="false" AllowClear="true" Placeholder="@_CLoc["Location"]" Chips="true" Disabled="@isDisabled"
+                                                    TextProperty="LocationName" ValueProperty="Id" AllowFiltering="true" Change="@(args => OnLocationChanged(args.ToString()))"
+                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_dropDownLocation" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <CustomDropDown Text="@_CLoc["Supplier"]" Name="_dropDownSupplier"
+                                                @bind-Value="@warehouseReceiptOrder.SupplierId" Data="@suppliers"
+                                                Placeholder="@_CLoc["Supplier"]" IsDisabled="@isDisabled"
+                                                TextProperty="SupplierName" ValueProperty="Id" />
+                                <RadzenRequiredValidator Component="_dropDownSupplier" Popup="false" Style="position: absolute" DefaultValue=0 />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <CustomDropDown Text="@_localizer["PersonInCharge"]" Name="_dropDownUser"
+                                                @bind-Value="@warehouseReceiptOrder.PersonInCharge" Data="@users"
+                                                Placeholder="@_localizer["PersonInCharge"]" IsDisabled="@isDisabled"
+                                                TextProperty="FullName" ValueProperty="Id" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["ExpectedDate"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <RadzenDatePicker DateFormat="yyyy/MM/dd" @bind-Value="@warehouseReceiptOrder.ExpectedDate" Name="_expectedDate" Placeholder="@_localizer["ExpectedDate"]" Disabled="@isDisabled"  />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_expectedDate" Popup="false" Style="position: absolute" />
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="6">
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                                    <RadzenLabel Text="@_CLoc["Status"]" Style="font-weight: bold;" />
+                                    <RadzenLabel Text=":" Style="font-weight: bold;" />
+                                    <span class="status-chip @GetStatusColor(selectedReceiptStatus)">
+                                        @GetValueReceiptOrderStatus(selectedReceiptStatus)
+                                    </span>
+                                </RadzenStack>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+       <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["ReceiptDetails"]">
+                    <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.End" Gap="5px">
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="@_localizer["CreateFromArrival"]" Click=@(args => CheckArrivalNo(0)) Disabled="@(!(warehouseReceiptOrder.Status == EnumReceiptOrderStatus.Draft && warehouseReceiptOrder.ScheduledArrivalNumber != default && warehouseReceiptOrder.ScheduledArrivalNumber != default))" />
+                            <RadzenButton Click=@(args => SyncHTData()) Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_localizer["ReflectedHtInspectionResults"]" Icon="edit" ButtonStyle="ButtonStyle.Success"
+                                          Disabled="@(warehouseReceiptOrder.Status == EnumReceiptOrderStatus.Open ? false : true)" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle" Click="@InsertRow" Disabled="@(warehouseReceiptOrder.Status == EnumReceiptOrderStatus.Draft ? false : true)" />
+                        </RadzenStack>
+                        <RadzenDataGrid @ref="_receiptLineProfileGrid" AllowAlternatingRows="false" EditMode="@editMode" Data="@warehouseReceiptOrder.WarehouseReceiptOrderLines"
+                                        TItem="WarehouseReceiptOrderLineDto" GridLines="Radzen.DataGridGridLines.Both"
+                                        Style="width: 100%;"
+                                        RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Sort="@Reset" Page="@Reset" Filter="@Reset"
+                                        PageSizeText="@_CLoc["items per page"]" EmptyText="@_CLoc["No records to display."]">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="WarehouseReceiptOrderLineDto" Property="ProductCode" Title="@_CLoc["Product.Code"]" Width="250px">
+                                    <EditTemplate Context="data">
+                                        <RadzenFormField Text="@_CLoc["ProductCode"]" Variant="Variant.Outlined" Style="width:100%">
+                                            <ProductAutocomplete SelectedValue="@selectedProduct.ProductCode" TenantId="@warehouseReceiptOrder.TenantId" Change="OnProductSelected" />
+                                        </RadzenFormField>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="WarehouseReceiptOrderLineDto" Property="ProductName" Title="@_CLoc["Product.Name"]" Width="200px">
+                                    <EditTemplate Context="detail">
+                                        <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">
+                                            @if (string.IsNullOrEmpty(selectedProduct.ProductCode))
+                                            {
+                                                @detail.ProductName
+                                            }
+                                            else
+                                            {
+                                                @selectedProduct.ProductName
+                                            }
+                                        </RadzenText>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="WarehouseReceiptOrderLineDto" Property="UnitName" Title="@_CLoc["Unit"]" Width="100px">
+                                    <EditTemplate Context="detail">
+                                        <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">
+                                            @if (string.IsNullOrEmpty(selectedProduct.ProductCode))
+                                            {
+                                                @detail.UnitName
+                                            }
+                                            else
+                                            {
+                                                @selectedProduct.UnitName
+                                            }
+                                        </RadzenText>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="WarehouseReceiptOrderLineDto" Property="StockAvailableQuantity" Title="@_localizer["Receipt.StockQty"]" Width="100px">
+                                    <EditTemplate Context="detail">
+                                        <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">
+                                            @if (string.IsNullOrEmpty(selectedProduct.ProductCode))
+                                            {
+                                                @detail.StockAvailableQuantity
+                                            }
+                                            else
+                                            {
+                                                @selectedProduct.StockAvailableQuantity
+                                            }
+                                        </RadzenText>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="WarehouseReceiptOrderLineDto" Property="OrderQty" Title="@_localizer["Receipt.OrderQty"]" Width="120px">
+                                    <EditTemplate Context="detail">
+                                        <RadzenNumeric @bind-Value="detail.OrderQty" Style="width:100%" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", _localizer["EnterOrderQty"] }})" Disabled="@(warehouseReceiptOrder.Status == EnumReceiptOrderStatus.Draft ? false : true)" />
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="WarehouseReceiptOrderLineDto" Property="TransQty" Title="@_localizer["Receipt.ActualQty"]" Width="120px">
+                                    <EditTemplate Context="detail">
+                                        <RadzenNumeric @bind-Value="detail.TransQty" Style="width:100%" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", _localizer["EnterActualQty"] }})" Disabled="@(warehouseReceiptOrder.Status <= EnumReceiptOrderStatus.Open ? false : true)" />
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="WarehouseReceiptOrderLineDto" Property="LotNo" Title="LOT" Width="250px">
+                                    <EditTemplate Context="detail">
+                                        <RadzenTextBox Style="width:100%" Name="_txtLotNo" @bind-Value="@detail.LotNo" Disabled="@(warehouseReceiptOrder.Status <= EnumReceiptOrderStatus.Open ? false : true)"  />
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="WarehouseReceiptOrderLineDto" Property="Bin" Title="@_CLoc["Bin"]" Width="200px">
+                                    <EditTemplate Context="detail">
+                                        <RadzenDropDown @bind-Value="@detail.Bin"
+                                                        Style="width:100%"
+                                                        Data="bins"
+                                                        TextProperty="BinCode"
+                                                        ValueProperty="BinCode"
+                                                        Name="itemBin"
+                                                        TValue="string"
+                                                        Multiple=false
+                                                        Placeholder="@_CLoc["Select"]"
+                                                        AllowClear="true"
+                                                        Disabled="@(warehouseReceiptOrder.Status <= EnumReceiptOrderStatus.Open ? false : true)"  />
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="WarehouseReceiptOrderLineDto" Property="ExpirationDate" Title="@_localizer["ExpirationDate"]" Width="200px" FormatString="{0:yyyy/MM/dd}">
+                                    <EditTemplate Context="detail">
+                                        <RadzenDatePicker DateFormat="yyyy/MM/dd" @bind-Value="@detail.ExpirationDate" Name="_expirationDate" 
+                                                    Placeholder="@_localizer["ExpirationDate"]" Disabled="@(warehouseReceiptOrder.Status <= EnumReceiptOrderStatus.Open ? false : true)"
+                                                          FormatString="{0:yyyy/MM/dd}" />
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Context="detail" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Width="120px" Frozen="true"
+                                                      FrozenPosition="FrozenColumnPosition.Right" Visible="warehouseReceiptOrder.Status == EnumReceiptOrderStatus.Draft||warehouseReceiptOrder.Status == EnumReceiptOrderStatus.Open">
+                                    <Template Context="detail">
+                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(detail))">
+                                        </RadzenButton>
+                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium"
+                                                      class="rz-my-1 rz-ms-1" Click="@(args => DeleteRow(detail))" @onclick:stopPropagation="true">
+                                        </RadzenButton>
+                                    </Template>
+                                    <EditTemplate Context="detail">
+                                        <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRow(detail))" aria-label="@_CLoc["Save"]">
+                                        </RadzenButton>
+                                        <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" Click="@((args) => CancelEdit(detail))" aria-label="@_CLoc["Cancel"]">
+                                        </RadzenButton>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+
+       <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeSM="12">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem">
+                   @*
+                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Large" Icon="cancel" Text="@_CLoc["Cancel"]" Visible="@_visibleBtnSubmit"
+                                  Style="background-color:cadetblue" Click=@(_ => _navigation.NavigateTo("/"))
+                                  Disabled="@(warehouseReceiptOrder.Status >= EnumReceiptOrderStatus.Received? true : false)" />
+                     *@
+                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Large" Icon="edit" Text="@_localizer["CompletedReceipt"]"
+                                  Visible="@_visibleBtnSubmit" Click="@(args => AdjustStatusReceipt(EnumReceiptOrderStatus.Received.ToString()))"
+                                  Disabled="@(warehouseReceiptOrder.Status == EnumReceiptOrderStatus.Open ? false : true)" />
+                    <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Large" Icon="edit" Text="@_localizer["CreateShelving"]"
+                                  Visible="@_visibleBtnSubmit" Click="@(args => InsertWarehousePutAwayOrder())"
+                                  Disabled="@(warehouseReceiptOrder.Status == EnumReceiptOrderStatus.Received ? false : true)" />
+                    @if (warehouseReceiptOrder.ReceiptNo == null || warehouseReceiptOrder.Status == EnumReceiptOrderStatus.Draft)
+                    {
+                        <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_CLoc["Save"]" Visible="@_visibleBtnSubmit" />
+                    }
+                    @if (warehouseReceiptOrder.ReceiptNo != null)
+                    {
+                        <RadzenButton ButtonType="ButtonType.Button" Size="ButtonSize.Large" Icon="save" Text="@_CLoc["Confirm"]"
+                                      Visible="@_visibleBtnSubmit" Click="@(args => AdjustStatusReceipt(EnumReceiptOrderStatus.Open.ToString()))"
+                                      Disabled="@(warehouseReceiptOrder.Status == EnumReceiptOrderStatus.Draft ? false : true)" />
+                    }
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}
+
+<style>
+    .status-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 12px;
+        height: 32px;
+        border-radius: 16px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        line-height: 1.75;
+        letter-spacing: 0.02857em;
+        text-transform: uppercase;
+    }
+
+        .status-chip.default {
+            background-color: #e0e0e0;
+            color: rgba(0, 0, 0, 0.87);
+        }
+
+        .status-chip.primary {
+            background-color: #7b1fa2;
+            color: #fff;
+        }
+
+        .status-chip.secondary {
+            background-color: #ff4081;
+            color: #fff;
+        }
+
+        .status-chip.info {
+            background-color: #2196f3;
+            color: #fff;
+        }
+
+        .status-chip.success {
+            background-color: #4caf50;
+            color: #fff;
+        }
+
+        .status-chip.warning {
+            background-color: #ff9800;
+            color: #fff;
+        }
+
+        .status-chip.error {
+            background-color: #f44336;
+            color: #fff;
+        }
+
+        .status-chip.dark {
+            background-color: #424242;
+            color: #fff;
+        }
+</style>
+

@@ -1,0 +1,318 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Delivery Location" xml:space="preserve">
+    <value>出庫ロケ</value>
+  </data>
+  <data name="Estimated Ship Date" xml:space="preserve">
+    <value>出荷予定日</value>
+  </data>
+  <data name="Outgoing Bin" xml:space="preserve">
+    <value>出庫ビン</value>
+  </data>
+  <data name="Packing List" xml:space="preserve">
+    <value>パッキング一覧</value>
+  </data>
+  <data name="Shipping Instruction List" xml:space="preserve">
+    <value>出庫指示一覧</value>
+  </data>
+  <data name="Pick List" xml:space="preserve">
+    <value>ピック一覧</value>
+  </data>
+  <data name="Keep" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Manual Entry" xml:space="preserve">
+    <value>手動入力</value>
+  </data>
+  <data name="Pick Details" xml:space="preserve">
+    <value>ピック詳細</value>
+  </data>
+  <data name="Product Scan" xml:space="preserve">
+    <value>商品スキャン</value>
+  </data>
+  <data name="Delivery Address" xml:space="preserve">
+    <value>お届け先</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>から</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>まで</value>
+  </data>
+  <data name="Instruction" xml:space="preserve">
+    <value>指示</value>
+  </data>
+  <data name="Delivery Company" xml:space="preserve">
+    <value>配送業者</value>
+  </data>
+  <data name="Instruction Number" xml:space="preserve">
+    <value>指示番号</value>
+  </data>
+  <data name="Packing Check" xml:space="preserve">
+    <value>パッキング確認</value>
+  </data>
+  <data name="Basic Information" xml:space="preserve">
+    <value>注文情報</value>
+  </data>
+  <data name="Complete Packing" xml:space="preserve">
+    <value>パッキング完了</value>
+  </data>
+  <data name="Phone Number" xml:space="preserve">
+    <value>電話番号</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>住所</value>
+  </data>
+  <data name="Shipping Address" xml:space="preserve">
+    <value>お届け先</value>
+  </data>
+  <data name="Shipping Carrier" xml:space="preserve">
+    <value>配送業者</value>
+  </data>
+  <data name="Picked Date" xml:space="preserve">
+    <value>ピック作成日</value>
+  </data>
+  <data name="Tracking Code" xml:space="preserve">
+    <value>トラッキング コード</value>
+  </data>
+  <data name="Shipment Order Qty" xml:space="preserve">
+    <value>出庫指示数</value>
+  </data>
+  <data name="Packed Qty" xml:space="preserve">
+    <value>パッキング数</value>
+  </data>
+  <data name="Remaining" xml:space="preserve">
+    <value>残数</value>
+  </data>
+  <data name="True" xml:space="preserve">
+    <value>の上</value>
+  </data>
+  <data name="False" xml:space="preserve">
+    <value>オフ</value>
+  </data>
+  <data name="is fully packed" xml:space="preserve">
+    <value>スキャン・パッキング済の商品です。</value>
+  </data>
+  <data name="do not exist in the shipment" xml:space="preserve">
+    <value>この注文に存在しない商品です。</value>
+  </data>
+  <data name="Shipment No." xml:space="preserve">
+    <value>指示番号</value>
+  </data>
+  <data name="Do you complete the packing?" xml:space="preserve">
+    <value>パッキング完了にします、宜しいでしょうか？</value>
+  </data>
+  <data name="Scanned" xml:space="preserve">
+    <value>製品ラベルをスキャンしました</value>
+  </data>
+  <data name="Qty" xml:space="preserve">
+    <value>数量</value>
+  </data>
+  <data name="LotNo" xml:space="preserve">
+    <value>LOT番号</value>
+  </data>
+  <data name="Order No" xml:space="preserve">
+    <value>注文番号</value>
+  </data>
+  <data name="Beginning" xml:space="preserve">
+    <value>納品書 番号スキャン</value>
+  </data>
+  <data name="Scanning" xml:space="preserve">
+    <value>商品ラベルスキャン</value>
+  </data>
+  <data name="Finish" xml:space="preserve">
+    <value>商品スキャン完了</value>
+  </data>
+  <data name="Scan product label only." xml:space="preserve">
+    <value>商品管理ラベルをスキャンしてください。</value>
+  </data>
+  <data name="The lot num does not match." xml:space="preserve">
+    <value>ロット番号が一致しません。</value>
+  </data>
+  <data name="Packing is complete." xml:space="preserve">
+    <value>梱包完了です。</value>
+  </data>
+  <data name="Update packed quantity for shipment line successfully." xml:space="preserve">
+    <value>出荷明細の梱包数量が正常に更新されました。</value>
+  </data>
+  <data name="Go To Packing" xml:space="preserve">
+    <value>梱包へ進む</value>
+  </data>
+  <data name="Packed Date" xml:space="preserve">
+    <value>パック日</value>
+  </data>
+  <data name="Shipment Completed" xml:space="preserve">
+    <value>発送が完了しました</value>
+  </data>
+  <data name="Scanner format:" xml:space="preserve">
+    <value>スキャフォーマット:</value>
+  </data>
+  <data name="Manual format:" xml:space="preserve">
+    <value>手動フォーマット:</value>
+  </data>
+  <data name="Expire Date" xml:space="preserve">
+    <value>賞味期限</value>
+  </data>
+  <data name="Shipment Order Qty 1" xml:space="preserve">
+    <value>スキャン前</value>
+  </data>
+  <data name="Shipment Order Qty 2" xml:space="preserve">
+    <value>スキャン中</value>
+  </data>
+  <data name="Shipment Order Qty 3" xml:space="preserve">
+    <value>スキャン済</value>
+  </data>
+  <data name="Box Type" xml:space="preserve">
+    <value>箱種類</value>
+  </data>
+  <data name="Length" xml:space="preserve">
+    <value>長さ</value>
+  </data>
+  <data name="Max Weight" xml:space="preserve">
+    <value>最大重量</value>
+  </data>
+  <data name="Select Box" xml:space="preserve">
+    <value>配送箱（サイズ）</value>
+  </data>
+  <data name="Box Name" xml:space="preserve">
+    <value>箱名称</value>
+  </data>
+  <data name="Printer Name" xml:space="preserve">
+    <value>プリンター名</value>
+  </data>
+  <data name="Are you sure you have chosen the right box type and want to print delivery notes?" xml:space="preserve">
+    <value>新しい箱を選択しましたか？配送ラベルの印刷を行ってもよろしいですか？</value>
+  </data>
+  <data name="PrintedLabel" xml:space="preserve">
+    <value>配送ラベル印刷済</value>
+  </data>
+  <data name="Pick Creation Date" xml:space="preserve">
+    <value>ピック作成日</value>
+  </data>
+  <data name="(The format seems to be different)" xml:space="preserve">
+    <value>（形式が異なっているようです)</value>
+  </data>
+  <data name="(Please check)" xml:space="preserve">
+    <value>（ご確認ください）</value>
+  </data>
+  <data name="Please check the comments." xml:space="preserve">
+    <value>「コメントの確認(チェック付け)をお願いします」</value>
+  </data>
+</root>

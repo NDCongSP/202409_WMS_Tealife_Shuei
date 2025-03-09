@@ -1,0 +1,62 @@
+﻿@page "/printLocationLabel"
+@layout PrintLayout
+
+@if (LabelPrintModel == null || LabelPrintModel.Count <= 0)
+{
+    <h3 class="w-100 text-center">Please wait...</h3>
+}
+else
+{
+    <div id="printableArea">
+        @foreach (var label in LabelPrintModel)
+        {
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" AlignItems="AlignItems.Start" Gap="12px">
+                <div class="label-container">
+                    <RadzenRow Gap="2px" class="div-label-container">
+                        <RadzenColumn Size="6" class="div-content-center" Style="width:100%">
+                            @if (!string.IsNullOrEmpty(label.QrValue))
+                            {
+                                <img class="qr-code" src="@label.QrValue" alt="QR Code" id="qrCodeImage" />
+                            }
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" class="div-content-start-center" Style="width:100%">
+                            <RadzenStack Orientation="Orientation.Vertical" Style="width:100%" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Start" Gap="1px">
+                                <RadzenRow Gap="2px" class="div-label-container" Style="width:100%">
+                                    <RadzenColumn Size="1" Style="display:flex; align-items:flex-start;margin-top: -8px;">
+                                        <span>▲</span>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="10" Style="text-align: center; font-size: 30px;font-weight: 500;">
+                                        <div>@label.Content2</div>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="1" Style="display:flex; justify-content:end;margin-top: -8px;">
+                                        <span>▲</span>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </div>
+            </RadzenStack>
+            <div class="pagebreak"></div>
+        }
+    </div>
+}
+
+<script>
+    function printLabel() {
+        window.print();
+    }
+    function initPrintLabelCSS() {
+        var style = document.createElement('style');
+        style.innerHTML = `
+                            @@media print {
+                                @@page {
+                                    width: 53mm;
+                                    height: 35mm;
+                                    size: portrait;
+                                }
+                            }
+                        `;
+                document.head.appendChild(style);
+            }
+</script>

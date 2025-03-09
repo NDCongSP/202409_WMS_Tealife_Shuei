@@ -1,0 +1,152 @@
+﻿@page "/productlist"
+@using Application.DTOs
+@using Application.DTOs.Request.Products
+@using Application.Extentions
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Core
+@using ProductModel = FBT.ShareModels.Entities.Product
+
+@inject IStringLocalizer<CommonResources> _localizer
+@inject IStringLocalizer<EnumProductStatusResources> _localizerEnum
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+@attribute [Authorize(Policy = "Admin")]
+@if (_dataGrid == null)
+{
+    <p><em>@_localizer["Loading"]...</em></p>
+}
+else
+{
+    <RadzenTemplateForm Data="@_searchModel" Submit="@((ProductSearchRequestDTO args) => { Submit(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Product.SearchProduct"]">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["Product.Code"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox Name="productCode" @bind-Value="@_searchModel.ProductCode" Placeholder="Enter product code" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["Category"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDownDataGrid @bind-Value=@_selectCatetgory Data=@_productCategories TextProperty="@nameof(ProductCategory.CategoryName)"
+                                                                AllowColumnResize="true" AllowFilteringByAllStringColumns="true" Name="_dropDownCategory"
+                                                                SearchTextPlaceholder="@_localizer["Search"]" EmptyText="@_localizer["No records to display."]" Disabled="false">
+                                            <Columns>
+                                                <RadzenDropDownDataGridColumn Property="@nameof(ProductCategory.CategoryName)" Title="@_localizer["Category.Name"]" Width="50px" />
+                                                <RadzenDataGridColumn Width="200px" Property="@nameof(ProductCategory.SlipDeliveryPrinting)" Title="@_localizer["Category.For slip delivery printing"]" />
+                                                <RadzenDataGridColumn Width="200px" Property="@nameof(ProductCategory.Description)" Title="@_localizer["Description"]" />
+                                            </Columns>
+                                        </RadzenDropDownDataGrid>
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_dropDownCategory" Popup="false" Style="position: absolute" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["Status"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDropDown @bind-Value="@_searchModel.ProductStatus"
+                                                    Data="@(Enum.GetValues(typeof(EnumProductStatus)).Cast<EnumProductStatus>().Select(e => new
+                                                     {
+                                                         DisplayValue = _localizerEnum[e.ToString()],
+                                                         Value = e
+                                                     }))"
+                                                    ValueProperty="Value" TextProperty="DisplayValue"
+                                                    Name="_dropDownStatus"
+                                                    Multiple=false AllowClear=true Placeholder="@_localizer["Select"]" Chips=true />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["Tenant"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDropDown @bind-Value="@_selectedTenant"
+                                                        Data="@_tenants"
+                                                        TextProperty="@nameof(CompanyTenant.FullName)" Name="_dropDownTenant"
+                                                        Multiple=false
+                                                        AllowClear=true
+                                                        Placeholder="@_localizer["Select"]"
+                                                        Chips=true
+                                                        Disabled="false" />
+                                    </ChildContent>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="6" SizeSM="12">
+                                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="5px">
+                                    <RadzenButton ButtonType="ButtonType.Submit" Variant="Variant.Flat" Shade="Shade.Dark"
+                                                  Text="@_localizer["Search"]" Icon="search" ButtonStyle="ButtonStyle.Primary" />
+                                    <RadzenButton Click=@(args => ClearFilter()) Variant="Variant.Flat" Shade="Shade.Dark"
+                                                  Text="@_localizer["Clear"]" Icon="clear_all" ButtonStyle="ButtonStyle.Base" />
+                                </RadzenStack>
+                                @* <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Center" AlignItems="AlignItems.Center" Gap="1rem" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenButton Variant="Variant.Flat" Text="@_localizer["Search"]" Icon="search" ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" />
+                            </RadzenStack> *@
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn SizeXS="12" SizeMD="12">
+            <RadzenStack>
+                <RadzenFieldset Text="@_localizer["Product.List"]">
+                    <RadzenStack Orientation=Radzen.Orientation.Vertical JustifyContent="Radzen.JustifyContent.Center" AlignItems="AlignItems.Stretch" Gap="5px">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End"
+                                     AlignItems="AlignItems.Center" Gap="1rem" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenButton Click=@(args => AddNewItemAsync()) Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_localizer["Create"]" Icon="add_circle" ButtonStyle="ButtonStyle.Success" />
+                        </RadzenStack>
+                        <RadzenDataGrid Style="width:100%" @ref="_profileGrid" AllowFiltering="true" FilterPopupRenderMode="PopupRenderMode.OnDemand" AllowPaging="true" PageSize="20"
+                                        PageSizeText="@_localizer["items per page"]" AllowSorting="true" EmptyText="@_localizer["No records to display."]"
+                                        Data="@_dataGrid" TItem="ProductsDTO" AllowColumnPicking="false" AllowColumnResize="true" AllowGrouping="false"
+                                        GridLines="Radzen.DataGridGridLines.Both" AllowAlternatingRows="false"
+                                        ShowPagingSummary=@_showPagerSummary PagingSummaryFormat="@Constants.PagingSummaryFormat" PageSizeOptions="@Constants.PageSizeOptions">
+                            <Columns>
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(ProductsDTO.ProductCode)" TextAlign="TextAlign.Center">
+                                    <HeaderTemplate>
+                                        @_localizer["Product.Code"]
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <NavLink class="nav-link" href="@($"/addproduct/{_localizer["Detail.Edit"]} {_localizer["Product"]}|{data.Id}")" Match="NavLinkMatch.All" style="padding: 0!important;">
+                                            @data.ProductCode
+                                        </NavLink>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(ProductsDTO.ProductName)" Title="@_localizer["Product.Name"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(ProductsDTO.TenantName)" Title="@_localizer["Tenant"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(ProductsDTO.CategoryName)" Title="@_localizer["Category"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(ProductsDTO.SupplierName)" Title="@_localizer["Supplier.Code"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn Width="150px" Property="@nameof(ProductsDTO.UnitName)" Title="@_localizer["Unit"]" TextAlign="TextAlign.Center" />
+                                @* <RadzenDataGridColumn Width="200px" Property="@nameof(ProductsDTO.SlipDeliveryPrinting)" Title="@_localizer["Category.For slip delivery printing"]" TextAlign="TextAlign.Center" /> *@
+                                <RadzenDataGridColumn Width="150px" Property="@nameof(ProductsDTO.ProductStatus)" Title="@_localizer["Status"]" TextAlign="TextAlign.Center">
+                                    <Template Context="data">
+                                        @_localizerEnum[data.ProductStatus.ToString()]
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+}
+<style>
+    .register-button {
+        background-color: #8A42F3; /* Purple color */
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+</style>
+@code {
+
+}

@@ -1,0 +1,82 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inherits LayoutComponentBase
+
+<div class="container-fluid body">
+    <div class="row mainlayout-row">
+        <div class="col-2 p-0">
+            <NavMenu />
+        </div>
+
+        <!-- Main content area -->
+        <div class=" col-10 p-0">
+            <!-- Top navigation -->
+            <div class="nav_menu">
+                <nav class="navbar navbar-expand" style="background-color: #EDEDED">
+                    <div class="container-fluid">
+                        <div class="d-flex align-items-center me-auto">
+                            <span class="navbar-text me-3">
+                                @user?.Identity?.Name
+                            </span>
+                        </div>
+
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="profileMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
+                                @* <li>
+                                    <a class="dropdown-item" href="/dialogcardpageuserinfo">
+                                        User info
+                                    </a>
+                                </li> *@
+                                <li>
+                                    <a class="dropdown-item" href="/user" style="display: block">
+                                        Users manager
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <span class="dropdown-item" @onclick="() => OnLogoutClicked()" style="cursor: pointer;">
+                                        Logout
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            <!-- Page content -->
+            <div class="container">
+                @Body
+            </div>
+
+            <!-- Footer content -->
+            <footer class="mt-4">
+                <div class="text-center">
+                    © 2024 SHUEI. All Rights Reserved.
+                </div>
+            </footer>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Placeholder components for warnings and currency display
+    private RenderFragment TenantLinkWarning => builder =>
+    {
+        builder.OpenElement(0, "div");
+        builder.AddContent(1, $"Be careful! You are currently linked to the tenant's data.");
+        builder.CloseElement();
+    };
+
+    private RenderFragment CurrencyDisplay => builder =>
+    {
+        builder.OpenElement(0, "div");
+        builder.AddContent(1, $"Displaying Currency: ");
+        builder.CloseElement();
+    };
+
+    private void OnLogoutClicked() => Logout();
+}

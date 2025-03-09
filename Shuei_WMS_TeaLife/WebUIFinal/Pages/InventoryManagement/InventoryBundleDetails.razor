@@ -1,0 +1,268 @@
+﻿@page "/bundle-details/{Title}"
+@using Application.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Core
+@using WebUIFinal.Pages.Components
+@using FBT.ShareModels.WMS
+@inject IStringLocalizer<InventoryResources> _localizer
+@inject IStringLocalizer<CommonResources> _CLoc
+@inject IJSRuntime JSRuntime
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+
+
+@if (_warehouseBundle == null)
+{
+    <p><em>@_CLoc["Loading"]</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenLink Text="@_CLoc["Detail.BackToList"]" Path="/inventory-bundle-list" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+                <RadzenButton Click=@(args => DeleteItemAsync(_warehouseBundle)) Variant="Variant.Flat" Shade="Shade.Dark" Text="@_CLoc["Delete"]" Icon="cancel" ButtonStyle="ButtonStyle.Danger" Disabled="@(_warehouseBundle.Status !=  EnumStatusBundle.InProcess)" />
+                <RadzenButton Icon="print" Text="@_CLoc["Print"]" Click=@(args => PrintReportPicking()) />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTemplateForm Data="@_warehouseBundle" Submit="@(async (InventBundleDTO args) => { await Submit(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Adding Pre-set Inventory"]">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center" >
+                            <RadzenColumn SizeXS="12" SizeSM="4" Visible="false" >
+                                    <RadzenFormField Text="@_localizer["TransNo"]" Variant="Variant.Outlined" Style="width: 100%;">                                  
+                                    <RadzenTextBox @bind-Value="@_warehouseBundle.TransNo" @onchange="@(args => _warehouseBundle.TransNo = args.Value.ToString())"  Disabled="true" />                                        
+                                </RadzenFormField>
+                            </RadzenColumn>
+
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <CustomDropDown Text="@_localizer["ProductBundleCode"]" Name="_dropDownBin"
+                                                @bind-Value="@_warehouseBundle.ProductBundleCode" Data="@_productBundleList"
+                                                Placeholder="@_CLoc["Select"]"
+                                                TextProperty="ProductBundleName" ValueProperty="ProductBundleCode"
+                                   OnChange="@(async () => await UpdateExpiredDate(_warehouseBundle.ProductBundleCode))" />
+
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <CustomDropDown Text="@_CLoc["Tenant"]" Name="_dropDownTenant"
+                                                @bind-Value="@tenantIdModel" Data="@tenants"
+                                                Placeholder="@_CLoc["Select"]" OnChange="UpdateTenantValue"
+                                                TextProperty="TenantName" ValueProperty="Id" />
+                            </RadzenColumn>
+
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <CustomDropDown Text="@_CLoc["Location"]" Name="_dropDownLocation"
+                                                @bind-Value="@_warehouseBundle.Location" Data="@_locations"
+                                                Placeholder="@_CLoc["Select"]" OnChange="UpdateListBin"
+                                                TextProperty="LocationName" ValueProperty="Id" />
+
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4" Visible="false" >
+                                <RadzenFormField Text="@_localizer["TransDate"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDatePicker DateFormat="yyyy/MM/dd" @bind-Value="@_warehouseBundle.TransDate" Name="TransDate" Placeholder="@_localizer["TransDate"]" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+    
+                              <RadzenColumn SizeXS="12" SizeSM="4" Visible="false">
+                                 <CustomDropDown Text="@_CLoc["Bin"]" Name="_dropDownBin"
+                                                 @bind-Value="@_warehouseBundle.Bin" Data="@_bins"
+                                                 Placeholder="@_CLoc["Select"]"
+                                                 TextProperty="BinCode" ValueProperty="BinCode"  />
+ 
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <CustomDropDown Text="@_localizer["PersonInCharge"]" Name="_dropDownUser"
+                                                @bind-Value="@_warehouseBundle.PersonInCharge" Data="@_users"
+                                                Placeholder="@_localizer["PersonInCharge"]"
+                                                TextProperty="FullName" ValueProperty="Id" />
+                            </RadzenColumn>
+
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_localizer["BundleQty"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenNumeric Name="_txtAddedQuantity" TValue="double?" @bind-Value="@_warehouseBundle.Qty" @onchange="@(args => UpdateBundleList())" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="_txtAddedQuantity" Text="@_CLoc["Required"]" Popup="false" Style="position: absolute" />
+
+                            </RadzenColumn>
+                          
+
+
+                                @*                             <RadzenColumn Size="12" SizeSM="4">
+                                <RadzenFormField Text="@_CLoc["LotNo"]" Variant="Variant.Outlined" Style="width:100%">
+                                        <RadzenTextBox @bind-Value=@_warehouseBundle.LotNo />
+                                </RadzenFormField>
+                            </RadzenColumn> *@
+
+                             <RadzenColumn Size="12" SizeSM="4">
+                            </RadzenColumn> 
+
+                            <RadzenColumn SizeXS="12" SizeSM="4" Visible="false" >
+                                <RadzenFormField Text="@_localizer["ExpirationDate"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDatePicker DateFormat="yyyy/MM/dd" @bind-Value="@_warehouseBundle.ExpirationDate" Name="ExpirationDate" Placeholder="@_localizer["ExpirationDate"]" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="4">
+                                <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Style="width:100%" Icon="list_alt"
+                                              Text="@_localizer["Get Component Product Information"]" Disabled="@(_warehouseBundle.Status !=  EnumStatusBundle.InProcess)" />
+
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+        
+
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["Pre-set Details"]">
+                     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap=" 5px">
+                        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Width="50px" Click=@(args => InsertRow()) Disabled="@(_warehouseBundle.Id == Guid.Empty ||  _warehouseBundle.Status !=  EnumStatusBundle.InProcess)"  />
+                    </RadzenStack>
+                    <RadzenDataGrid @ref="_bundleLineProfileGrid" Data="@_warehouseBundle.InventBundleLines" TItem="InventBundlesLineDTO" GridLines="Radzen.DataGridGridLines.Both"
+                                    AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false"
+                                    AllowSorting="true" PageSize="20" 
+                                        AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" 
+                                        ShowPagingSummary="true" EditMode="DataGridEditMode.Single"
+                                        FilterPopupRenderMode="PopupRenderMode.OnDemand" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    Style="width: 100%;" >
+
+                        <Columns>
+                            <RadzenDataGridColumn TItem="InventBundlesLineDTO" Property="ProductCode" Title="@_CLoc["ProductCode"]" Width="200px">
+                                <EditTemplate Context="data">
+                                        <RadzenDropDownDataGrid TValue="string" @bind-Value=@data.ProductCode Data=@_productCodes TextProperty="Text" ValueProperty="Value"
+                                                                AllowColumnResize="false" AllowFilteringByAllStringColumns="true" Name="_dropDownSelectProduct"
+                                                                SearchTextPlaceholder="@_localizer["Search"]" EmptyText="@_localizer["No records to display."]"
+                                                                Change="@(e => GetProductChanged(data))">
+                                            <Columns>
+                                                <RadzenDropDownDataGridColumn Property="Value" Title="@_localizer["ProductCode"]" />
+                                                <RadzenDropDownDataGridColumn Property="Text" Title="@_localizer["ProductName"]" />
+                                            </Columns>
+                                        </RadzenDropDownDataGrid>
+                                    
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+
+                            <RadzenDataGridColumn TItem="InventBundlesLineDTO" Property="ProductName" Filterable="false" Title="@_localizer["BundleProductName"]" Width="200px">
+                                <EditTemplate Context="data">
+                                    <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">@data.ProductName</RadzenText>
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="InventBundlesLineDTO" Property="ProductQuantity" Filterable="false" Title="@_localizer["BundleProductQuantity"]" Width="100px">
+                                <EditTemplate Context="data">
+                                    <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">@data.ProductQuantity</RadzenText>
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="InventBundlesLineDTO" Property="LocationName" Title="@_CLoc["Location"]" Width="150px">
+                                <EditTemplate Context="data">
+
+                                        <RadzenDropDown @bind-Value="@data.Location"
+                                                        Data="_lineLocations"
+                                                        Change="@(e => GetProductChanged(data))"
+                                                        TextProperty="Text"
+                                                        ValueProperty="Value"
+                                                        Name="itemLocations"
+                                                        TValue="string"
+                                                        Multiple=false
+                                                        Placeholder="@_CLoc["Select"]"
+                                                        AllowClear="true" />
+                                    
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="InventBundlesLineDTO" Property="Bin" Title="@_CLoc["Bin"]" Width="120px">
+                                <EditTemplate Context="data">
+                                    
+                                    <RadzenDropDown @bind-Value="@data.Bin"
+                                                        Data="_lineBins"
+                                                    Change="@(e => GetProductChanged(data))"
+                                                        TextProperty="Text"
+                                                        ValueProperty="Value"
+                                                    Name="itemBin"
+                                                    TValue="string"
+                                                    Multiple=false
+                                                    Placeholder="@_CLoc["Select"]"
+                                                        AllowClear="true" />
+                                    
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="InventBundlesLineDTO" Property="LotNo" Title="@_CLoc["LotNo"]" Width="200px">
+                                <EditTemplate Context="data">
+
+                                    <RadzenDropDown @bind-Value="@data.LotNo"
+                                                    Data="_lotNos"
+                                                        Change="@(e => GetProductChanged(data))"
+                                                        TextProperty="Text"
+                                                    ValueProperty="Value"
+                                                    Name="itemLotno"
+                                                    TValue="string"
+                                                    Multiple=false
+                                                    Placeholder="@_CLoc["Select"]"
+                                                    AllowClear="true"  />
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="InventBundlesLineDTO" Property="ExpirationDate" Filterable="false" Title="@_localizer["BundleExpirationDate"]" Width="100px" FormatString="{0:yyyy/MM/dd}">
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="InventBundlesLineDTO" Property="StockAvailable" Filterable="false" Title="@_localizer["StockAvailable"]" Width="100px">
+                                <EditTemplate Context="data">
+                                    <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">@data.StockAvailable</RadzenText>
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+
+                            <RadzenDataGridColumn TItem="InventBundlesLineDTO" Property="DemandQty" Filterable="false" Title="@_localizer["DemandQty"]" Width="100px">
+                                <EditTemplate Context="data">
+                                    <RadzenText TextStyle="TextStyle.Button" TagName="TagName.P">@data.DemandQty</RadzenText>
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="InventBundlesLineDTO" Property="ActualQty" Filterable="false" Title="@_localizer["ActualQty"]" Width="100px">
+                                <EditTemplate Context="data">
+                                    <RadzenNumeric TValue="double?" @bind-Value="@data.ActualQty" Style="width:100%" Name="ActualQty" />
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="InventBundlesLineDTO" Context="data" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right" Width="120px">
+                                <Template Context="data">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Class="m-1" Icon="edit" Click="@(args => EditRow(data))" @onclick:stopPropagation="true" Disabled="_warehouseBundle.Status !=  EnumStatusBundle.InProcess" />
+                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Class="m-1" Icon="delete" Click="@(args => DeleteRow(data))" @onclick:stopPropagation="true" Disabled="_warehouseBundle.Status !=  EnumStatusBundle.InProcess || data.ActualQty == null" />
+
+                                    </Template>
+                                <EditTemplate Context="data">
+                                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Class="m-1" Click="@((args) => SaveRow(data))" />
+                                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Class="m-1" Click="@((args) => CancelEdit(data))" />
+                                </EditTemplate>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+
+
+
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeSM="12">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem">
+                    <RadzenButton Variant="Variant.Flat" Shade="Shade.Dark" Icon="check_circle"
+                                  Text="@_localizer["Putaway Bundle"]" ButtonStyle="ButtonStyle.Success" Click="@(async () => await PutawayAsync(_warehouseBundle))" Disabled="@(_warehouseBundle.Id == Guid.Empty ||  _warehouseBundle.Status !=  EnumStatusBundle.InProcess )" />
+                    <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Large" Icon="save"
+                                  Text="@_CLoc["Save"]" Disabled="@(_warehouseBundle.Status !=  EnumStatusBundle.InProcess)" />
+                </RadzenStack>
+
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}
+
+<style>
+    .rz-data-row.rz-datatable-edit .rz-cell-data .rz-dropdown {
+        width: 100%;
+    }
+</style>

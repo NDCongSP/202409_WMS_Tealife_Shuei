@@ -1,0 +1,360 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="SearchWarehouseShipment" xml:space="preserve">
+    <value>Search Warehouse Shipment</value>
+  </data>
+  <data name="ShipmentNo" xml:space="preserve">
+    <value>Shipment No</value>
+  </data>
+  <data name="SalesNo" xml:space="preserve">
+    <value>Sales No</value>
+  </data>
+  <data name="EnterShipmentNumber" xml:space="preserve">
+    <value>Enter Shipment Number</value>
+  </data>
+  <data name="EnterSalesNo" xml:space="preserve">
+    <value>Enter Sales No</value>
+  </data>
+  <data name="DeliveryFrom" xml:space="preserve">
+    <value>Delivery From</value>
+  </data>
+  <data name="DeliveryTo" xml:space="preserve">
+    <value>Delivery To</value>
+  </data>
+  <data name="WarehouseShipmentList" xml:space="preserve">
+    <value>Warehouse Shipment List</value>
+  </data>
+  <data name="DeliveryNotePrinting" xml:space="preserve">
+    <value>Delivery Note Printing</value>
+  </data>
+  <data name="Create.Picking" xml:space="preserve">
+    <value>Create Picking</value>
+  </data>
+  <data name="PlanShipDate" xml:space="preserve">
+    <value>Plan Ship Date</value>
+  </data>
+  <data name="PersonInCharge" xml:space="preserve">
+    <value>Person In Charge</value>
+  </data>
+  <data name="FailedToLoadMasterData" xml:space="preserve">
+    <value>Failed To Load Master Data</value>
+  </data>
+  <data name="EditWarehouseShipment" xml:space="preserve">
+    <value>Edit Warehouse Shipment</value>
+  </data>
+  <data name="CreateWarehouseShipment" xml:space="preserve">
+    <value>Create Warehouse Shipment</value>
+  </data>
+  <data name="Picking" xml:space="preserve">
+    <value>Picking</value>
+  </data>
+  <data name="Picking.Manager" xml:space="preserve">
+    <value>Picking Manager</value>
+  </data>
+  <data name="Picking.PickingNo" xml:space="preserve">
+    <value>Picking Picking No</value>
+  </data>
+  <data name="EnterPickingNo" xml:space="preserve">
+    <value>Enter Picking No</value>
+  </data>
+  <data name="FailedToCreatePicking" xml:space="preserve">
+    <value>Failed To Create Picking</value>
+  </data>
+  <data name="ErrorOccurredWhileCreatingPicking" xml:space="preserve">
+    <value>Error Occurred While Creating Picking</value>
+  </data>
+  <data name="WarehouseShipment" xml:space="preserve">
+    <value>Warehouse Shipment</value>
+  </data>
+  <data name="WarehouseShipment.Info" xml:space="preserve">
+    <value>Warehouse Shipment Info</value>
+  </data>
+  <data name="WarehouseShipment.Ship" xml:space="preserve">
+    <value>Warehouse Shipment Ship</value>
+  </data>
+  <data name="TrackingCode" xml:space="preserve">
+    <value>Tracking Code</value>
+  </data>
+  <data name="ShippingCarrier" xml:space="preserve">
+    <value>Shipping Carrier</value>
+  </data>
+  <data name="DeliveryAddress" xml:space="preserve">
+    <value>Delivery Address</value>
+  </data>
+  <data name="Telephone" xml:space="preserve">
+    <value>Telephone</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="WarehouseShipment.IssueDetail" xml:space="preserve">
+    <value>Warehouse Shipment Issue Detail</value>
+  </data>
+  <data name="AddNewShipmentDetail" xml:space="preserve">
+    <value>Add New Shipment Detail</value>
+  </data>
+  <data name="ProductCode" xml:space="preserve">
+    <value>Product Code</value>
+  </data>
+  <data name="ProductName" xml:space="preserve">
+    <value>Product Name</value>
+  </data>
+  <data name="StockAvailable" xml:space="preserve">
+    <value>Stock Available</value>
+  </data>
+  <data name="AvailableQuantity" xml:space="preserve">
+    <value>Available Quantity</value>
+  </data>
+  <data name="ShipmentQty" xml:space="preserve">
+    <value>Shipment Qty</value>
+  </data>
+  <data name="PackedQuantity" xml:space="preserve">
+    <value>Packed Quantity</value>
+  </data>
+  <data name="EnterShipmentQty" xml:space="preserve">
+    <value>Enter Shipment Qty</value>
+  </data>
+  <data name="WarehouseShipmentUpdatedSuccessfully" xml:space="preserve">
+    <value>Warehouse Shipment Updated Successfully</value>
+  </data>
+  <data name="WarehouseShipmentCreatedSuccessfully" xml:space="preserve">
+    <value>Warehouse Shipment Created Successfully</value>
+  </data>
+  <data name="ProductIsExisted" xml:space="preserve">
+    <value>Product is Existed</value>
+  </data>
+  <data name="ShipmentQtyIsRequired" xml:space="preserve">
+    <value>ShipmentQty is Required</value>
+  </data>
+  <data name="ProductIsRequired" xml:space="preserve">
+    <value>Product is Required</value>
+  </data>
+  <data name="BinIsRequired" xml:space="preserve">
+    <value>Bin is Required</value>
+  </data>
+  <data name="CompleteShipment" xml:space="preserve">
+    <value>Complete</value>
+  </data>
+  <data name="UpdateConfirmation" xml:space="preserve">
+    <value>Update Confirmation</value>
+  </data>
+  <data name="ConfirmWarehouseShipmentConfirmation" xml:space="preserve">
+    <value>Confirm Warehouse Shipment Confirmation</value>
+  </data>
+  <data name="CompletedWarehouseShipmentConfirmation" xml:space="preserve">
+    <value>Completed Warehouse Shipment Confirmation</value>
+  </data>
+  <data name="WarehouseShipmentCompletedSuccessfully" xml:space="preserve">
+    <value>Warehouse Shipment Completed Successfully</value>
+  </data>
+  <data name="Packed" xml:space="preserve">
+    <value>Packed</value>
+  </data>
+  <data name="LotNo" xml:space="preserve">
+    <value>Lot No.</value>
+  </data>
+  <data name="CreateBy" xml:space="preserve">
+    <value>CreateBy</value>
+  </data>
+  <data name="CreateDate" xml:space="preserve">
+    <value>CreateDate</value>
+  </data>
+  <data name="ExpirationDate" xml:space="preserve">
+    <value>ExpirationDate</value>
+  </data>
+  <data name="ShipmentBatch" xml:space="preserve">
+    <value>Batch</value>
+  </data>
+  <data name="PleaseSelectShipment" xml:space="preserve">
+    <value>Please Select Shipment</value>
+  </data>
+  <data name="ExpectedReceiveDateFrom" xml:space="preserve">
+    <value>ExpectedReceiveDateFrom</value>
+  </data>
+  <data name="DHLPickup" xml:space="preserve">
+    <value>DHL Pickup</value>
+  </data>
+  <data name="NotPickup" xml:space="preserve">
+    <value>Not yet process Pick up API</value>
+  </data>
+  <data name="CompletedPickup" xml:space="preserve">
+    <value>Completed execute Pick up API</value>
+  </data>
+  <data name="DHLPickupDatetime" xml:space="preserve">
+    <value>DHL Pickup Datetime</value>
+  </data>
+  <data name="DHLPickupSuccessfully" xml:space="preserve">
+    <value>DHLPickupSuccessfully</value>
+  </data>
+  <data name="CompletedShipmentSuccessfully" xml:space="preserve">
+    <value>CompletedShipmentSuccessfully</value>
+  </data>
+  <data name="Later Payment" xml:space="preserve">
+    <value>Later Payment</value>
+  </data>
+  <data name="LotNoIsRequired" xml:space="preserve">
+    <value>Lot No Is Required</value>
+  </data>
+  <data name="ShipmentStatusOpen" xml:space="preserve">
+    <value>Select only Open shipment to create picking</value>
+  </data>
+  <data name="CreatePickingSuccess" xml:space="preserve">
+    <value>Successfully created picking, picking no:</value>
+  </data>
+  <data name="CompletedShipmentSuccessfullyWithNote" xml:space="preserve">
+    <value>CompletedShipmentSuccessfullyWithNote</value>
+  </data>
+  <data name="ShipmentStatusPacked" xml:space="preserve">
+    <value>Select only Packed shipment to create picking</value>
+  </data>
+  <data name="ShipmentNotFound" xml:space="preserve">
+    <value>Warehouse shipment not found.</value>
+  </data>
+  <data name="ShipmentIsNotExisted" xml:space="preserve">
+    <value>Shipment is not existed</value>
+  </data>
+  <data name="NoProductsIncludedInThisShipment" xml:space="preserve">
+    <value>No Products included in this Shipment</value>
+  </data>
+  <data name="Import CSV" xml:space="preserve">
+    <value>Import CSV</value>
+  </data>
+  <data name="Export CSV" xml:space="preserve">
+    <value>Export CSV</value>
+  </data>
+  <data name="Import CSV for JP-YP" xml:space="preserve">
+    <value>Import CSV for JP-YP</value>
+  </data>
+  <data name="Export CSV for JP-YP" xml:space="preserve">
+    <value>Export CSV for JP-YP</value>
+  </data>
+  <data name="Please select a file" xml:space="preserve">
+    <value>Please select a file</value>
+  </data>
+  <data name="Select.File" xml:space="preserve">
+    <value>Select.File</value>
+  </data>
+  <data name="Choose" xml:space="preserve">
+    <value>Choose</value>
+  </data>
+  <data name="Upload successful" xml:space="preserve">
+    <value>Upload successful</value>
+  </data>
+</root>

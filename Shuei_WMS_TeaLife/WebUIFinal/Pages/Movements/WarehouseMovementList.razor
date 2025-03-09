@@ -1,0 +1,191 @@
+@page "/movements"
+@using Application.DTOs
+@using Application.DTOs.Request
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Core
+@using WarehouseShipmentModel = FBT.ShareModels.WMS.WarehouseShipment
+
+@inject IStringLocalizer<CommonResources> _commonLocalizer
+@inject IStringLocalizer<WarehouseMovementResources> _movementLocalizer
+@inject IStringLocalizer<EnumShipingOrderStatusResources> _enumShipmentLocalizer
+
+@attribute [Authorize]
+@if (_warehouseShipmentServices == null)
+{
+    <p><em>@_commonLocalizer["Loading"]</em></p>
+}
+else
+{
+    <RadzenTemplateForm Data="@_searchModel" Submit="@((WarehouseShipmentSearchModel args) => { RefreshDataAsync(); })">
+       <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_movementLocalizer["SearchWarehouseMovement"]">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_movementLocalizer["MovementNo"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox Name="shipmentNo" @bind-Value="@_searchModel.ShipmentNo" Placeholder="@_commonLocalizer["Typing ..."]" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_commonLocalizer["Status"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDropDown @bind-Value="@_searchModel.Status"
+                                                    Data="@(Enum.GetValues(typeof(EnumShipmentOrderStatus)).Cast<EnumShipmentOrderStatus>()
+                                                    .Where(e => (int)e != 7 && (int)e != 0)
+                                                    .OrderByDescending(e => e != EnumShipmentOrderStatus.Completed)
+                                                    .Select(e => new
+                                                         {
+                                                             Text = _enumShipmentLocalizer[e.ToString()],
+                                                             Value = e
+                                                         }))"
+                                                    TValue="EnumShipmentOrderStatus?"
+                                                    TextProperty="Text"
+                                                    ValueProperty="Value"
+                                                    Name="_dropDownStatus"
+                                                    Multiple="false"
+                                                    AllowClear="true"
+                                                    Placeholder="@_commonLocalizer["Select"]"
+                                                    Chips="true" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_movementLocalizer["OutboundLocation"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenDropDown @bind-Value="@_searchModel.OutboundLocationId"
+                                                    Data="_locations"
+                                                    TextProperty="LocationName"
+                                                    ValueProperty="Id"
+                                                    Name="locationId"
+                                                    TValue="Guid"
+                                                    Placeholder="@_commonLocalizer["Select"]"
+                                                    AllowClear="true" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="8">
+                                <RadzenRow AlignItems="AlignItems.Center">
+                                    <RadzenColumn SizeXS="12" SizeSM="6">
+                                        <RadzenStack Gap="0.5rem">
+                                            <RadzenDatePicker Placeholder="@_movementLocalizer["EstimateShipDateFrom"]" @bind-Value="@_searchModel.EstimateShipDateFrom" DateFormat="MM/dd/yyyy" Name="estimateShipDateFrom" AllowClear="true" />
+                                        </RadzenStack>
+                                    </RadzenColumn>
+                                    <RadzenColumn SizeXS="12" SizeSM="6">
+                                        <RadzenStack Gap="0.5rem">
+                                            <RadzenDatePicker Placeholder="@_movementLocalizer["EstimateShipDateTo"]" @bind-Value="@_searchModel.EstimateShipDateTo" DateFormat="MM/dd/yyyy" Name="estimateShipDateTo" AllowClear="true" />
+                                        </RadzenStack>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="4">
+                                <RadzenFormField Text="@_movementLocalizer["InboundLocation"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenDropDown @bind-Value="@_searchModel.InboundLocationId"
+                                                    Data="_locations"
+                                                    TextProperty="LocationName"
+                                                    ValueProperty="Id"
+                                                    Name="inboundLocationId"
+                                                    TValue="Guid"
+                                                    Placeholder="@_commonLocalizer["Select"]"
+                                                    AllowClear="true" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="8">
+                                <RadzenRow AlignItems="AlignItems.Center">
+                                    <RadzenColumn SizeXS="12" SizeSM="6">
+                                        <RadzenStack Gap="0.5rem">
+                                            <RadzenDatePicker Placeholder="@_movementLocalizer["ExpectedReceiveDateFrom"]" @bind-Value="@_searchModel.ExpectedReceiveDateFrom" DateFormat="MM/dd/yyyy" Name="expectedReceiveDateFrom" AllowClear="true" />
+                                        </RadzenStack>
+                                    </RadzenColumn>
+                                    <RadzenColumn SizeXS="12" SizeSM="6">
+                                        <RadzenStack Gap="0.5rem">
+                                            <RadzenDatePicker Placeholder="@_movementLocalizer["ExpectedReceiveDateTo"]" @bind-Value="@_searchModel.ExpectedReceiveDateTo" DateFormat="MM/dd/yyyy" Name="expectedReceiveDateTo" AllowClear="true" />
+                                        </RadzenStack>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="12" class="d-flex justify-content-end">
+                                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Center" AlignItems="AlignItems.Center" Gap="1rem" Wrap="Radzen.FlexWrap.Wrap" class="rz-mt-2 mx-2">
+                                    <RadzenButton Variant="Variant.Flat" Text="@_commonLocalizer["Search"]" Icon="search" Click="@(() => _warehouseShipmentGrid.Reload())" Size="ButtonSize.Large" />
+                                </RadzenStack>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+   <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn SizeXS="12" SizeMD="12">
+            <RadzenStack>
+                <RadzenFieldset Text="@_movementLocalizer["WarehouseMovementList"]">
+                    <RadzenStack Orientation=Radzen.Orientation.Vertical JustifyContent="Radzen.JustifyContent.Center" AlignItems="AlignItems.Stretch" Gap="5px">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End"
+                                     AlignItems="AlignItems.Center" Gap="1rem" >
+                            @* <RadzenButton Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_movementLocalizer["Create.Picking"]" Click="@(args => CreatePickingAsync())" Icon="" ButtonStyle="ButtonStyle.Primary" Disabled="@disabledCreatePicking" /> *@
+                            <RadzenButton Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_commonLocalizer["Create"]" Click="@(args => AddNewItemAsync())" Icon="add_circle" ButtonStyle="ButtonStyle.Success" />
+                        </RadzenStack>
+                        <RadzenDataGrid Style="width:100%" @ref="_warehouseShipmentGrid" @bind-Value=@_selectedShipment SelectionMode="DataGridSelectionMode.Multiple" AllowFiltering="true" FilterPopupRenderMode="PopupRenderMode.OnDemand" AllowPaging="true" PageSize="@_pageSize" AllowSorting="true"
+                                        LoadData="@LoadData" Data="@(_warehouseShipments?.Items ?? new List<WarehouseShipmentDto>())" TItem="WarehouseShipmentDto" AllowColumnPicking="false" AllowColumnResize="true" AllowGrouping="false"
+                                        GridLines="Radzen.DataGridGridLines.Both" AllowAlternatingRows="false" Count="@(_warehouseShipments?.TotalItems ?? 0)" PageSizeText="@_commonLocalizer["items per page"]" EmptyText="@_commonLocalizer["No records to display."]"
+                                        ShowPagingSummary=@_showPagerSummary PagingSummaryFormat="@Constants.PagingSummaryFormat" PageSizeOptions="@Constants.PageSizeOptions">
+                            <Columns>
+                                <RadzenDataGridColumn Property="Checkbox" Width="60px" Sortable="false" Filterable="false" Frozen="true" FrozenPosition="FrozenColumnPosition.Left">
+                                    <HeaderTemplate>
+                                        <RadzenCheckBox TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
+                                                        Value="@(_selectedShipment == null || _selectedShipment?.Any() != true ? false : !(_warehouseShipments?.Items?.All(i => _selectedShipment.Select(e => e.Id).Contains(i.Id)) ?? false) ? null : _warehouseShipments?.Items?.Any(i => _selectedShipment.Select(e => e.Id).Contains(i.Id)) ?? false)"
+                                                        Change="@(args => _selectedShipment = args == true ? (_selectedShipment ?? Enumerable.Empty<WarehouseShipmentDto>()).Union(_warehouseShipments?.Items?.Where(i => !(_selectedShipment ?? Enumerable.Empty<WarehouseShipmentDto>()).Select(e => e.Id).Contains(i.Id)) ?? Enumerable.Empty<WarehouseShipmentDto>()).ToList() : null)" />
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <RadzenCheckBox TriState="false" Value="@(_selectedShipment != null && _selectedShipment.Select(e => e.Id).Contains(data.Id))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
+                                                        TValue="bool" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Width="200px" TItem="WarehouseShipmentDto" Property="ShipmentNo" TextAlign="TextAlign.Center">
+                                        <HeaderTemplate>
+                                            @_movementLocalizer["MovementNo"]
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            <NavLink class="nav-link" href="@("/addwarehousemovement/Edit | " + data.Id)" Match="NavLinkMatch.All" style="padding: 0!important;">
+                                                @data.ShipmentNo
+                                            </NavLink>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="WarehouseShipmentDto" Width="100px" Property="LocationName" Title="@_movementLocalizer["OutboundLocation"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="WarehouseShipmentDto" Width="150px" Property="PlanShipDate" Title="@_movementLocalizer["EstimateShipDate"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="WarehouseShipmentDto" Width="100px" Property="InboundLocation" Title="@_movementLocalizer["InboundLocation"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="WarehouseShipmentDto" Width="150px" Property="ExpectedReceiveDate" Title="@_movementLocalizer["ExpectedReceiveDate"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="WarehouseShipmentDto" Width="150px" Property="PersonInChargeName" Title="@_movementLocalizer["PersonInCharge"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="WarehouseShipmentDto" Width="150px" Property="Status" Title="@_commonLocalizer["Status"]" TextAlign="TextAlign.Center">
+                                    <Template Context="data">
+                                        @_enumShipmentLocalizer[data.Status.ToString()]
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+}
+
+<style>
+    .register-button {
+        background-color: #8A42F3; /* Purple color */
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    /* .rz-grid-table thead th > div:not(.rz-cell-filter) {
+        background-color: #CC686F !important;
+    } */
+
+   /*  .rz-panel {
+        margin-right: 18px;
+        margin-left: 18px;
+    } */
+</style>

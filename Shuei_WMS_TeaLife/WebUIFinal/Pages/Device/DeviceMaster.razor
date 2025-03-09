@@ -1,0 +1,120 @@
+﻿@page "/devicelist"
+@using Application.Extentions
+@using Blazored.LocalStorage
+@using Microsoft.AspNetCore.Authorization
+@using DeviceEntity=FBT.ShareModels.WMS.Device
+
+@inject IStringLocalizer<CommonResources> _localizerCommon
+@inject IStringLocalizer<DeviceResources> _localizer
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+@attribute [Authorize(Policy = "Admin")]
+@if (_dataGrid == null)
+{
+    <p><em>@_localizerCommon["Loading"]...</em></p>
+}
+else
+{
+    <RadzenTemplateForm Data="@_searchModel" Submit="@((SearchModel args) => { OnSearch(args); })">
+       <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@($"{_localizerCommon["Search"]} {_localizer["Device"]}")">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@($"{_localizer["Device"]} {_localizerCommon["Name"]}")" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox Name="DeviceEntityName" @bind-Value="@_searchModel.Name" Placeholder="Enter DeviceEntity name" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@($"{_localizer["Model"]}")" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox Name="model" @bind-Value="@_searchModel.Model" Placeholder="Enter model" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@($"{_localizerCommon["Status"]}")" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDropDown @bind-Value="@_searchModel.Status" Data=@(Enum.GetValues(typeof(EnumStatus)).Cast<Enum>()) Name="_dropDownStatus"
+                                                    Multiple=false AllowClear=true Placeholder="@($"{_localizerCommon["Select status"]}")" Chips=true />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="6" SizeSM="3">
+                                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Center" AlignItems="AlignItems.Center" Gap="1rem" >
+                                    <RadzenButton Variant="Variant.Flat" Text="@($"{_localizerCommon["Search"]}")" Icon="search" ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Medium" />
+                                </RadzenStack>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+
+   <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn SizeXS="12" SizeMD="12">
+            <RadzenStack>
+                <RadzenFieldset Text="@($"{_localizer["Device"]}{_localizer["Manager"]}")">
+                    <RadzenStack Orientation="Radzen.Orientation.Vertical" JustifyContent="Radzen.JustifyContent.Center" AlignItems="AlignItems.Stretch" Gap="5px">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End" AlignItems="AlignItems.Center" Gap="1rem" >
+                            <RadzenButton Click=@(args => CreateAsync()) Variant="Variant.Flat" Shade="Shade.Dark" Visible="_visibled"
+                                              Text="@($"{_localizerCommon["Create"]}")" Icon="add_circle" ButtonStyle="ButtonStyle.Success" />
+                        </RadzenStack>
+
+                        <RadzenDataGrid Data="@filteredData" TItem="DeviceEntity" AllowFiltering="true" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                                        AllowPaging="true" PageSize="20" PageSizeText="@_localizerCommon["items per page"]" AllowSorting="true" 
+                                        EmptyText="@_localizerCommon["No records to display."]"
+                                        AllowColumnPicking="false" AllowColumnResize="true" AllowGrouping="false" GridLines="Radzen.DataGridGridLines.Both" 
+                                        ShowPagingSummary="@_showPagerSummary" PagingSummaryFormat="@_pagingSummaryFormat" PageSizeOptions="@_pageSizeOptions">
+                            <Columns>
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(DeviceEntity.Name)" Title="@_localizer["Name"]">
+                                    <Template Context="data">
+                                        <a class="text-green" @onclick="@(() => OpenAsync(data))" style="cursor:pointer;">
+                                            @data.Name
+                                        </a>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DeviceEntity" Width="200px" Property="Type" Title="@($"{_localizer["Type"]}")" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="DeviceEntity" Width="200px" Property="Model" Title="@($"{_localizer["Model"]}")" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="DeviceEntity" Width="200px" Property="ActiveUser" Title="@($"{_localizer["ActiveUser"]}")" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn TItem="DeviceEntity" Width="200px" Property="Status" Title="@($"{_localizer["Status"]}")" TextAlign="TextAlign.Center" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+}
+@code {
+    public class SearchModel
+    {
+        public string Name { get; set; }
+        public string Model { get; set; }
+        public EnumStatus? Status { get; set; }
+    }
+
+    private bool isDisabled = false;
+    private SearchModel _searchModel = new SearchModel();
+    IEnumerable<DeviceEntity> filteredData;
+
+    private IEnumerable<DeviceEntity> OnSearch(SearchModel args)
+    {
+        filteredData = _dataGrid;
+
+        if (!string.IsNullOrEmpty(_searchModel.Name))
+        {
+            filteredData = filteredData.Where(d => d.Name.Contains(_searchModel.Name, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        if (!string.IsNullOrEmpty(_searchModel.Model))
+        {
+            filteredData = filteredData.Where(d => d.Model.Contains(_searchModel.Model, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        if (_searchModel.Status.HasValue)
+        {
+            filteredData = filteredData.Where(d => d.Status == _searchModel.Status).ToList();
+        }
+
+        return filteredData;
+    }
+}

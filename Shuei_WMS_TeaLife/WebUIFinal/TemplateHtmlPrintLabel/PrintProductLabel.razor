@@ -1,0 +1,94 @@
+﻿@page "/PrintProductLabel"
+@layout PrintLayout
+
+@if (LabelPrintModel == null || LabelPrintModel.Count <= 0)
+{
+    @* <h3 class="w-100 text-center">Please wait...</h3> *@
+}
+else
+{
+    <div id="printableArea">
+        @foreach (var item in _dataPrint)
+        {
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" AlignItems="AlignItems.Center" Gap="12px">
+                @foreach (var label in item.DataPrint)
+                {
+                    if (!label.SplitLabel)
+                    {
+                        <div class="label-container">
+                            <RadzenRow Gap="2px" class="div-label-container">
+                                <RadzenColumn Size="3" class="div-content-center" Style="width:100%">
+                                    @if (!string.IsNullOrEmpty(label.QrValue))
+                                    {
+                                        <img class="qr-code" src="@label.QrValue" alt="QR Code" id="qrCodeImage" />
+                                    }
+                                </RadzenColumn>
+                                <RadzenColumn Size="6" class="div-content-start-center" Style="width:100%">
+                                    <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Start" Gap="1px">
+                                        <div class="info-line">
+                                            @* <strong>@label.Title1</strong> *@
+                                            <span>@label.Content1</span>
+                                        </div>
+                                        <div class="info-line">
+                                            @* <strong>@label.Title2</strong> *@
+                                            <span>@label.Content2</span>
+                                        </div>
+                                        <div class="info-line">
+                                            @* <strong>@label.Title3</strong> *@
+                                            <span>@label.Content3</span>
+                                        </div>
+                                    </RadzenStack>
+                                </RadzenColumn>
+                                <RadzenColumn Size="3" class="div-content-end-center" Style="width:100%">
+                                    @if (!string.IsNullOrEmpty(label.QrValue2))
+                                    {
+                                        <img class="qr-code" src="@label.QrValue2" alt="QR Code" id="qrCodeImage" />
+                                    }
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="label-container">
+                            <RadzenRow Gap="2px" class="div-label-container">
+                                <RadzenColumn Size="12" class="div-content-start-center" Style="width:100%">
+                                    <a>--------------------------</a>
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </div>
+                    }
+                }
+            </RadzenStack>
+            <div class="pagebreak"></div>
+        }
+    </div>
+}
+
+<script>
+    function printLabel() {
+        window.print();
+    }
+
+    function loadPrintPageCSS() {
+        const style = document.createElement('style');
+        style.id = 'custom-print-style';
+        style.innerHTML = `
+                @@media print {
+                    @@page {
+                        width: 95mm;
+                        height: 13mm;
+                        size: portrait;
+                    }
+                }
+            `;
+        document.head.appendChild(style);
+    }
+
+    function removePrintPageCSS() {
+        const style = document.getElementById('custom-print-style');
+        if (style) {
+            style.remove();
+        }
+    }
+</script>

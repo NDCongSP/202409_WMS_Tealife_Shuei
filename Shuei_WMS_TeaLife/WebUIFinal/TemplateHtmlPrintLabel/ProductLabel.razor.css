@@ -1,0 +1,83 @@
+﻿@media print {
+    @page {
+        size: portrait;
+        margin: 0;
+    }
+
+    body, body * {
+        margin: 0;
+        padding: 0;
+        visibility: hidden;
+    }
+
+    .pagebreak {
+        /* clear: both; */
+        page-break-after: always;
+    }
+
+    .label-container {
+        width: auto !important;
+        height: auto !important;
+    }
+
+    .qr-code {
+        width: 100%;
+        height: 100%;
+        padding: 1mm;
+    }
+
+
+    #printableArea, #printableArea * {
+        visibility: visible;
+    }
+}
+
+.label-container {
+    border: 1px solid #ccc;
+    width: 46mm;
+    height: 13mm;
+    /*aspect-ratio: 30 / 17;*/
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+}
+
+.flex-container {
+    display: flex;
+    align-items: stretch;
+    gap: 2rem;
+}
+
+.qr-code {
+    width: 100%;
+    height: 100%;
+    padding: 1px;
+}
+
+.qr-code-start {
+    width: 12mm;
+    height: 12mm;
+    justify-content: start;
+}
+
+.qr-code-end {
+    width: 12mm;
+    height: 12mm;
+    justify-content: end;
+}
+
+.label-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+}
+
+.info-line {
+    font-size: 6px;
+}
+
+.div-qr-code {
+    width: 12mm;
+    height: 12mm
+}

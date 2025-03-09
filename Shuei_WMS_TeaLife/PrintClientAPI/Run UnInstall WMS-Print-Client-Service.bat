@@ -1,0 +1,1 @@
+WinSW-x64 uninstall minimal.xml

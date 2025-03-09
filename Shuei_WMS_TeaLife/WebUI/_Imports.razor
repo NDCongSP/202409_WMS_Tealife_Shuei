@@ -1,0 +1,36 @@
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using Application.Services
+@using Application.Services.Authen
+@using Application.Services.Authen.UI
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.AspNetCore.Components.WebAssembly.Http
+@using Microsoft.JSInterop
+@using WebUI
+@using WebUI.Layout
+@using Radzen
+@using Radzen.Blazor
+
+
+@*NotificationService*@
+@inject NotificationService _notificationService
+@*show form*@
+@inject DialogService _dialogService
+@inject TooltipService _tooltipService
+
+@*redirect*@
+@inject NavigationManager _navigation
+
+@inject IAuthServices _authenServices
+@inject AuthenticationStateProvider _authStateProvider
+@inject IProducts _product
+@inject IPermissions _permissions
+@inject IPermissionTenant _permissionTenant
+@inject IRoleToPermissions _roleToPermissions
+@inject IRoleToPermissionTenant _roleToPermissionTenant
+
+@inject IVendors _vendor

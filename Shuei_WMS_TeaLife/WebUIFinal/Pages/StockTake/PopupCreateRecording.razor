@@ -1,0 +1,66 @@
+﻿@using Application.DTOs.Request.StockTake
+@inject DialogService dialogService
+@inject NotificationService NotificationService
+@inject IStringLocalizer<InventoryStockTakeResources> _localizer
+@inject IStringLocalizer<CommonResources> _localizerCommon
+
+<RadzenTemplateForm TItem="StockTakeRecordingModel" Data="@model" Submit="@Start">
+    <RadzenStack Gap="1rem" Orientation="Orientation.Vertical" JustifyContent="JustifyContent.SpaceBetween" Style="height: 100%;">
+        <div class="dialog-content">
+            <div class="form-row">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                    <RadzenLabel Text="@_localizerCommon["Location"]" Style="font-weight: bold;" />
+                    <RadzenLabel Text=":" Style="font-weight: bold;" />
+                    <span>
+                        @Location
+                    </span>
+                </RadzenStack>
+            </div>
+
+            <div class="form-row">
+                <RadzenFormField Text="@_localizer["PersonInCharge"]" Variant="Variant.Filled" Style="width: 100%;">
+                    <CustomDropDown Name="_dropDownUser"
+                                    @bind-Value="@model.PersonInCharge" Data="@Users" IsDisabled="false"
+                                    TextProperty="FullName" ValueProperty="Id" />
+                    <RadzenRequiredValidator Component="_dropDownUser" Text="Person in charge is required." />
+                </RadzenFormField>
+            </div>
+
+            <div class="form-row">
+                <RadzenFormField Text="@_localizer["Remarks"]" Variant="Variant.Filled" Style="width: 100%;">
+                    <RadzenTextBox @bind-Value="@model.Remarks" Name="Remarks" Style="width: 100%;" />
+                </RadzenFormField>
+            </div>
+        </div>
+
+        <div class="dialog-footer">
+            <div class="button-container">
+                <RadzenButton Text="@_localizerCommon["Cancel"]" Click="@Cancel" ButtonStyle="ButtonStyle.Secondary" Type="ButtonType.Button" />
+                <RadzenButton Text="@_localizerCommon["Start"]" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" />
+            </div>
+        </div>
+    </RadzenStack>
+</RadzenTemplateForm>
+
+<style>
+    .form-row {
+        margin-bottom: 1rem;
+        width: 100%;
+    }
+
+    .button-container {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .dialog-content {
+        padding: 1rem;
+    }
+
+    .dialog-footer {
+        padding: 1rem;
+        border-top: 1px solid #e0e0e0;
+    }
+</style>

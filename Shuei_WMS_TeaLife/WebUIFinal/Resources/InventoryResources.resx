@@ -1,0 +1,399 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InventoryHistory.List" xml:space="preserve">
+    <value>在庫履歴</value>
+  </data>
+  <data name="InventoryHistory.List.Details" xml:space="preserve">
+    <value>在庫履歴の詳細</value>
+  </data>
+  <data name="AdjustmentNo" xml:space="preserve">
+    <value>訂正番号</value>
+  </data>
+  <data name="AdjustmentDate" xml:space="preserve">
+    <value>訂正日</value>
+  </data>
+  <data name="PersonInCharge" xml:space="preserve">
+    <value>担当者</value>
+  </data>
+  <data name="AdjustmentDetails" xml:space="preserve">
+    <value>在庫訂正詳細</value>
+  </data>
+  <data name="Receipt" xml:space="preserve">
+    <value>レシート</value>
+  </data>
+  <data name="Shipment" xml:space="preserve">
+    <value>出荷</value>
+  </data>
+  <data name="Transfer" xml:space="preserve">
+    <value>転送</value>
+  </data>
+  <data name="Movement" xml:space="preserve">
+    <value>移動</value>
+  </data>
+  <data name="Adjustment" xml:space="preserve">
+    <value>調整</value>
+  </data>
+  <data name="Counting" xml:space="preserve">
+    <value>計数</value>
+  </data>
+  <data name="Putaway" xml:space="preserve">
+    <value>棚上げ中</value>
+  </data>
+  <data name="Return" xml:space="preserve">
+    <value>返品</value>
+  </data>
+  <data name="ReceivedDate" xml:space="preserve">
+    <value>受信日</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>日付</value>
+  </data>
+  <data name="Search Adjustment Records" xml:space="preserve">
+    <value>調整記録の検索</value>
+  </data>
+  <data name="Adjustment List" xml:space="preserve">
+    <value>調整リスト</value>
+  </data>
+  <data name="Stock Available" xml:space="preserve">
+    <value>在庫あり</value>
+  </data>
+  <data name="Quality" xml:space="preserve">
+    <value>品質</value>
+  </data>
+  <data name="Final Stock Quantity (After Adjustment)" xml:space="preserve">
+    <value>最終在庫数量（調整後）</value>
+  </data>
+  <data name="BasicInformation" xml:space="preserve">
+    <value>基本情報</value>
+  </data>
+  <data name="Adjustment Completed" xml:space="preserve">
+    <value>調整完了</value>
+  </data>
+  <data name="DoYouWantToCreateANewAdjustment" xml:space="preserve">
+    <value>新しい調整を作成しますか?</value>
+  </data>
+  <data name="CreateAdjustment" xml:space="preserve">
+    <value>調整を作成</value>
+  </data>
+  <data name="SaleProductBundleCode" xml:space="preserve">
+    <value>ﾌﾛﾝﾄ商品ｺｰﾄﾞ</value>
+  </data>
+  <data name="ProductBundleSetName" xml:space="preserve">
+    <value>セット名</value>
+  </data>
+  <data name="ProductCode" xml:space="preserve">
+    <value>SKUコード</value>
+  </data>
+  <data name="ProductName" xml:space="preserve">
+    <value>商品名</value>
+  </data>
+  <data name="SequenceNo" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="DemandQty" xml:space="preserve">
+    <value>必要数</value>
+  </data>
+  <data name="AvailableQty" xml:space="preserve">
+    <value>割当可能</value>
+  </data>
+  <data name="OpenShipmentQty" xml:space="preserve">
+    <value>出荷作業中</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>構成数</value>
+  </data>
+  <data name="ProductBundleCode" xml:space="preserve">
+    <value>事前ｾｯﾄｺｰﾄﾞ</value>
+  </data>
+  <data name="Search Bundle Set Records" xml:space="preserve">
+    <value>事前セット出荷予定件数 </value>
+  </data>
+  <data name="Bundleset List" xml:space="preserve">
+    <value>事前セット一覧</value>
+  </data>
+  <data name="Planned Shipment Bundle Products" xml:space="preserve">
+    <value>事前セットの出荷予定件数</value>
+  </data>
+  <data name="StockUpStatusQty" xml:space="preserve">
+    <value>未確保</value>
+    <comment>未確保</comment>
+  </data>
+  <data name="OrderStatusQty" xml:space="preserve">
+    <value>出荷作業前</value>
+    <comment>出荷作業前</comment>
+  </data>
+  <data name="UpdateAdjustment" xml:space="preserve">
+    <value>UpdateAdjustment</value>
+    <comment>UpdateAdjustment</comment>
+  </data>
+  <data name="SuccessfullyCreatedAdjustment" xml:space="preserve">
+    <value>Create adjsutment sucessfully</value>
+    <comment>SuccessfullyCreatedAdjustment</comment>
+  </data>
+  <data name="SuccessfullyEditedAdjustment" xml:space="preserve">
+    <value>Update adjsutment sucessfully</value>
+    <comment>SuccessfullyEditedAdjustment</comment>
+  </data>
+  <data name="Adjustment completed successfully." xml:space="preserve">
+    <value>Adjustment completed successfully.</value>
+    <comment>Adjustment completed successfully.</comment>
+  </data>
+  <data name="Load" xml:space="preserve">
+    <value>読み込み</value>
+  </data>
+  <data name="InProcess" xml:space="preserve">
+    <value>進行中</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="Load Current Bin Products" xml:space="preserve">
+    <value>現在のビン製品を読み込む</value>
+  </data>
+  <data name="DeleteWarehouseAdjustmentConfirmation" xml:space="preserve">
+    <value>この在庫調整を削除しますか?</value>
+  </data>
+  <data name="AdjustmentLineUpdateSuccessfully" xml:space="preserve">
+    <value>調整ラインの更新に成功しました</value>
+  </data>
+  <data name="AdjustmentLineCreateSuccessfully" xml:space="preserve">
+    <value>調整ラインが正常に作成されました</value>
+  </data>
+  <data name="Adjustment completed successfully" xml:space="preserve">
+    <value>調整が正常に完了しました。</value>
+  </data>
+  <data name="Search Bundle Records" xml:space="preserve">
+    <value>バンドルレコードを検索</value>
+  </data>
+  <data name="TransNo" xml:space="preserve">
+    <value>取引番号</value>
+  </data>
+  <data name="Bundle List" xml:space="preserve">
+    <value>バンドル一覧</value>
+  </data>
+  <data name="Pre-set Details" xml:space="preserve">
+    <value>事前セット詳細</value>
+  </data>
+  <data name="ActualQty" xml:space="preserve">
+    <value>実数量 </value>
+  </data>
+  <data name="StockAvailable" xml:space="preserve">
+    <value>在庫数量</value>
+  </data>
+  <data name="ExpirationDate" xml:space="preserve">
+    <value>有効期限</value>
+  </data>
+  <data name="Putaway Bundle" xml:space="preserve">
+    <value>棚上げ作成</value>
+  </data>
+  <data name="BundleQty" xml:space="preserve">
+    <value>追加数</value>
+  </data>
+  <data name="TransDate" xml:space="preserve">
+    <value>伝票日付</value>
+  </data>
+  <data name="Bundle" xml:space="preserve">
+    <value>バンドル</value>
+  </data>
+  <data name="ProductQuantity" xml:space="preserve">
+    <value>製品数量</value>
+  </data>
+  <data name="ProcessPutaway.Confirmation" xml:space="preserve">
+    <value>この事前セットの棚上げを作成しますか？</value>
+  </data>
+  <data name="Confirmation.Putaway" xml:space="preserve">
+    <value>棚上げ確認</value>
+  </data>
+  <data name="Actual Qty Cannot Greater Than Demand Qty" xml:space="preserve">
+    <value>実数量は必要数より大きくできません。</value>
+  </data>
+  <data name="Actual Qty Cannot Greater Than Stock Available" xml:space="preserve">
+    <value>実数量は在庫数量より多くできません。</value>
+  </data>
+  <data name="BundleLineUpdateSuccessfully" xml:space="preserve">
+    <value>事前セット明細が正常に更新されました</value>
+  </data>
+  <data name="PresetLineCreateSuccessfully" xml:space="preserve">
+    <value>事前セット明細が正常に作成されました</value>
+  </data>
+  <data name="DoYouWantToCreateANewInventoryPreset" xml:space="preserve">
+    <value>新しい在庫事前セットを作成しますか？</value>
+  </data>
+  <data name="CreateInventoryPreset" xml:space="preserve">
+    <value>在庫事前セットの作成</value>
+  </data>
+  <data name="UpdateInventoryPreset" xml:space="preserve">
+    <value>在庫事前セットの更新</value>
+  </data>
+  <data name="SuccessfullyCreatedInventoryPreset" xml:space="preserve">
+    <value>在庫事前セットが正常に作成されました</value>
+  </data>
+  <data name="SuccessfullyEditedInventoryPreset" xml:space="preserve">
+    <value>在庫事前セットが正常に編集されました</value>
+  </data>
+  <data name="Product {Product} not meet the demand quality" xml:space="preserve">
+    <value>{Product}商品は必要数を満たしていません。</value>
+  </data>
+  <data name="Qty" xml:space="preserve">
+    <value>構成数</value>
+  </data>
+  <data name="CreateBundle" xml:space="preserve">
+    <value>事前セット在庫追加</value>
+  </data>
+  <data name="Adding Pre-set Inventory" xml:space="preserve">
+    <value>事前セット在庫追加</value>
+  </data>
+  <data name="Get Component Product Information" xml:space="preserve">
+    <value>構成商品情報取得</value>
+  </data>
+  <data name="BundleProductName" xml:space="preserve">
+    <value>商品名</value>
+  </data>
+  <data name="BundleProductQuantity" xml:space="preserve">
+    <value>商品数量</value>
+  </data>
+  <data name="AddedQuantity" xml:space="preserve">
+    <value>在庫追加数</value>
+  </data>
+  <data name="SuccessfullyCreatedPutaway" xml:space="preserve">
+    <value>棚上げの作成に成功しました。</value>
+  </data>
+  <data name="BundleExpirationDate" xml:space="preserve">
+    <value>賞味期限</value>
+  </data>
+  <data name="Confirm.Message.ChangeTenant" xml:space="preserve">
+    <value>この画面で処理中の各商品は新しいテナントへの移動後に削除されます。続けますか?</value>
+  </data>
+  <data name="ExpirationDateIsRequired" xml:space="preserve">
+    <value>有効期限は必須です</value>
+  </data>
+  <data name="Failed to update adjustment line" xml:space="preserve">
+    <value>Failed to update adjustment line</value>
+  </data>
+  <data name="_adjustmentLineProfileGrid is not initialized." xml:space="preserve">
+    <value>_adjustmentLineProfileGrid is not initialized.</value>
+  </data>
+  <data name="Failed to create adjustment line" xml:space="preserve">
+    <value>Failed to create adjustment line</value>
+  </data>
+  <data name="Invalid value for AdjustmentStatus" xml:space="preserve">
+    <value>Invalid value for AdjustmentStatus</value>
+  </data>
+</root>

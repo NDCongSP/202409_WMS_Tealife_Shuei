@@ -1,0 +1,98 @@
+﻿@inherits LayoutComponentBase
+
+@if (true)
+{
+    <div class="flex-shrink-0 p-3 sidebar" style="background-color: #2A3F54; color: white; width: auto;">
+        <ul class="list-unstyled ps-0">
+            <li class="mb-1">
+                <button class="btn btn-toggle align-items-center rounded" data-bs-toggle="collapse" data-bs-target="#user-management-collapse" aria-expanded="false" style="color: white;">
+                    User Management
+                </button>
+                <div class="collapse" id="user-management-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                        <li>
+                            <NavLink class="nav-link" href="/user" Match="NavLinkMatch.All" activeClassName="active">
+                                <span class="link-dark rounded" style="color: white;">List</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink class="nav-link" href="/user/create" Match="NavLinkMatch.All" activeClassName="active">
+                                <span class="link-dark rounded" style="color: white;">Create</span>
+                            </NavLink>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            @* <li class="mb-1">
+                <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-expanded="false" style="color: white;">
+                    Product
+                </button>
+                <div class="collapse" id="dashboard-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                        <li>
+                            <NavLink class="nav-link" href="/overview" activeClassName="active">
+                                <span class="link-dark rounded" style="color: white;">Overview</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink class="nav-link" href="/updates" activeClassName="active">
+                                <span class="link-dark rounded" style="color: white;">Updates</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink class="nav-link" href="/reports" activeClassName="active">
+                                <span class="link-dark rounded" style="color: white;">Reports</span>
+                            </NavLink>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="mb-1">
+                <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#orders-collapse" aria-expanded="false" style="color: white;">
+                    Location
+                </button>
+                <div class="collapse" id="orders-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                        <li>
+                            <NavLink class="nav-link" href="/overview" activeClassName="active">
+                                <span class="link-dark rounded" style="color: white;">Overview</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink class="nav-link" href="/updates" activeClassName="active">
+                                <span class="link-dark rounded" style="color: white;">Updates</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink class="nav-link" href="/reports" activeClassName="active">
+                                <span class="link-dark rounded" style="color: white;">Reports</span>
+                            </NavLink>
+                        </li>
+                    </ul>
+                </div>
+            </li> *@
+            <li class="mb-1">
+                <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#vendor-collapse" aria-expanded="false" style="color: white;">
+                    Vendor
+                </button>
+                <div class="collapse" id="vendor-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                        <li>
+                            <NavLink class="nav-link" href="/vendor" Match="NavLinkMatch.All" activeClassName="active">
+                                <span class="link-dark rounded" style="color: white;">List</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink class="nav-link" href="/vendor/create" Match="NavLinkMatch.All" activeClassName="active">
+                                <span class="link-dark rounded" style="color: white;">Create</span>
+                            </NavLink>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+}
+
+@code {
+}

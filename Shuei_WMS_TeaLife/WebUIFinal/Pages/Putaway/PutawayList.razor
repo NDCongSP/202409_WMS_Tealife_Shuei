@@ -1,0 +1,229 @@
+﻿@page "/putaway"
+
+@using Microsoft.AspNetCore.Authorization
+@using WebUIFinal.Core
+@using System.Globalization;
+
+@attribute [Authorize]
+@inject IStringLocalizer<PutawayResources> _localizer;
+@inject IStringLocalizer<CommonResources> _localizerCommon;
+
+<style>
+    .register-button {
+        background-color: #8A42F3; /* Purple color */
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    /*  .rz-grid-table thead th > div:not(.rz-cell-filter) {
+                background-color: #CC686F !important;
+            }
+         */
+    /*  .rz-panel {
+                margin-right: 18px;
+                margin-left: 18px;
+            } */
+</style>
+@if (_dataGrid == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Visible="_visibaleProgressBar" />
+    <RadzenTemplateForm Data="@_searchModel" Submit="@((PutAwaySearchModel args) => { OnSearch(args); })">
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeMD="12">
+                <RadzenFieldset Text="@_localizer["ShelvedList"]">
+                    <RadzenStack Gap="5px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["PutawayNo"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox Name="putawayNo" @bind-Value="@_searchModel.PutAwayNo" Placeholder="@_localizer["PutawayNo"]" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["ReceiveNo"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <RadzenTextBox Name="receiveNo" @bind-Value="@_searchModel.ReceiptNo" Placeholder="@_localizer["ReceiveNo"]" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["Location"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDropDown @bind-Value=@_searchModel.Location Data=@locations Name="_dropDownSelectTenant"
+                                                    TextProperty="LocationName" Placeholder="@_localizer["Select"]"
+                                                    ValueProperty="Id" AllowClear=true Chips=true />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["Status"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDropDown @bind-Value="@_searchModel.Status"
+                                                    Data="@(Enum.GetValues(typeof(EnumPutAwayStatus)).Cast<EnumPutAwayStatus>().Select(e => new
+                                                     {
+                                                         DisplayValue = _localizer[e.ToString()],
+                                                         Value = e
+                                                     }))"
+                                                    ValueProperty="Value" TextProperty="DisplayValue"
+                                                    Name="_dropDownStatus"
+                                                    Multiple=false AllowClear=true Chips=true />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["ReceiveDate"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDatePicker @bind-Value="@_searchModel.ReceiveDateFrom" Placeholder="@_localizer["ReceiveDate"]" DateFormat="yyyy-MM-dd" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="~" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDatePicker @bind-Value="@_searchModel.ReceiveDateTo" Placeholder="@_localizer["ReceiveDate"]" DateFormat="yyyy-MM-dd" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn SizeXS="12" SizeSM="3">
+                                <RadzenFormField Text="@_localizer["PutAwayDate"]" Variant="Variant.Outlined" Style="width: 100%;">
+                                    <RadzenDatePicker @bind-Value="@_searchModel.PostedDate" Placeholder="@_localizer["PutAwayDate"]" DateFormat="yyyy-MM-dd" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+                        <RadzenColumn SizeXS="12" SizeSM="12">
+                            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="1rem">
+                                <RadzenButton Variant="Variant.Flat" Text="@_localizer["Search"]" Icon="search" ButtonType="ButtonType.Submit" Size="ButtonSize.Large" />
+                                <RadzenButton Variant="Variant.Flat" Text="@_localizer["ClearFilter"]" Icon="clear" ButtonType="ButtonType.Button" Size="ButtonSize.Large" ButtonStyle="ButtonStyle.Base" Click="Clear" />
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn SizeXS="12" SizeMD="12">
+            <RadzenStack>
+                <RadzenFieldset Text="@_localizer["ShelvedList"]">
+                    <RadzenStack Orientation=Orientation.Vertical JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Stretch" Gap="5px">
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End"
+                                     AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">
+                            @if (!string.IsNullOrEmpty(qrCodeBase64))
+                            {
+                                <img src="@qrCodeBase64" alt="QR Code" id="qrCodeImage" />
+                                <br />
+
+                                <button @onclick="PrintQRCode">Print QR Code</button>
+                            }
+                            <RadzenButton Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_localizer["Pintlaber"]" Click="@(() => PrintSelectedLabels())" Icon="print" ButtonStyle="ButtonStyle.Success"
+                                          Visible="@(GlobalVariable.AuthenticationStateTask != null && (GlobalVariable.AuthenticationStateTask.HasPermission("EditAll") || GlobalVariable.AuthenticationStateTask.HasPermission("PutAwayEdit")))" />
+                            <RadzenButton Variant="Variant.Flat" Shade="Shade.Dark"
+                                          Text="@_localizer["CoompletedPutaway"]" ButtonStyle="ButtonStyle.Success"
+                                          Visible="@(GlobalVariable.AuthenticationStateTask != null && (GlobalVariable.AuthenticationStateTask.HasPermission("EditAll") || GlobalVariable.AuthenticationStateTask.HasPermission("PutAwayEdit")))"
+                                          Click="@(async () => await CompleteSelectedPutawaysAsync())"
+                                          Disabled="@(selectedPutAway == null || selectedPutAway.All(item => item.Status == EnumPutAwayStatus.Completed))" />
+
+
+                        </RadzenStack>
+
+                        <RadzenDataGrid Style="width: 100%;" @ref="_putAwayGrid" AllowFiltering="true" AllowPaging="true" PageSize="20" AllowSorting="true" FilterPopupRenderMode="PopupRenderMode.OnDemand"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" PageSizeText="@_localizerCommon["items per page"]"
+                                        EmptyText="@_localizerCommon["No records to display."]"
+                                        Data="@_filteredPutAwayItems" TItem="WarehousePutAway" AllowRowSelectOnRowClick="@allowRowSelectOnRowClick"
+                                        SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@selectedPutAway ShowPagingSummary=@_showPagerSummary PagingSummaryFormat="@_pagingSummaryFormat" PageSizeOptions="@Constants.PageSizeOptions">
+                            <Columns>
+                                <RadzenDataGridColumn Width="60px" Sortable="false" Filterable="false">
+                                    <HeaderTemplate>
+                                        <RadzenCheckBox TabIndex="-1" TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
+                                                        Value="@(selectedPutAway == null || selectedPutAway?.Any() != true ? false : !_filteredPutAwayItems.All(i => selectedPutAway.Contains(i)) ? null : _filteredPutAwayItems.Any(i => selectedPutAway.Contains(i)))"
+                                                        Change="@(args => selectedPutAway = args == true ? _filteredPutAwayItems.ToList() : new List<WarehousePutAway>())" />
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <RadzenCheckBox TabIndex="-1" TriState="false" Value="@(selectedPutAway != null && selectedPutAway.Contains(data))" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select item" }})"
+                                                        TValue="bool" Change=@(args => { if(!allowRowSelectOnRowClick) { _putAwayGrid.SelectRow(data); }}) />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Width="200" TItem="WarehousePutAway" Property="PutAwayNo" Title="@_localizer["PutawayNo"]" TextAlign="TextAlign.Center">
+                                    <Template Context="data">
+                                        <a href="/putawaydetails/|@data.PutAwayNo">@data.PutAwayNo</a>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Width="200" TItem="WarehousePutAway" Filterable="false" Property="ReceiptNo" Title="@_localizer["ReceiveNo"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn Width="200" TItem="WarehousePutAway" Filterable="false" Property="Location" Title="@_localizer["Location"]" TextAlign="TextAlign.Center" />
+                                <RadzenDataGridColumn Width="200" TItem="WarehousePutAway" Filterable="false" Property="TransDate" Title="@_localizer["ReceiveDate"]" TextAlign="TextAlign.Center" FormatString="{0:yyyy/MM/dd}" />
+                                <RadzenDataGridColumn Width="200" Filterable="false" Property="@nameof(WarehousePutAway.PostedDate)" Title="@_localizer["PutAwayDate"]" TextAlign="TextAlign.Center" FormatString="{0:yyyy/MM/dd}" />
+
+                                <RadzenDataGridColumn Width="150" TItem="WarehousePutAway" Filterable="false" Property="Status" Title="@_localizer["Status"]">
+                                    <Template Context="data">
+                                        @GetLocalizedStatus((EnumPutAwayStatus)data.Status)
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+}
+@code {
+    public class PutAwaySearchModel
+    {
+        public string? PutAwayNo { get; set; }
+        public string? ReceiptNo { get; set; }
+        public string? Location { get; set; }
+        public EnumPutAwayStatus? Status { get; set; }
+        public DateTime? TransDate { get; set; }
+        public DateTime? ReceiveDateFrom { get; set; }
+        public DateTime? ReceiveDateTo { get; set; }
+        public DateTime? PostedDate { get; set; }
+    }
+
+    private bool _selectAll;
+    private PutAwaySearchModel _searchModel = new PutAwaySearchModel();
+    private List<WarehousePutAway> _filteredPutAwayItems = new List<WarehousePutAway>();
+    private List<string> _locations = new List<string>(); // Populate with actual locations
+
+    private void OnSearch(PutAwaySearchModel args)
+    {
+        _filteredPutAwayItems = _dataGrid;
+
+        if (!string.IsNullOrEmpty(args.PutAwayNo))
+        {
+            _filteredPutAwayItems = _filteredPutAwayItems.Where(_ => _.PutAwayNo != null && _.PutAwayNo.Contains(args.PutAwayNo, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+        if (!string.IsNullOrEmpty(args.ReceiptNo))
+        {
+            _filteredPutAwayItems = _filteredPutAwayItems.Where(_ => _.ReceiptNo != null && _.ReceiptNo.Contains(args.ReceiptNo, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+        if (!string.IsNullOrEmpty(args.Location)) // Corrected this condition
+        {
+            _filteredPutAwayItems = _filteredPutAwayItems.Where(_ => _.Location != null && _.Location.Contains(args.Location, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+        if (args.Status.HasValue)
+        {
+            _filteredPutAwayItems = _filteredPutAwayItems.Where(item => item.Status == args.Status).ToList(); // Corrected the lambda parameter
+        }
+        if (args.ReceiveDateFrom.HasValue)
+        {
+            var receiveDateFrom = DateOnly.FromDateTime(args.ReceiveDateFrom.Value);
+            _filteredPutAwayItems = _filteredPutAwayItems.Where(_ => _.TransDate >= receiveDateFrom).ToList();
+        }
+
+        if (args.ReceiveDateTo.HasValue)
+        {
+            var receiveDateTo = DateOnly.FromDateTime(args.ReceiveDateTo.Value);
+            _filteredPutAwayItems = _filteredPutAwayItems.Where(_ => _.TransDate <= receiveDateTo).ToList();
+        }
+        if (args.PostedDate.HasValue)
+        {
+            var postedDate = DateOnly.FromDateTime(args.PostedDate.Value);
+            _filteredPutAwayItems = _filteredPutAwayItems.Where(_ => _.PostedDate == postedDate).ToList();
+        }
+    }
+    private void Clear()
+    {
+        _searchModel = new PutAwaySearchModel();
+        _filteredPutAwayItems = _dataGrid;
+    }
+
+}

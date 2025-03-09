@@ -1,0 +1,69 @@
+﻿@page "/PrintUserLabel"
+@layout PrintLayout
+@inject IStringLocalizer<CommonResources> _localizerCommon
+
+@if (LabelPrintModel == null || LabelPrintModel.Count <= 0)
+{
+    <h3 class="w-100 text-center">Please wait...</h3>
+}
+else
+{
+    <div id="printableArea">
+        @foreach (var label in LabelPrintModel)
+        {
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" AlignItems="AlignItems.Start" Gap="12px">
+                <div class="label-container">
+                    <RadzenRow Gap="2px" class="div-label-container">
+                        <RadzenColumn Size="6" class="div-content-center" Style="width:100%">
+                            @if (!string.IsNullOrEmpty(label.QrValue))
+                            {
+                                <img class="qr-code" src="@label.QrValue" alt="QR Code" id="qrCodeImage" />
+                            }
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" class="div-content-start-center" Style="width:100%">
+                            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Start" Gap="1px">
+                                <div class="info-line">
+                                    @* <strong>@label.Title2</strong> *@
+                                    <span>@_localizerCommon[label.Title1]:</span>
+                                </div>
+                                <div class="info-line">
+                                    @* <strong>@label.Title2</strong> *@
+                                    <span>@label.Title2</span>
+                                </div>
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </div>
+            </RadzenStack>
+            <div class="pagebreak"></div>
+        }
+    </div>
+}
+
+<script>
+        function printLabel() {
+            window.print();
+        }
+
+        function loadPrintPageCSS() {
+        const style = document.createElement('style');
+        style.id = 'custom-print-style';
+        style.innerHTML = `
+            @@media print {
+                @@page {
+                    width: 91mm;
+                    height: 55mm;
+                    size: portrait;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function removePrintPageCSS() {
+        const style = document.getElementById('custom-print-style');
+        if (style) {
+            style.remove();
+        }
+    }
+</script>

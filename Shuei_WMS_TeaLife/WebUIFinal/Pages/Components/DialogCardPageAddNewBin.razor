@@ -1,0 +1,53 @@
+﻿@using Application.Extentions
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+
+@inject IStringLocalizer<CommonResources> _localizer
+@inject IStringLocalizer<NotificationMessageResources> _localizerNotification
+
+@attribute [Authorize(Policy = "Admin")]
+@if (_model == null)
+{
+    <p><em>@_localizer["Loading"]...</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="12">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px" class="mb-2">
+                <RadzenButton Click=@(args => DeleteItemAsync()) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizer["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Visible="_visibleBtnSubmit" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTemplateForm Data="@_model" Submit="@((BinDto args) => { Submit(args); })">
+        <RadzenFieldset Text="@_localizer["Bin.Information"]">
+            <RadzenRow Gap="1rem" Class="padding-body-content">
+                <RadzenColumn SizeXS="12" SizeSM="12">
+                    <RadzenFormField Text="@_localizer["Bin.Code"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                        <RadzenTextBox Name="_txtBinCode" @bind-Value="@_model.BinCode" Placeholder="Typing..." />
+                    </RadzenFormField>
+                    <RadzenRequiredValidator Component="_txtBinCode" Popup="false" Style="position: absolute" />
+                </RadzenColumn>
+                <RadzenColumn SizeXS="12" SizeSM="12">
+                    <RadzenFormField Text="@_localizer["Bin.SortOrderNum"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                            <RadzenNumeric Name="_txtSortOrderNum" @bind-Value="@_model.SortOrderNum" Min="1"/>
+                    </RadzenFormField>
+                </RadzenColumn>
+                <RadzenColumn SizeXS="12" SizeSM="12">
+                    <RadzenFormField Text="@_localizer["Remarks"]" Variant="Variant.Outlined" Style="display:flex;flex-direction:column;align-items:stretch;width:100%">
+                        <RadzenTextArea @bind-Value=@_model.Remarks
+                                        Style="width: 100%" aria-label="Auto-resize" />
+                    </RadzenFormField>
+                </RadzenColumn>
+            </RadzenRow>
+        </RadzenFieldset>
+        <RadzenRow Gap="1rem" Class="padding-body-content">
+            <RadzenColumn Size="12" SizeSM="12">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Center" Gap="1rem" Class="rz-mt-8 rz-mb-4">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Size="ButtonSize.Large" Icon="save" Text="@_localizer["Save"]" Visible="@VisibleBtnSubmit" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+}

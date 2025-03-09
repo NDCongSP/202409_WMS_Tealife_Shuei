@@ -1,0 +1,10 @@
+﻿<RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Start" Gap="1px">
+    <RadzenText TextStyle="TextStyle.Body1">@WarningMessage</RadzenText>
+    <RadzenText TextStyle="TextStyle.Body1">@WarningMessage1</RadzenText>
+</RadzenStack>
+
+
+@code {
+    [Parameter] public string WarningMessage { get; set; } = string.Empty;
+    [Parameter] public string WarningMessage1 { get; set; } = string.Empty;
+}

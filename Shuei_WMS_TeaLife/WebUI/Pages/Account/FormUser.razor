@@ -1,0 +1,121 @@
+﻿@using Application.DTOs.Request.Account
+@using Application.Extentions
+@using Domain.Enums
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = ConstantExtention.Roles.WarehouseAdmin)]
+
+<h3>User Information</h3>
+
+@if (Mode == ConstantExtention.ViewMode.View)
+{
+    <div>
+        <h6>User Name: @_userModel.UserName</h6>
+        <h6>Full Name: @_userModel.FullName</h6>
+        <h6>Email: @_userModel.Email</h6>
+        <h6>Roles: @string.Join(", ", _userModel.Roles.Select(r => r.Name))</h6>
+    </div>
+}
+else
+{
+    <div class="right_col" role="main">
+        <div class="container mt-4">
+            <div class="frame">
+                <EditForm Model="userDto" OnSubmit="SaveUser" Formname="user-form">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="code" class="form-label">Code:</label>
+                            <InputText type="text" class="form-control" id="code" name="code" @bind-Value="userDto.UserName" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">Password:</label>
+                            <InputText type="password" class="form-control" id="password" name="password" @bind-Value="userDto.Password" />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email:</label>
+                            <InputText type="email" class="form-control" id="email" name="email" @bind-Value="userDto.Email" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Name:</label>
+                            <InputText type="text" class="form-control" id="name" name="name" @bind-Value="userDto.FullName" />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="role" class="form-label">Role:</label>
+                            <div class="multi-select-dropdown">
+                                <div class="dropdown">
+                                    <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Select Roles (@selectedRoles.Count)
+                                    </button>
+                                    <div class="dropdown-menu p-3" aria-labelledby="dropdownMenuButton" style="max-height: 300px; overflow-y: auto;">
+                                        <InputText class="form-control mb-2" placeholder="Search..." @bind-Value="searchTerm" @oninput="FilterUsers" />
+                                        @if (isLoading)
+                                        {
+                                            <p class="text-muted">Loading roles...</p>
+                                        }
+                                        else if (_filteredRoles != null && _filteredRoles.Any())
+                                        {
+                                            @foreach (var role in _filteredRoles)
+                                            {
+                                                <div class="form-check">
+                                                    <input type="checkbox" class="form-check-input" id="@role.Id" @onchange="(e) => UpdateSelection(new CreateRoleRequestDTO { Id = role.Id, Name = role.Name }, e.Value)" checked="@selectedRoles.Any(r => r.Id == role.Id)" />
+                                                    <label class="form-check-label" for="@role.Id">@role.Name</label>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p class="text-muted">No roles found</p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">Status:</label>
+                            <InputSelect id="status" class="form-select" @bind-Value="userDto.Status">
+                                <option disabled selected value="">
+                                    Please select an option ...
+                                </option>
+                                <option checked="@(userDto!.Status == EnumStatus.Activated)"
+                                        value="Active">
+                                    Active
+                                </option>
+                                <option checked="@(userDto!.Status == EnumStatus.Inactivated)"
+                                        value="Inactive">
+                                    Inactive
+                                </option>
+                            </InputSelect>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+
+            @* <div class="frame">
+                <h3>Tenant Records</h3>
+                <div class="d-flex justify-content-end mb-2">
+                    <button id="addRowButton" class="btn btn-primary">Add Tenant</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Tenant</th>
+                            <th>Note</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tenantTableBody">
+
+                    </tbody>
+                </table>
+            </div> *@
+
+            <div class="d-flex justify-content-center mt-4">
+                <button id="submitButton" class="btn btn-success" type="submit" @onclick="SaveUser">Submit</button>
+            </div>
+        </div>
+    </div>
+}

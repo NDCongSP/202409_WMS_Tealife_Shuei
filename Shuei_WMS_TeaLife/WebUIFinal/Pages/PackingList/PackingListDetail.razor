@@ -1,0 +1,376 @@
+﻿@page "/packinglistDetails"
+@using Application.DTOs
+@using Application.DTOs.Request.shipment
+@using Application.Extentions
+@using Application.Models
+@using FBT.ShareModels.WMS
+@using Microsoft.AspNetCore.Authorization
+@inject IStringLocalizer<CommonResources> _localizerCommon
+@inject IStringLocalizer<PackingListResources> _localizer
+@inject IStringLocalizer<EnumShipingOrderStatusResources> _localizerEnum
+
+@attribute [Authorize(Policy = "AdminAndStaff")]
+@if (_dataGrid == null)
+{
+    <p><em>@_localizerCommon["Loading"]...</em></p>
+}
+else
+{
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenLink Text="@_localizerCommon["Detail.BackToList"]" Path="/packinglist" Icon="arrow_back_ios" Style="margin-bottom: 1rem;" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTabs />
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenText TextStyle="TextStyle.Body1"><strong>@_localizer["Packing Check"]</strong></RadzenText>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeSM="6">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="10px">
+                <RadzenButton Click=@(args => DeleteAsync()) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizerCommon["Delete"]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Visible="false" />
+                <RadzenButton id="_btn1" Click=@(args => OnClick(!_manualEntry)) Text="@_localizerCommon["Print"]"
+                              Icon="print" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default"
+                              InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Button" }})" Visible="false" />
+                <RadzenButton Click=@(args => CompleteAsync()) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizer["Complete Packing"]" Icon="check_circle" ButtonStyle="ButtonStyle.Primary" Disabled="@(_MasterTransferToDetails.TransferToPackingDetail.StatusOfShipment==EnumPackingListStatus.Packed)" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeMD="12">
+            <RadzenFieldset Text="@_localizer["Basic Information"]" Disabled="@_disable">
+                <RadzenFieldset Text="">
+                    <RadzenStack Gap="15px">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Instruction Number"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox @bind-Value=@_MasterTransferToDetails.TransferToPackingDetail.ShipmentNo />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtInstructionNumber" Text="@_localizer["Instruction Number is required"]" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Picked Date"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDatePicker @bind-Value=@_MasterTransferToDetails.TransferToPackingDetail.PickedDate />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtInstructionNumber" Text="@_localizer["Instruction Number is required"]" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Location"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox @bind-Value=@_MasterTransferToDetails.TransferToPackingDetail.LocationName />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtInstructionNumber" Text="@_localizer["Instruction Number is required"]" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Estimated Ship Date"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenDatePicker @bind-Value=@_MasterTransferToDetails.TransferToPackingDetail.PlanShipDate />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtInstructionNumber" Text="@_localizer["Instruction Number is required"]" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Shipping Carrier"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox @bind-Value=@_MasterTransferToDetails.TransferToPackingDetail.ShippingCarrierCode />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtInstructionNumber" Text="@_localizer["Instruction Number is required"]" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Tracking Code"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox @bind-Value=@_MasterTransferToDetails.TransferToPackingDetail.TrackingNo />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtInstructionNumber" Text="@_localizer["Instruction Number is required"]" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="12">
+                                <RadzenFormField Text="@_localizer["Shipping Address"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox @bind-Value=@_MasterTransferToDetails.TransferToPackingDetail.ShippingAddress />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtInstructionNumber" Text="@_localizer["Instruction Number is required"]" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizer["Phone Number"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox @bind-Value=@_MasterTransferToDetails.TransferToPackingDetail.Telephone />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtInstructionNumber" Text="@_localizer["Instruction Number is required"]" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="6">
+                                <RadzenFormField Text="@_localizerCommon["Email"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox @bind-Value=@_MasterTransferToDetails.TransferToPackingDetail.Email />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtInstructionNumber" Text="@_localizer["Instruction Number is required"]" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeSM="12">
+                                <RadzenFormField Text="@_localizer["Address"]" Variant="Variant.Outlined" Style="width:100%">
+                                    <ChildContent>
+                                        <RadzenTextBox @bind-Value=@_MasterTransferToDetails.TransferToPackingDetail.Address />
+                                    </ChildContent>
+                                    <Helper>
+                                        @* <RadzenRequiredValidator Component="_txtInstructionNumber" Text="@_localizer["Instruction Number is required"]" /> *@
+                                    </Helper>
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </RadzenFieldset>
+            </RadzenFieldset>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeMD="12">
+            <RadzenFieldset Text="@_localizer["Pick Details"]">
+                <RadzenRow style="margin-bottom:5px">
+                    <RadzenColumn Size="12" SizeSM="6">
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" AlignItems="AlignItems.Center" Gap="15px">
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">@_localizer["Product Scan"]</RadzenText>
+                            <RadzenTextBox id="_txt" Change=@(args => OnChange(args)) Style="width:70%"
+                                           Disabled="@(_MasterTransferToDetails.TransferToPackingDetail.StatusOfShipment==EnumPackingListStatus.Packed)" />
+                        </RadzenStack>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeSM="6">
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" AlignItems="AlignItems.Center" Gap="15px">
+                            <p>@_localizer["Manual Entry"]: @((_manualEntry ? _localizerCommon["On"] : _localizerCommon["Off"]))</p>
+                            <RadzenSwitch @bind-Value="@_manualEntry" Style="margin-bottom: 10px;"
+                                          Disabled="@(_MasterTransferToDetails.TransferToPackingDetail.StatusOfShipment==EnumPackingListStatus.Packed)" />
+                        </RadzenStack>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow>
+                    <RadzenColumn Size="12" SizeSM="12">
+                        <RadzenDataGrid Style="width:100%" @ref="_profileGrid" Data="@_dataGrid" TItem="PackingListModel" AllowFiltering="true" class="custom-grid"
+                                        FilterPopupRenderMode="PopupRenderMode.OnDemand" AllowPaging="true" PageSize="20" AllowSorting="true"
+                                        PageSizeText="@_localizerCommon["items per page"]" EmptyText="@_localizerCommon["No records to display."]"
+                                        AllowColumnPicking="false" AllowColumnResize="true" AllowGrouping="false"
+                                        GridLines="Radzen.DataGridGridLines.Both" AllowAlternatingRows="false"
+                                        ShowPagingSummary=@_showPagerSummary PagingSummaryFormat="@_pagingSummaryFormat" PageSizeOptions="@_pageSizeOptions"
+                                        AllowRowSelectOnRowClick="@_allowRowSelectOnRowClick" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        SelectionMode="DataGridSelectionMode.Multiple" @bind-Value=@_gridSelected
+                                        RowUpdate="@OnUpdateRow" Sort="@(args => Reset())" Page="@(args => Reset())" Filter="@(args => Reset())"
+                                        CellClick="@OnCellClick">
+                            <Columns>
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(PackingListModel.ProductCode)" Title="@_localizerCommon["Product.Code"]" />
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(PackingListModel.ProductName)" Title="@_localizerCommon["Product.Name"]" />
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(PackingListModel.UnitName)" Title="@_localizerCommon["Unit"]" />
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(PackingListModel.ShipmentQty)" Title="@_localizer["Shipment Order Qty"]" />
+                                <RadzenDataGridColumn TItem="PackingListModel" Property="@nameof(PackingListModel.PackedQty)" Title="@_localizer["Packed Qty"]"
+                                                      Width="200px" IsInEditMode="@IsEditing" CalculatedCssClass="@IsEdited">
+                                    <Template Context="order">
+                                        <RadzenText Text="@(String.Format("{0:N0}", order.PackedQty))" />
+                                    </Template>
+                                    <EditTemplate Context="order">
+                                        <RadzenNumeric @ref="editor" TValue="double?" Change="@( args => Update())" @bind-Value="order.PackedQty" />
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn Width="200px" Property="@nameof(PackingListModel.Remaining)" Title="@_localizer["Remaining"]" />
+
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenFieldset>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenRow Gap="1rem" Class="padding-body-content">
+        <RadzenColumn Size="12" SizeMD="12">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Gap="10px" class="mt-2">
+                <RadzenButton Click=@(args => CancelAsync()) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizerCommon["Cancel"]" Icon="cancel" Style="background-color:cadetblue" />
+                <RadzenButton Click=@(args => SaveAsync()) Variant="Variant.Flat" Shade="Shade.Dark"
+                              Text="@_localizerCommon["Save"]" Icon="save" ButtonStyle="ButtonStyle.Primary"
+                              Disabled="@(_MasterTransferToDetails.TransferToPackingDetail.StatusOfShipment==EnumPackingListStatus.Packed)" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+}
+
+<style>
+    .table-cell-edited {
+        position: relative;
+    }
+
+        .table-cell-edited::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-top: 10px solid red;
+            border-left: 10px solid transparent;
+        }
+</style>
+
+@code {
+    bool agree1;
+    string columnEditing;
+
+    List<KeyValuePair<Guid, string>> editedFields = new List<KeyValuePair<Guid, string>>();
+    List<PackingListModel> PackingListModelsToUpdate = new List<PackingListModel>();
+
+    /// <summary>
+    /// Determines if the specified column is in edit mode for the specified PackingListModel.
+    /// </summary>
+    /// <param name="columnName">The RadzenDataGridColumn.Property currently being rendered by the RadzenDataGrid.</param>
+    /// <param name="PackingListModel">The PackingListModel currently being rendered by the RadzenDataGrid.</param>
+    /// <returns>True if the column should render the EditTemplate for the specified PackingListModel, otherwise false.</returns>
+    bool IsEditing(string columnName, PackingListModel PackingListModel)
+    {
+        // Comparing strings is quicker than checking the contents of a List, so let the property check fail first.
+        return columnEditing == columnName && PackingListModelsToUpdate.Contains(PackingListModel);
+    }
+
+    /// <summary>
+    /// Determines if the specified column needs a custom CSS class based on the <typeparamref name="TItem">TItem's</typeparamref> state.
+    /// </summary>
+    /// <param name="column">The RadzenDataGridColumn.Property currently being rendered by the RadzenDataGrid.</param>
+    /// <param name="PackingListModel">The PackingListModel currently being rendered by the RadzenDataGrid.</param>
+    /// <returns>A string containing the CssClass to add, or <see cref="String.Empty">.</returns>
+    string IsEdited(RadzenDataGridColumn<PackingListModel> column, PackingListModel PackingListModel)
+    {
+        // In a real scenario, you might use IRevertibleChangeTracking to check the current column
+        //  against a list of the object's edited fields.
+        return editedFields.Where(c => c.Key == PackingListModel.Id && c.Value == column.Property).Any() ?
+            "table-cell-edited" :
+            string.Empty;
+    }
+
+    /// <summary>
+    /// Handles the CellClick event of the RadzenDataGrid.
+    /// </summary>
+    /// <param name="args"></param>
+    void OnCellClick(DataGridCellMouseEventArgs<PackingListModel> args)
+    {
+        if (!_manualEntry) return;
+
+        // Record the previous edited field, if you're not using IRevertibleChangeTracking to track object changes
+        if (PackingListModelsToUpdate.Any())
+        {
+            editedFields.Add(new(PackingListModelsToUpdate.First().Id, columnEditing));
+        }
+
+        // This sets which column is currently being edited.
+        columnEditing = args.Column.Property;
+
+        // This triggers a save on the previous edit. This can be removed if you are going to batch edits through another method.
+        if (PackingListModelsToUpdate.Any())
+        {
+            OnUpdateRow(PackingListModelsToUpdate.First());
+        }
+
+        // This sets the Item to be edited.
+        EditRow(args.Data);
+    }
+
+    void Reset(PackingListModel PackingListModel = null)
+    {
+        editorFocused = false;
+
+        if (PackingListModel != null)
+        {
+            PackingListModelsToUpdate.Remove(PackingListModel);
+        }
+        else
+        {
+            PackingListModelsToUpdate.Clear();
+        }
+    }
+
+    void Update()
+    {
+        editorFocused = false;
+
+        if (PackingListModelsToUpdate.Any())
+        {
+            OnUpdateRow(PackingListModelsToUpdate.First());
+        }
+
+        Reset();
+    }
+
+    void EditRow(PackingListModel PackingListModel)
+    {
+        Reset();
+
+        PackingListModelsToUpdate.Add(PackingListModel);
+    }
+
+    /// <summary>
+    /// Saves the changes from the PackingListModel to the database.
+    /// </summary>
+    /// <param name="model">The <see cref="PackingListModel" /> to save.</param>
+    /// <remarks>
+    /// Currently, this is called every time the Cell is changed. In a real in-cell edit scenario, you would likely either update
+    /// on RowDeselect, or batch the changes using a "Save Changes" button in the header.
+    /// </remarks>
+    void OnUpdateRow(PackingListModel model)
+    {
+        Reset(model);
+
+        //Update entity,....
+
+        // If you were doing row-level edits and handling RowDeselect, you could use the line below to
+        // clear edits for the current record.
+
+        if (model.PackedQty > model.ShipmentQty)
+        {
+            editedFields = editedFields.Where(c => c.Key != model.Id).ToList();
+
+            _dialogService.Alert($"{_productScan} {_localizer["is fully packed"]}.{Environment.NewLine} {_localizer["Shipment Order Qty"]}:{model.ShipmentQty}. {_localizer["Packed Qty"]}: {model.PackedQty + 1}"
+                                        , _localizerCommon["Warning"]
+                                        , new AlertOptions()
+                                            {
+                                                OkButtonText = _localizerCommon["Yes"],
+                                                CloseDialogOnOverlayClick = true,
+                                                CloseDialogOnEsc = true,
+                                                ShowClose = false,
+                                                CssClass = "background-color:yellow",
+                                                Style = "background-color: rgb(255, 158, 0)",
+                                            });
+            // _notificationService.Notify(new NotificationMessage()
+            //     {
+            //         Style = "position: absolute; inset-inline-start: -1000px;",
+            //         Severity = NotificationSeverity.Warning,
+            //         Summary = _localizerCommon["Warning"],
+            //         Detail = $"{_productScan} {_localizer["is fully packed"]}",
+            //         Duration = 5000
+            //     });
+        }
+    }
+
+    IRadzenFormComponent editor;
+    bool editorFocused;
+}
