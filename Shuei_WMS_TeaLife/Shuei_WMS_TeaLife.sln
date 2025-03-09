@@ -21,11 +21,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Batchs", "Batchs", "{ABAF0F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BatchShipmentCreate", "BatchShipmentCreate\BatchShipmentCreate.csproj", "{2F67CBD3-DF03-44D2-8F70-2CEC5442EFD1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FBT.ShareModels", "..\..\FBT.ShareModels\FBT.ShareModels\FBT.ShareModels.csproj", "{D43B8B17-F072-408A-A67B-06918440A09A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintClientAPI", "PrintClientAPI\PrintClientAPI.csproj", "{8DA50E4E-681B-43BE-9A1D-10F0957EF726}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BatchPickingCreate", "BatchPickingCreate\BatchPickingCreate.csproj", "{9C5D14F0-FC01-47CB-B0A2-188A08C074BE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FBT.ShareModels", "..\..\202409_WMS_Tealife_Shuei_Entities\FBT.ShareModels\FBT.ShareModels.csproj", "{82E81F0C-E37C-4A6B-8E95-EABCBB7057B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,10 +61,6 @@ Global
 		{2F67CBD3-DF03-44D2-8F70-2CEC5442EFD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F67CBD3-DF03-44D2-8F70-2CEC5442EFD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F67CBD3-DF03-44D2-8F70-2CEC5442EFD1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D43B8B17-F072-408A-A67B-06918440A09A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D43B8B17-F072-408A-A67B-06918440A09A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D43B8B17-F072-408A-A67B-06918440A09A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D43B8B17-F072-408A-A67B-06918440A09A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8DA50E4E-681B-43BE-9A1D-10F0957EF726}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8DA50E4E-681B-43BE-9A1D-10F0957EF726}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8DA50E4E-681B-43BE-9A1D-10F0957EF726}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -73,6 +69,10 @@ Global
 		{9C5D14F0-FC01-47CB-B0A2-188A08C074BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C5D14F0-FC01-47CB-B0A2-188A08C074BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C5D14F0-FC01-47CB-B0A2-188A08C074BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82E81F0C-E37C-4A6B-8E95-EABCBB7057B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82E81F0C-E37C-4A6B-8E95-EABCBB7057B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82E81F0C-E37C-4A6B-8E95-EABCBB7057B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82E81F0C-E37C-4A6B-8E95-EABCBB7057B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

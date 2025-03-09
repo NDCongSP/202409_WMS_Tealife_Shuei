@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\FBT.ShareModels\FBT.ShareModels\FBT.ShareModels.csproj" />
+    <ProjectReference Include="..\..\..\202409_WMS_Tealife_Shuei_Entities\FBT.ShareModels\FBT.ShareModels.csproj" />
   </ItemGroup>
 
 </Project>
